@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habiba Arif — Job Search Dossier</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --ink: #161B22;
+    --ink-soft: #1F2630;
+    --paper: #FAF6EE;
+    --paper-edge: #EBE3D2;
+    --green: #2F9E6E;
+    --green-soft: #DCF0E5;
+    --amber: #E2A640;
+    --amber-soft: #FBEDD3;
+    --text: #1E2227;
+    --muted: #828D98;
+    --line: #DEDCD3;
+    --radius: 14px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html,body{ height:100%; }
+
+  body{
+    font-family:'Inter', sans-serif;
+    background: var(--ink);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app{
+    display:grid;
+    grid-template-columns: 300px 1fr;
+    min-height:100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar{
+    background: var(--ink);
+    color: #E7E9EC;
+    padding: 28px 22px 24px;
+    display:flex;
+    flex-direction:column;
+    gap: 22px;
+    position: sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    border-right: 1px solid #2A323D;
+  }
+
+  .brand .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing: .18em;
+    text-transform:uppercase;
+    color: var(--amber);
+    margin-bottom:8px;
+  }
+
+  .brand h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 28px;
+    line-height:1.15;
+    color:#fff;
+    margin-bottom:6px;
+  }
+
+  .brand p{
+    font-size:13px;
+    color:#9AA4AF;
+    line-height:1.5;
+  }
+
+  .quicklinks{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:14px;
+  }
+
+  .quicklinks a{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:#C9CFD6;
+    text-decoration:none;
+    border:1px solid #333D49;
+    padding:6px 10px;
+    border-radius: 999px;
+    transition: all .15s ease;
+    letter-spacing:.02em;
+  }
+  .quicklinks a:hover{
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .nav-group{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .nav-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:#6E7884;
+    padding: 6px 12px 8px;
+  }
+
+  .nav-btn{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    text-align:left;
+    width:100%;
+    background:transparent;
+    border:none;
+    color:#C9CFD6;
+    font-family:'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight:500;
+    padding:10px 12px;
+    border-radius: 10px;
+    cursor:pointer;
+    border-left: 3px solid transparent;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+
+  .nav-btn .num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:#6E7884;
+    min-width: 22px;
+  }
+
+  .nav-btn:hover{
+    background: #232B36;
+    color:#fff;
+  }
+
+  .nav-btn.active{
+    background: var(--ink-soft);
+    color:#fff;
+    border-left-color: var(--green);
+  }
+  .nav-btn.active .num{ color: var(--green); }
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding: 14px 12px 0;
+    border-top:1px solid #2A323D;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:#6E7884;
+    letter-spacing:.05em;
+  }
+
+  /* ===== CONTENT ===== */
+  .content{
+    background: var(--paper);
+    padding: clamp(28px, 5vw, 64px);
+    display:flex;
+    justify-content:center;
+  }
+
+  .doc{
+    display:none;
+    width:100%;
+    max-width: 760px;
+    animation: rise .35s ease;
+  }
+  .doc.active{ display:block; }
+
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .doc-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+
+  .doc-eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .doc-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: clamp(28px, 4vw, 38px);
+    line-height:1.1;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .stamp{
+    flex-shrink:0;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    border: 1.5px solid currentColor;
+    border-radius: 6px;
+    padding: 7px 12px;
+    transform: rotate(4deg);
+    white-space:nowrap;
+    margin-top: 4px;
+  }
+  .stamp.send{ color: var(--green); }
+  .stamp.strategy{ color: var(--amber); }
+
+  .doc-divider{
+    border:none;
+    border-top: 1px solid var(--line);
+    margin: 18px 0 24px;
+  }
+
+  .doc-body{
+    font-size: 15px;
+    line-height: 1.75;
+    color: #2C333B;
+  }
+
+  .doc-body p{ margin-bottom: 14px; white-space:pre-wrap; }
+  .doc-body p:last-child{ margin-bottom:0; }
+
+  .meta-line{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  .copy-bar{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom: 14px;
+  }
+
+  .copy-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    background: var(--text);
+    color: var(--paper);
+    border:none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    cursor:pointer;
+    transition: background .15s ease, transform .1s ease;
+  }
+  .copy-btn:hover{ background: var(--green); }
+  .copy-btn:active{ transform: scale(.97); }
+  .copy-btn.copied{ background: var(--green); }
+
+  /* ===== Strategy section helpers ===== */
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin: 4px 0 18px;
+  }
+  .chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:#3A4047;
+  }
+  .chip.green{ border-color: var(--green); color:#1D7350; background: var(--green-soft); }
+  .chip.amber{ border-color: var(--amber); color:#8A5C12; background: var(--amber-soft); }
+
+  .titles-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:10px;
+    margin: 6px 0 4px;
+  }
+  .title-card{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    font-weight:600;
+  }
+  .title-card .tnum{
+    font-family:'Fraunces', serif;
+    font-size: 20px;
+    color: var(--green);
+    font-weight:600;
+  }
+
+  .strength-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .strength-card b{ color: var(--text); }
+
+  .subhead{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 18px;
+    margin: 26px 0 10px;
+    color: var(--text);
+  }
+  .subhead:first-of-type{ margin-top:0; }
+
+  .timeline{
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
+  }
+  .phase{
+    background:#fff;
+    border:1px solid var(--line);
+    border-left: 4px solid var(--green);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 16px;
+  }
+  .phase-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color: var(--green);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:6px;
+  }
+  .phase ul{ padding-left: 20px; margin-top:6px; }
+  .phase li{ margin-bottom:4px; font-size:14px; }
+
+  .brand-block{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 18px;
+    margin-bottom: 14px;
+  }
+  .brand-block .label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color: var(--green);
+    margin-bottom: 8px;
+    display:block;
+  }
+  .brand-block .quote{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .qa{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .qa .q{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight:700;
+    color: var(--amber);
+    margin-bottom: 6px;
+  }
+
+  ul.plain{ padding-left:20px; }
+  ul.plain li{ margin-bottom:8px; }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 880px){
+    .app{ grid-template-columns: 1fr; }
+    .sidebar{
+      position: relative;
+      height:auto;
+      flex-direction:column;
+      border-right:none;
+      border-bottom: 1px solid #2A323D;
+    }
+    .nav-group{ flex-direction:column; }
+    .content{ padding: 24px 18px 48px; }
+  }
+
+  /* Accessibility */
+  .nav-btn:focus-visible, .copy-btn:focus-visible{
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .doc{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="eyebrow">Job Search Dossier</div>
+      <h1>Habiba Arif</h1>
+      <p>BSCS · 4.0/4.0 CGPA · Web Development Intern<br>University of Swabi</p>
+      <div class="quicklinks">
+        <a href="https://habiarif-dev.github.io/HexSoftwares_habi_portfolio/" target="_blank" rel="noopener">Portfolio ↗</a>
+        <a href="https://github.com/habiarif-dev" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://www.linkedin.com/in/habiba-arif-4251a6315/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="mailto:habibaarif009@gmail.com">Email ↗</a>
+      </div>
+    </div>
+
+    <nav class="nav-group">
+      <div class="nav-label">Outreach Kit</div>
+      <button class="nav-btn active" data-target="sec-1"><span class="num">01</span>Cover Letter</button>
+      <button class="nav-btn" data-target="sec-2"><span class="num">02</span>Recruiter Email</button>
+      <button class="nav-btn" data-target="sec-3"><span class="num">03</span>Hiring Manager Email</button>
+      <button class="nav-btn" data-target="sec-4"><span class="num">04</span>LinkedIn Request</button>
+      <button class="nav-btn" data-target="sec-5"><span class="num">05</span>Referral Request</button>
+      <button class="nav-btn" data-target="sec-6"><span class="num">06</span>Follow-Up Email</button>
+      <button class="nav-btn" data-target="sec-7"><span class="num">07</span>30-Second Intro</button>
+    </nav>
+
+    <nav class="nav-group">
+      <div class="nav-label">Career Strategy</div>
+      <button class="nav-btn" data-target="sec-8"><span class="num">08</span>Top 10 Job Titles</button>
+      <button class="nav-btn" data-target="sec-9"><span class="num">09</span>Key Strengths</button>
+      <button class="nav-btn" data-target="sec-10"><span class="num">10</span>Skill Gap Analysis</button>
+      <button class="nav-btn" data-target="sec-11"><span class="num">11</span>Personal Brand</button>
+      <button class="nav-btn" data-target="sec-12"><span class="num">12</span>Interview Prep</button>
+    </nav>
+
+    <div class="sidebar-footer">12 / 12 documents ready</div>
+  </aside>
+
+  <!-- ===== CONTENT ===== -->
+  <main class="content">
+
+    <!-- SECTION 1: Cover Letter -->
+    <section class="doc active" id="sec-1">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 01</div>
+          <div class="doc-title">ATS-Friendly Cover Letter</div>
+        </div>
+        <div class="stamp send">Ready to send</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>Dear Hiring Manager,</p>
+<p>I am writing to express my interest in the [Job Title] position at [Company Name]. As a Computer Science undergraduate at the University of Swabi (CGPA 4.0/4.0) with hands-on experience as a Web Development Intern, I am confident that my technical foundation, project portfolio, and strong work ethic make me a valuable addition to your team.</p>
+<p>During my internship, I gained practical exposure to building responsive, user-friendly websites using HTML, CSS, and JavaScript. I have applied these skills across multiple independent projects, including a Student Feedback Review System for managing and analyzing student feedback, a Digital Smart Room automation and monitoring system, and a fully functional To-Do List web application that allows users to add, prioritize, and track tasks in a clean interface. I also built a personal portfolio website from scratch using HTML, CSS, and JavaScript to showcase my work — a project that strengthened my understanding of responsive design and front-end structure.</p>
+<p>Beyond web development, I bring a unique combination of technical and creative skills. I have practical experience in digital marketing, social media marketing, video editing, and content design using Canva, which allows me to support both development and brand-facing initiatives. My academic background includes coursework in Object-Oriented Programming, Java, C++, and Python, giving me a solid base in problem-solving and logical thinking that I apply when writing clean, functional code.</p>
+<p>What sets me apart is my consistency and adaptability — I maintain a perfect 4.0/4.0 CGPA while actively building real projects outside the classroom, and I successfully transitioned from a Pre-Medical academic background into Computer Science, demonstrating my ability to learn quickly and commit fully to new challenges. I am fluent in English, Urdu, and Pashto, and I bring strong communication, organization, and continuous-learning habits to every team I work with.</p>
+<p>I am particularly drawn to [Company Name] because of [specific reason — company's focus on web development/digital products/innovation]. I am eager to bring my front-end development skills, attention to detail, and creative marketing background to contribute to your team's goals while continuing to grow as a developer.</p>
+<p>I would welcome the opportunity to discuss how my skills and enthusiasm align with your team's needs. Thank you for considering my application — I have attached my resume and portfolio (habiarif-dev.github.io) for your review, and I look forward to the possibility of speaking with you.</p>
+<p>Sincerely,
+Habiba Arif
+habibaarif009@gmail.com | +92 312 3814219
+LinkedIn: linkedin.com/in/habiba-arif-4251a6315 | GitHub: github.com/habiarif-dev</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Recruiter Outreach Email -->
+    <section class="doc" id="sec-2">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 02</div>
+          <div class="doc-title">Recruiter Outreach Email</div>
+        </div>
+        <div class="stamp send">Ready to send</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="meta-line">Subject: BSCS Student | Web Development Intern Exploring [Role/Internship] Opportunities at [Company Name]</div>
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>Hi [Recruiter's Name],</p>
+<p>I hope you're doing well. My name is Habiba Arif, and I'm a Computer Science undergraduate at the University of Swabi (CGPA 4.0/4.0) currently working as a Web Development Intern. I came across [Company Name] and was really impressed by [something specific — their products/culture/recent project], and I wanted to reach out directly to explore any current or upcoming opportunities for a [Frontend Developer Intern / Junior Web Developer / Digital Marketing Intern] role.</p>
+<p>A quick snapshot of what I bring:
+• Hands-on experience building responsive websites using HTML, CSS, and JavaScript
+• A growing portfolio of independent projects (To-Do app, Student Feedback System, Digital Smart Room automation, interactive JS games)
+• A secondary skill set in digital marketing, social media marketing, and content design (Canva), useful for teams that value both development and branding
+• Strong foundation in OOP, Java, C++, and Python from my coursework</p>
+<p>You can view my portfolio here: https://habiarif-dev.github.io/HexSoftwares_habi_portfolio/</p>
+<p>I'd love to connect and learn more about how I could contribute to your team, even in an internship or entry-level capacity. I've attached my resume for your reference and would be happy to share more details or hop on a quick call at your convenience.</p>
+<p>Thank you for your time and consideration.</p>
+<p>Best regards,
+Habiba Arif
+habibaarif009@gmail.com | +92 312 3814219
+Portfolio: habiarif-dev.github.io | LinkedIn: linkedin.com/in/habiba-arif-4251a6315</p>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Hiring Manager Email -->
+    <section class="doc" id="sec-3">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 03</div>
+          <div class="doc-title">Hiring Manager Email</div>
+        </div>
+        <div class="stamp send">Ready to send</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="meta-line">Subject: Application for [Job Title] — Habiba Arif (BSCS, CGPA 4.0/4.0)</div>
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>Dear [Hiring Manager's Name],</p>
+<p>I'm reaching out regarding the [Job Title] opening at [Company Name], which I believe aligns closely with my background in web development and digital content creation.</p>
+<p>I'm a Computer Science student at the University of Swabi, currently maintaining a 4.0/4.0 CGPA while working as a Web Development Intern. Over the past few months, I've built and shipped several front-end projects independently — including a responsive portfolio site, a To-Do List application, a Student Feedback Review System, and interactive JavaScript-based games and tools — all built using HTML, CSS, and JavaScript with a focus on clean, user-friendly design.</p>
+<p>What I think would make me a strong fit for your team is the combination of:
+1. Practical front-end development skills backed by a portfolio of working projects
+2. A strong academic foundation in programming logic (Java, C++, Python, OOP)
+3. Experience in digital marketing and social media content, which helps me think about user experience from both a developer's and a marketer's perspective</p>
+<p>I genuinely enjoy solving problems through code and am committed to continuous learning — I'm currently working on closing skill gaps in version control (Git/GitHub) and modern front-end frameworks to become an even stronger contributor.</p>
+<p>I've attached my resume and would love the opportunity to discuss how I could support [Company Name]'s team, even as part of an internship or entry-level role. Please let me know if you'd like to see additional samples of my work — my full portfolio is available at https://habiarif-dev.github.io/HexSoftwares_habi_portfolio/.</p>
+<p>Thank you very much for your time and consideration.</p>
+<p>Warm regards,
+Habiba Arif
+habibaarif009@gmail.com | +92 312 3814219</p>
+      </div>
+    </section>
+
+    <!-- SECTION 4: LinkedIn Connection Request -->
+    <section class="doc" id="sec-4">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 04</div>
+          <div class="doc-title">LinkedIn Connection Request</div>
+        </div>
+        <div class="stamp send">Ready to send</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="meta-line">Max 300 characters · ~248 used</div>
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>Hi [Name], I'm a CS student (CGPA 4.0/4.0) and Web Development Intern building front-end projects with HTML/CSS/JS. I admire [Company]'s work and would love to connect, learn from your experience, and explore potential opportunities. Thanks for considering!</p>
+      </div>
+    </section>
+
+    <!-- SECTION 5: Referral Request -->
+    <section class="doc" id="sec-5">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 05</div>
+          <div class="doc-title">Referral Request Message</div>
+        </div>
+        <div class="stamp send">Ready to send</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>Hi [Contact Name],</p>
+<p>I hope you're doing great! I wanted to reach out because I'm currently exploring [Frontend Developer Intern / Junior Web Developer / Digital Marketing Intern] opportunities, and I noticed you're connected to [Company Name] (or currently work there).</p>
+<p>A bit about me: I'm a Computer Science student at the University of Swabi with a 4.0/4.0 CGPA, currently gaining hands-on experience as a Web Development Intern. I've built several independent projects using HTML, CSS, and JavaScript — including a portfolio site, a To-Do app, a Student Feedback Review System, and a few interactive JS games — and I also have experience in digital marketing and social media content creation, which I think could add value to teams that work on both product and brand.</p>
+<p>If there's an open role at [Company Name] that you think could be a good fit, or if you'd be comfortable referring me or connecting me with the right person on the hiring team, I'd really appreciate it. I'm happy to send over my resume and portfolio link (https://habiarif-dev.github.io/HexSoftwares_habi_portfolio/) — whatever would be most helpful.</p>
+<p>No pressure at all if it's not the right time — just thought I'd ask since I really respect your experience and judgment. Thanks so much for considering, and I'd love to catch up regardless!</p>
+<p>Best,
+Habiba Arif</p>
+      </div>
+    </section>
+
+    <!-- SECTION 6: Follow-Up Email -->
+    <section class="doc" id="sec-6">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 06</div>
+          <div class="doc-title">Follow-Up Email</div>
+        </div>
+        <div class="stamp send">Send after 5 days</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="meta-line">Subject: Following Up — [Job Title] Application | Habiba Arif</div>
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>Hi [Recipient's Name],</p>
+<p>I hope you're doing well. I wanted to follow up on my application for the [Job Title] position at [Company Name], which I submitted on [date]. I remain very enthusiastic about the opportunity to bring my front-end development skills and project experience to your team.</p>
+<p>Since reaching out, I've continued building on my portfolio (https://habiarif-dev.github.io/HexSoftwares_habi_portfolio/), including projects in responsive web design and interactive JavaScript applications, and I'm continuing to strengthen my skills in areas like Git/GitHub and modern development tools.</p>
+<p>If there's any additional information I can provide to support my application — or if the timeline for this role has shifted — please don't hesitate to let me know. I completely understand hiring processes can take time, and I genuinely appreciate the consideration.</p>
+<p>Thank you again for your time, and I look forward to hearing from you.</p>
+<p>Best regards,
+Habiba Arif
+habibaarif009@gmail.com | +92 312 3814219</p>
+      </div>
+    </section>
+
+    <!-- SECTION 7: 30-Second Intro -->
+    <section class="doc" id="sec-7">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 07</div>
+          <div class="doc-title">30-Second Professional Introduction</div>
+        </div>
+        <div class="stamp send">Ready to say</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="meta-line">~25–30 seconds spoken at a natural pace</div>
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+<p>"Hi, I'm Habiba Arif — a Computer Science undergraduate at the University of Swabi, currently maintaining a 4.0 CGPA while working as a Web Development Intern. I focus on building responsive, user-friendly websites using HTML, CSS, and JavaScript, and I've put that into practice through several independent projects — including a Student Feedback Review System, a Digital Smart Room automation project, and a personal portfolio site you can check out online. I also have a background in digital marketing and social media content creation, so I enjoy thinking about both how a product works and how it's presented to users. I made the switch from a Pre-Medical track to Computer Science because I realized how much I love building things and solving problems with code — and I'm now looking for opportunities where I can keep growing as a developer while contributing real value to a team."</p>
+      </div>
+    </section>
+
+    <!-- SECTION 8: Top 10 Job Titles -->
+    <section class="doc" id="sec-8">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 08</div>
+          <div class="doc-title">Top 10 Job Titles For You</div>
+        </div>
+        <div class="stamp strategy">Strategy note</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+        <div class="titles-grid">
+          <div class="title-card"><span class="tnum">01</span>Frontend Web Developer (Intern/Junior)</div>
+          <div class="title-card"><span class="tnum">02</span>Web Development Intern</div>
+          <div class="title-card"><span class="tnum">03</span>Junior Web Designer</div>
+          <div class="title-card"><span class="tnum">04</span>Junior Software Developer (Entry-Level)</div>
+          <div class="title-card"><span class="tnum">05</span>Digital Marketing Intern</div>
+          <div class="title-card"><span class="tnum">06</span>Social Media Marketing Executive/Intern</div>
+          <div class="title-card"><span class="tnum">07</span>Content Creator / Digital Content Specialist</div>
+          <div class="title-card"><span class="tnum">08</span>UI/UX Design Intern (Junior)</div>
+          <div class="title-card"><span class="tnum">09</span>IT Support / Computer Science Trainee</div>
+          <div class="title-card"><span class="tnum">10</span>Web & Content Production Assistant</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 9: Key Strengths -->
+    <section class="doc" id="sec-9">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 09</div>
+          <div class="doc-title">Key Strengths Recruiters Will Notice</div>
+        </div>
+        <div class="stamp strategy">Strategy note</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+        <div class="strength-card"><b>Perfect academic record under pressure</b> — Maintaining a 4.0/4.0 CGPA while actively building real-world projects shows discipline and consistency, a strong signal for any role.</div>
+        <div class="strength-card"><b>Demonstrated, not just claimed, technical ability</b> — A live portfolio (habiarif-dev.github.io) with 8 working projects gives recruiters tangible proof of skill, which is rare at the entry level.</div>
+        <div class="strength-card"><b>Rare cross-functional combination</b> — Most entry-level developers only show technical skills; you also bring digital marketing, social media marketing, and Canva-based content design, making you useful to small teams and startups that need versatility.</div>
+        <div class="strength-card"><b>Proven adaptability</b> — Successfully transitioning from a Pre-Medical (FSc) background into Computer Science and excelling demonstrates resilience and the ability to thrive in unfamiliar territory — a story recruiters remember.</div>
+        <div class="strength-card"><b>Multilingual communication</b> — Fluency in English, Urdu, and Pashto is valuable for companies with regional clients or distributed teams.</div>
+        <div class="strength-card"><b>Active learner mindset</b> — Continuous learning and self-directed project-building (visible through your portfolio and ongoing challenges) signals low onboarding risk and high growth potential.</div>
+      </div>
+    </section>
+
+    <!-- SECTION 10: Skill Gap Analysis -->
+    <section class="doc" id="sec-10">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 10</div>
+          <div class="doc-title">Skill Gap Analysis</div>
+        </div>
+        <div class="stamp strategy">Strategy note</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+
+        <div class="subhead">Current Strengths</div>
+        <div class="chip-row">
+          <span class="chip green">HTML / CSS / JavaScript</span>
+          <span class="chip green">Java, C++, Python, OOP</span>
+          <span class="chip green">Responsive Web Design</span>
+          <span class="chip green">Digital & Social Media Marketing</span>
+          <span class="chip green">Video Editing & Canva</span>
+          <span class="chip green">MS Word / Excel / PowerPoint</span>
+          <span class="chip green">English, Urdu, Pashto</span>
+          <span class="chip green">Communication & Adaptability</span>
+        </div>
+
+        <div class="subhead">Missing Skills (Current Gaps)</div>
+        <div class="chip-row">
+          <span class="chip amber">Git & GitHub (applied use)</span>
+          <span class="chip amber">Front-end framework (React/Vue)</span>
+          <span class="chip amber">Backend basics (Node.js, DB)</span>
+          <span class="chip amber">Deployment / hosting</span>
+          <span class="chip amber">Professional certifications</span>
+          <span class="chip amber">SEO & analytics tools</span>
+          <span class="chip amber">API / JSON integration</span>
+        </div>
+
+        <div class="subhead">Recommended Learning Roadmap</div>
+        <div class="timeline">
+          <div class="phase">
+            <div class="phase-title">Phase 1 · 0–1 month · Foundations &amp; Visibility</div>
+            <ul>
+              <li>Learn Git &amp; GitHub fundamentals (branches, commits, pull requests) and apply to existing portfolio projects</li>
+              <li>Add a "Certifications" section by completing 1–2 free/affordable certs (e.g., freeCodeCamp or Coursera HTML/CSS/JS)</li>
+              <li>Polish LinkedIn profile with a strong headline and featured projects section</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <div class="phase-title">Phase 2 · 1–3 months · Framework &amp; Tooling</div>
+            <ul>
+              <li>Learn a modern JavaScript framework (React recommended — strong job market demand)</li>
+              <li>Build 1–2 new projects using React and deploy them (Netlify/Vercel)</li>
+              <li>Add Google Analytics basics and a beginner SEO course to strengthen the digital marketing profile</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <div class="phase-title">Phase 3 · 3–6 months · Full-Stack &amp; Specialization</div>
+            <ul>
+              <li>Learn backend basics: Node.js + Express, plus a database (MongoDB or MySQL)</li>
+              <li>Build one full-stack project (e.g., a real database-backed version of your Student Feedback Review System)</li>
+              <li>Consider a recognized certification (Meta Front-End Developer Certificate, or HubSpot Digital Marketing Certification)</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <div class="phase-title">Phase 4 · 6+ months · Specialization &amp; Portfolio Polish</div>
+            <ul>
+              <li>Choose a specialization direction: Frontend Development OR Digital Marketing/Content (or both, as a "developer with marketing skills")</li>
+              <li>Refresh portfolio with full-stack and framework-based projects</li>
+              <li>Begin applying for internships/junior roles with a stronger, framework-backed portfolio</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 11: Personal Brand Summary -->
+    <section class="doc" id="sec-11">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 11</div>
+          <div class="doc-title">Personal Brand Summary</div>
+        </div>
+        <div class="stamp strategy">Strategy note</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+        <div class="brand-block">
+          <span class="label">Unique Value Proposition</span>
+          <p style="margin:0;">A high-achieving Computer Science student (4.0/4.0 CGPA) who pairs hands-on front-end development skills with digital marketing and content creation expertise — combining the precision of a developer with the creativity of a marketer to build digital experiences that work well and look great.</p>
+        </div>
+        <div class="brand-block">
+          <span class="label">Professional Positioning Statement</span>
+          <p class="quote">"I help teams build clean, responsive, user-friendly websites while bringing an added layer of digital marketing and content strategy — making me a versatile contributor for startups and growing teams that need both development and brand-facing skills in one person."</p>
+        </div>
+        <div class="brand-block">
+          <span class="label">Recruiter Headline</span>
+          <p class="quote">"BSCS Student (CGPA 4.0/4.0) | Web Development Intern | Front-End Developer (HTML, CSS, JS) | Digital Marketing &amp; Social Media Marketing | Building Real Projects, Ready to Contribute"</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 12: Interview Talking Points -->
+    <section class="doc" id="sec-12">
+      <div class="doc-head">
+        <div>
+          <div class="doc-eyebrow">Section 12</div>
+          <div class="doc-title">Interview Talking Points</div>
+        </div>
+        <div class="stamp strategy">Strategy note</div>
+      </div>
+      <hr class="doc-divider">
+      <div class="copy-bar"><button class="copy-btn">Copy text</button></div>
+      <div class="doc-body">
+
+        <div class="subhead">Most Impressive Achievements</div>
+        <ul class="plain">
+          <li>Maintaining a perfect 4.0/4.0 CGPA throughout your Computer Science degree while simultaneously building real-world projects</li>
+          <li>Successfully transitioning from a Pre-Medical (FSc) background to Computer Science — and excelling at it</li>
+          <li>Building and deploying a personal portfolio website (live, public, and shareable) entirely with HTML, CSS, and JavaScript</li>
+          <li>Developing a Student Feedback Review System — a practical platform addressing a real institutional need</li>
+        </ul>
+
+        <div class="subhead">Key Stories to Discuss</div>
+        <ul class="plain">
+          <li><b>The Pre-Medical to CS pivot</b> — Be ready to explain why you made the switch, what the transition was like, and how it shaped your work ethic and adaptability. This is a memorable, differentiating story.</li>
+          <li><b>Building the portfolio site</b> — Walk through your design choices, what you learned about responsive design, and how you'd improve it next (shows growth mindset).</li>
+          <li><b>The Student Feedback Review System</b> — Discuss the problem it solves, who it's for, and what features you implemented. Frame it as solving a real-world problem, not just a class exercise.</li>
+          <li><b>Balancing digital marketing with development</b> — Be ready to explain how skills like social media marketing and Canva design inform how you think about user experience and presentation when building websites.</li>
+        </ul>
+
+        <div class="subhead">Areas Recruiters Are Likely to Ask About</div>
+        <div class="qa">
+          <div class="q">"You don't have professional work experience yet — how do we know you can deliver in a real job?"</div>
+          Pivot to your portfolio projects, internship experience, and consistency (4.0 CGPA) as proof of reliability and follow-through.
+        </div>
+        <div class="qa">
+          <div class="q">"What's your experience with version control / Git?"</div>
+          Be honest about your current familiarity level, but show that you're actively learning it (per your roadmap) and understand its importance.
+        </div>
+        <div class="qa">
+          <div class="q">"Why both development AND marketing — what's your actual focus?"</div>
+          Frame it as a strength: you understand both how to build a product and how to present/market it, which is valuable for small teams.
+        </div>
+        <div class="qa">
+          <div class="q">"Tell us about a challenge you faced and how you solved it."</div>
+          Use the Pre-Medical-to-CS transition, or a specific debugging story from one of your JS projects (e.g., Rock Paper Scissors or Guess the Number).
+        </div>
+        <div class="qa">
+          <div class="q">"Where do you see yourself in 1–2 years?"</div>
+          Express interest in growing into a stronger full-stack/frontend developer role, backed by your learning roadmap (Git, React, backend basics).
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const docs = document.querySelectorAll('.doc');
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.target;
+
+      navBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      docs.forEach(d => d.classList.remove('active'));
+      document.getElementById(target).classList.add('active');
+
+      document.querySelector('.content').scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const body = btn.closest('.doc').querySelector('.doc-body');
+      const text = body.innerText.trim();
+
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

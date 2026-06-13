@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habi — Career Match Console · Day 13</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1F3A;
+    --navy-soft:#16294A;
+    --paper:#F7F5EF;
+    --card:#FFFFFF;
+    --indigo:#4F46E5;
+    --emerald:#0E9F6E;
+    --amber:#D9A02C;
+    --ink:#1C2536;
+    --muted:#6B7686;
+    --line:#E6E1D6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Playfair Display',serif;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* Header */
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:36px 6vw 0;
+  }
+  .header-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:24px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:#A9B6D6;
+    margin:0 0 10px;
+  }
+  header h1{
+    font-size:clamp(28px,4vw,42px);
+    font-weight:700;
+    margin:0 0 6px;
+    line-height:1.15;
+  }
+  header p.subtitle{
+    margin:0;
+    color:#C7CFE6;
+    font-size:15px;
+    max-width:520px;
+  }
+  .day-chip{
+    border:1px solid #3A4D78;
+    border-radius:999px;
+    padding:8px 18px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:#E7ECFB;
+    white-space:nowrap;
+  }
+  .day-chip b{color:#FFD56B;}
+
+  /* Tabs */
+  nav.tabs{
+    display:flex;
+    gap:4px;
+    margin-top:32px;
+    border-bottom:1px solid #2A3C63;
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    background:none;
+    border:none;
+    color:#9FACCE;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    padding:14px 6px;
+    margin-right:28px;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    white-space:nowrap;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  nav.tabs button .num{
+    font-family:'JetBrains Mono',monospace;
+    color:#5E73AA;
+    margin-right:8px;
+  }
+  nav.tabs button.active{
+    color:#fff;
+    border-bottom:2px solid var(--amber);
+  }
+  nav.tabs button.active .num{color:var(--amber);}
+  nav.tabs button:hover{color:#fff;}
+
+  main{
+    max-width:1180px;
+    margin:0 auto;
+    padding:40px 6vw 80px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block; animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* Section heading */
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-size:26px;
+    margin:0;
+    font-weight:700;
+  }
+  .section-head .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px 12px;
+  }
+
+  /* Cards */
+  .grid{display:grid; gap:18px;}
+  .grid.cols-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+  .grid.cols-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:24px;
+  }
+  .card h3{
+    font-size:18px;
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .card .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:6px;
+    display:block;
+  }
+
+  /* Profile hero */
+  .profile-hero{
+    display:flex;
+    gap:28px;
+    align-items:center;
+    background:var(--navy);
+    color:#fff;
+    border-radius:18px;
+    padding:32px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .avatar{
+    width:88px; height:88px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--indigo),var(--emerald));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif;
+    font-size:36px; font-weight:700; color:#fff;
+    flex-shrink:0;
+  }
+  .profile-hero .info h2{margin:0 0 6px; font-size:28px;}
+  .profile-hero .info p{margin:0; color:#C7CFE6; font-size:14px;}
+  .stat-row{
+    display:flex; gap:30px; margin-left:auto; flex-wrap:wrap;
+  }
+  .stat-row .stat{text-align:left;}
+  .stat .num{font-family:'Playfair Display',serif; font-size:30px; font-weight:700; color:#FFD56B;}
+  .stat .lbl{font-size:12px; color:#A9B6D6; font-family:'JetBrains Mono',monospace; letter-spacing:.05em;}
+
+  /* Skill pills */
+  .pillgroup{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .pill{
+    font-size:12.5px;
+    padding:6px 13px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#FBFAF6;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .pill.indigo{border-color:#D6D2FB; background:#F1EFFE; color:#3E37C9;}
+  .pill.emerald{border-color:#CDEFE0; background:#EAFBF3; color:#0B7C56;}
+  .pill.amber{border-color:#F4E2BA; background:#FDF6E6; color:#9C7110;}
+
+  ul.tight{margin:0; padding-left:18px;}
+  ul.tight li{margin-bottom:8px; font-size:14.5px; line-height:1.5;}
+  .muted{color:var(--muted);}
+
+  /* Criteria */
+  .crit-row{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding:14px 0; border-bottom:1px solid var(--line); gap:20px;
+  }
+  .crit-row:last-child{border-bottom:none;}
+  .crit-row .k{font-weight:600; font-size:14px; min-width:170px;}
+  .crit-row .v{font-size:14px; color:var(--ink); text-align:right;}
+  .crit-row .v .pill{margin:2px;}
+
+  /* Salary range bar */
+  .range-bar{
+    position:relative; height:8px; border-radius:999px;
+    background:var(--line); margin-top:10px;
+  }
+  .range-bar .fill{
+    position:absolute; top:0; bottom:0; left:14%; width:54%;
+    background:linear-gradient(90deg,var(--indigo),var(--emerald));
+    border-radius:999px;
+  }
+  .range-labels{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono',monospace;}
+
+  /* Controls for jobs tab */
+  .controls{
+    display:flex; gap:10px; align-items:center; margin-bottom:18px; flex-wrap:wrap;
+  }
+  .controls select, .controls button.sortbtn{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:8px;
+    padding:9px 14px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .controls button.sortbtn.active{
+    border-color:var(--indigo);
+    color:var(--indigo);
+    font-weight:600;
+  }
+  .controls .count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; color:var(--muted); margin-left:auto;
+  }
+
+  /* Job cards */
+  .job-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:22px 24px;
+    margin-bottom:16px;
+    display:grid;
+    grid-template-columns:1fr 200px;
+    gap:20px;
+    align-items:center;
+  }
+  .job-main h3{margin:0 0 4px; font-size:18px; font-weight:700;}
+  .job-meta{
+    display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--muted); margin:6px 0 12px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .job-meta span b{color:var(--ink); font-weight:600;}
+  .why{
+    font-size:13.5px; line-height:1.55; color:var(--ink);
+    background:#FBFAF6; border-left:3px solid var(--indigo);
+    padding:10px 14px; border-radius:0 8px 8px 0; margin:0 0 12px;
+  }
+  .job-foot{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .apply-btn{
+    background:var(--navy); color:#fff; text-decoration:none;
+    font-size:13px; font-weight:600; padding:9px 18px; border-radius:8px;
+    transition:background .15s ease;
+  }
+  .apply-btn:hover{background:var(--indigo);}
+  .ctc{font-size:13px; color:var(--ink); font-weight:600;}
+  .ctc .label{display:block; font-size:11px; color:var(--muted); font-weight:500; font-family:'JetBrains Mono',monospace; letter-spacing:.06em;}
+
+  /* Match meter */
+  .meter-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    border-left:1px solid var(--line); padding-left:20px;
+  }
+  .meter{
+    position:relative; width:120px; height:120px;
+  }
+  .meter svg{transform:rotate(-90deg);}
+  .meter .pct{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif; font-size:26px; font-weight:700;
+  }
+  .meter-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
+
+  /* Skill frequency bars */
+  .freq-row{display:flex; align-items:center; gap:14px; margin-bottom:12px;}
+  .freq-row .freq-label{width:200px; font-size:13.5px; font-weight:600; flex-shrink:0;}
+  .freq-track{flex:1; height:10px; background:var(--line); border-radius:999px; overflow:hidden;}
+  .freq-fill{height:100%; border-radius:999px; background:linear-gradient(90deg,var(--indigo),var(--emerald));}
+  .freq-val{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); width:40px; text-align:right;}
+
+  /* Skill gap columns */
+  .gap-col h4{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    margin:0 0 14px;
+  }
+  .gap-col.have h4{color:var(--emerald);}
+  .gap-col.need h4{color:var(--amber);}
+  .gap-item{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .gap-item:last-child{border-bottom:none;}
+  .gap-item .dot{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:10px;}
+  .have .dot{background:var(--emerald);}
+  .need .dot{background:var(--amber);}
+
+  /* Recommendations */
+  .rec-list{list-style:none; margin:0; padding:0;}
+  .rec-list li{
+    display:flex; gap:16px; padding:14px 0; border-bottom:1px solid var(--line); align-items:flex-start;
+  }
+  .rec-list li:last-child{border-bottom:none;}
+  .rec-num{
+    font-family:'Playfair Display',serif; font-weight:700; font-size:20px; color:var(--indigo);
+    flex-shrink:0; width:34px;
+  }
+  .rec-text{font-size:14.5px; line-height:1.55;}
+  .rec-text b{color:var(--navy);}
+
+  /* Fit assessment summary */
+  .fit-summary{
+    background:var(--navy); color:#fff; border-radius:16px; padding:30px; margin-top:28px;
+    display:flex; gap:30px; flex-wrap:wrap; align-items:center;
+  }
+  .fit-summary .big{
+    font-family:'Playfair Display',serif; font-size:48px; font-weight:700; color:var(--amber); line-height:1;
+  }
+  .fit-summary .big-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#A9B6D6; margin-top:6px;}
+  .fit-summary p{margin:0; font-size:14.5px; line-height:1.6; color:#DCE3F6; max-width:640px;}
+
+  @media (max-width:720px){
+    .job-card{grid-template-columns:1fr;}
+    .meter-wrap{border-left:none; border-top:1px solid var(--line); padding-left:0; padding-top:16px; flex-direction:row; justify-content:center;}
+    .stat-row{margin-left:0;}
+    .crit-row{flex-direction:column; align-items:flex-start;}
+    .crit-row .v{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <p class="eyebrow">#100DaysOfAI · #BuildInPublic</p>
+      <h1>Career Match Console</h1>
+      <p class="subtitle">Profile, search criteria, and live opportunity matching — built and shaped by Habi as part of the AI learning challenge.</p>
+    </div>
+    <div class="day-chip">Day <b>13</b> / 100</div>
+  </div>
+  <nav class="tabs">
+    <button class="active" data-tab="profile"><span class="num">01</span>Profile</button>
+    <button data-tab="criteria"><span class="num">02</span>Search Criteria</button>
+    <button data-tab="jobs"><span class="num">03</span>Opportunities &amp; Insights</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- PANEL 1: PROFILE -->
+  <section class="panel active" id="panel-profile">
+
+    <div class="profile-hero">
+      <div class="avatar">H</div>
+      <div class="info">
+        <h2>Habi</h2>
+        <p>BS Computer Science (3rd Semester) · University of Swabi · Swabi, KPK, Pakistan</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="num">5+</div><div class="lbl">CORE SKILL AREAS</div></div>
+        <div class="stat"><div class="num">3</div><div class="lbl">LANGUAGES</div></div>
+        <div class="stat"><div class="num">13</div><div class="lbl">DAYS BUILDING IN PUBLIC</div></div>
+      </div>
+    </div>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Current standing</h3>
+        <span class="label">Role</span>
+        <p style="margin:0 0 14px;">Computer Science student, actively seeking first internship or freelance role</p>
+        <span class="label">Experience level</span>
+        <p style="margin:0 0 14px;">Early-career / self-directed — no formal job history yet, but a consistent track record of shipping real, working projects</p>
+        <span class="label">Current environment</span>
+        <p style="margin:0;">Independent / academic — building solo projects rather than within a company</p>
+      </div>
+
+      <div class="card">
+        <h3>Industry &amp; domain expertise</h3>
+        <p style="margin:0 0 14px;">Sits at the intersection of two domains most candidates keep separate:</p>
+        <ul class="tight">
+          <li><b>Technical:</b> frontend web development &amp; AI-assisted application building</li>
+          <li><b>Creative/marketing:</b> digital marketing, social media strategy, video editing, Canva design</li>
+        </ul>
+        <p class="muted" style="margin:14px 0 0; font-size:13px;">This dual profile is the single biggest differentiator in the job matches below.</p>
+      </div>
+
+      <div class="card">
+        <h3>Key skills &amp; technologies</h3>
+        <span class="label">Development</span>
+        <div class="pillgroup">
+          <span class="pill indigo">HTML5</span>
+          <span class="pill indigo">CSS3 / Tailwind</span>
+          <span class="pill indigo">JavaScript</span>
+          <span class="pill indigo">React</span>
+          <span class="pill indigo">Chart.js / Recharts</span>
+          <span class="pill indigo">AI-assisted dev (Claude)</span>
+        </div>
+        <span class="label" style="margin-top:16px;">Marketing &amp; creative</span>
+        <div class="pillgroup">
+          <span class="pill emerald">Digital marketing</span>
+          <span class="pill emerald">Social media marketing</span>
+          <span class="pill emerald">Video editing</span>
+          <span class="pill amber">Canva design</span>
+          <span class="pill amber">Visual content creation</span>
+        </div>
+        <span class="label" style="margin-top:16px;">Languages</span>
+        <div class="pillgroup">
+          <span class="pill">Pashto</span>
+          <span class="pill">Urdu</span>
+          <span class="pill">English</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Notable accomplishments</h3>
+        <ul class="tight">
+          <li>Built and publicly shared 13+ AI-powered projects (dashboards, trackers, web apps) under #100DaysOfAI</li>
+          <li>Designed and shipped a personal portfolio website (HTML, Tailwind, vanilla JS) to support internship search</li>
+          <li>Created an Environmental Health Analyzer dashboard for Pakistani cities (React + Recharts)</li>
+          <li>Built NutriScope, a nutrition tracker with BMR calculations and WHO/ICMR-referenced risk analysis</li>
+          <li>Maintains a strong academic record while running a consistent public build-in-progress portfolio on LinkedIn</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL 2: CRITERIA -->
+  <section class="panel" id="panel-criteria">
+    <div class="section-head">
+      <h2>Job Search Criteria</h2>
+      <span class="tag">Active filters for opportunity matching</span>
+    </div>
+
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Target roles &amp; setup</h3>
+        <div class="crit-row">
+          <div class="k">Desired job types</div>
+          <div class="v">
+            <span class="pill indigo">Internship</span>
+            <span class="pill indigo">Freelance / Contract</span>
+            <span class="pill indigo">Entry-level role</span>
+          </div>
+        </div>
+        <div class="crit-row">
+          <div class="k">Desired titles</div>
+          <div class="v">
+            <span class="pill">Frontend Developer</span>
+            <span class="pill">Web Developer</span>
+            <span class="pill emerald">Social Media Marketing</span>
+            <span class="pill emerald">Digital Marketing</span>
+            <span class="pill amber">Video Editor</span>
+          </div>
+        </div>
+        <div class="crit-row">
+          <div class="k">Work setup</div>
+          <div class="v"><span class="pill emerald">Remote</span> <span class="pill emerald">Hybrid</span></div>
+        </div>
+        <div class="crit-row">
+          <div class="k">Posting recency</div>
+          <div class="v"><span class="pill">Last 7 days</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Compensation &amp; company fit</h3>
+        <span class="label">Salary / stipend expectation</span>
+        <div class="range-bar"><div class="fill"></div></div>
+        <div class="range-labels"><span>$8/hr</span><span>Target: $12–20/hr or equivalent stipend</span><span>$25/hr</span></div>
+
+        <div class="crit-row" style="margin-top:18px;">
+          <div class="k">Preferred company types</div>
+          <div class="v">
+            <span class="pill">Startups</span>
+            <span class="pill">Agencies</span>
+            <span class="pill">EdTech</span>
+            <span class="pill">NGOs / Mission-driven</span>
+          </div>
+        </div>
+        <div class="crit-row">
+          <div class="k">Exclude</div>
+          <div class="v">Onsite-only roles outside Pakistan; unpaid full-time commitments incompatible with semester schedule</div>
+        </div>
+        <div class="crit-row">
+          <div class="k">Additional preference</div>
+          <div class="v">Prioritize roles that combine technical (dev) and creative/marketing skills — Habi's strongest match zone</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL 3: JOBS -->
+  <section class="panel" id="panel-jobs">
+    <div class="section-head">
+      <h2>Matching Opportunities</h2>
+      <span class="tag" id="job-count-tag">Sourced via Indeed · Last 7 days · Remote / Hybrid</span>
+    </div>
+
+    <div class="controls">
+      <span style="font-size:13px; color:var(--muted);">Sort by:</span>
+      <button class="sortbtn active" data-sort="match">Match score</button>
+      <button class="sortbtn" data-sort="date">Posted date</button>
+      <span class="count" id="results-count"></span>
+    </div>
+
+    <div id="job-list"></div>
+
+    <!-- Skill demand -->
+    <div class="grid cols-2" style="margin-top:36px;">
+      <div class="card">
+        <h3>Most commonly required skills</h3>
+        <div id="freq-list"></div>
+      </div>
+
+      <div class="card">
+        <h3>Skill-gap analysis</h3>
+        <div class="grid cols-2" style="gap:24px;">
+          <div class="gap-col have">
+            <h4>Already strong</h4>
+            <div class="gap-item"><span><span class="dot"></span>Social media content creation</span></div>
+            <div class="gap-item"><span><span class="dot"></span>Canva / visual design</span></div>
+            <div class="gap-item"><span><span class="dot"></span>Basic video editing</span></div>
+            <div class="gap-item"><span><span class="dot"></span>Frontend fundamentals (HTML/CSS/JS/React)</span></div>
+          </div>
+          <div class="gap-col need">
+            <h4>Worth building</h4>
+            <div class="gap-item"><span><span class="dot"></span>Scheduling tools (Buffer / Meta Business Suite)</span></div>
+            <div class="gap-item"><span><span class="dot"></span>Copywriting &amp; basic SEO</span></div>
+            <div class="gap-item"><span><span class="dot"></span>Paid ads basics (Meta / Google Ads)</span></div>
+            <div class="gap-item"><span><span class="dot"></span>CMS platforms (WordPress)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market insights -->
+    <div class="grid cols-2" style="margin-top:18px;">
+      <div class="card">
+        <h3>Market demand insights</h3>
+        <ul class="tight">
+          <li>Remote, entry-level postings this week skew heavily toward <b>social media &amp; content marketing</b> roles — far more available than pure frontend-dev internships at the student level.</li>
+          <li>Roles combining <b>marketing + light technical/content work</b> (e.g. "Web Developer &amp; Social Media Intern") appear and tend to fit Habi's profile best, since they reward a cross-skill candidate.</li>
+          <li>Pay structures vary widely: hourly rates ($8–25/hr) for internships vs. fixed monthly stipends ($100–1,500/month) for content/marketing roles.</li>
+          <li>Most listings are part-time or flexible-hours, which suits an active university schedule.</li>
+          <li>Pure frontend internships for students with no prior employment are scarce in the remote market this week — a visible project portfolio is doing most of the work here.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Recommendations to improve interview odds</h3>
+        <ol class="rec-list">
+          <li><span class="rec-num">01</span><span class="rec-text"><b>Lead with the portfolio.</b> Link the #100DaysOfAI projects and personal site directly in every application — this is the strongest signal of real ability.</span></li>
+          <li><span class="rec-num">02</span><span class="rec-text"><b>Learn one scheduling tool</b> (Buffer or Meta Business Suite) — it's the single most common gap across marketing-adjacent postings.</span></li>
+          <li><span class="rec-num">03</span><span class="rec-text"><b>Build a 60-second reel</b> showcasing video-editing work to strengthen applications for content/social roles.</span></li>
+          <li><span class="rec-num">04</span><span class="rec-text"><b>Apply within 24–48 hours</b> of a posting going live — remote internships at this level fill quickly.</span></li>
+          <li><span class="rec-num">05</span><span class="rec-text"><b>Frame the dual skillset explicitly</b> in cover letters: "frontend developer who can also run social media and content" is a rare and valuable combination at entry level.</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Overall fit -->
+    <div class="fit-summary">
+      <div>
+        <div class="big">80%</div>
+        <div class="big-lbl">Overall fit score</div>
+      </div>
+      <p>
+        Habi's profile fits this week's remote/hybrid market strongest in <b>hybrid dev + social/content roles</b> (90%+ match) and <b>social media / marketing internships</b> (75–85% match).
+        Pure frontend-development internships are a weaker current match (≈70%) simply due to scarcity of student-level remote postings, not a skills gap.
+        Compensation targets ($12–20/hr equivalent) are realistic — three of the five opportunities below meet or exceed that range. The strongest near-term move is applying to the top two matches this week while continuing to build the public portfolio for future dev-focused roles.
+      </p>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Job data
+  const jobs = [
+    {
+      title: "Web Developer and Social Media Intern",
+      company: "Women and Families Ascending Association",
+      location: "Remote",
+      posted: "2026-06-09",
+      postedLabel: "Jun 9, 2026",
+      link: "https://to.indeed.com/aawtmnyfvhnh",
+      match: 92,
+      ctc: "Not disclosed",
+      why: "Direct match on both technical and creative skillsets — combines web development with social media management, which is exactly Habi's strongest differentiator."
+    },
+    {
+      title: "Social Media Intern",
+      company: "International Quint Cities Festival",
+      location: "Remote",
+      posted: "2026-06-07",
+      postedLabel: "Jun 7, 2026",
+      link: "https://to.indeed.com/aafqcd9htndr",
+      match: 81,
+      ctc: "$15.94 – $19.20/hr",
+      why: "Core social media marketing role with a paid hourly rate inside the target compensation band; strong fit for content creation and Canva-based asset work."
+    },
+    {
+      title: "Marketing Intern",
+      company: "PathNet",
+      location: "Remote",
+      posted: "2026-06-11",
+      postedLabel: "Jun 11, 2026",
+      link: "https://to.indeed.com/aamdtsjrbphw",
+      match: 78,
+      ctc: "From $12/hr",
+      why: "Entry-level digital marketing internship matching stated skills; part-time structure fits a student schedule and meets the minimum salary target."
+    },
+    {
+      title: "Content & Marketing Internship",
+      company: "Inflection Point Partners",
+      location: "Remote",
+      posted: "2026-06-10",
+      postedLabel: "Jun 10, 2026",
+      link: "https://to.indeed.com/aa92vzlpxzbm",
+      match: 75,
+      ctc: "Not disclosed",
+      why: "Content-creation focus aligns with Canva design and video editing skills; marketing component overlaps with digital marketing experience."
+    },
+    {
+      title: "Video Editor Intern",
+      company: "Dezinesquad",
+      location: "Remote",
+      posted: "2026-06-07",
+      postedLabel: "Jun 7, 2026",
+      link: "https://to.indeed.com/aa8tnbqvldwh",
+      match: 70,
+      ctc: "$9,920 – $25,000/month",
+      why: "Strong skills match on video editing with high stated pay, but listed as full-time — worth confirming flexibility against semester commitments before applying."
+    }
+  ];
+
+  const jobList = document.getElementById('job-list');
+  const resultsCount = document.getElementById('results-count');
+
+  function meterSVG(pct){
+    const r = 50, c = 2*Math.PI*r;
+    const offset = c - (pct/100)*c;
+    let color = 'var(--amber)';
+    if(pct>=85) color = 'var(--emerald)';
+    else if(pct>=75) color = 'var(--indigo)';
+    return `<svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="10"/>
+      <circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="10"
+        stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  function render(sortBy){
+    let sorted = [...jobs];
+    if(sortBy === 'match') sorted.sort((a,b)=>b.match-a.match);
+    if(sortBy === 'date') sorted.sort((a,b)=>new Date(b.posted)-new Date(a.posted));
+
+    jobList.innerHTML = sorted.map(j=>`
+      <div class="job-card">
+        <div class="job-main">
+          <h3>${j.title}</h3>
+          <div class="job-meta">
+            <span>${j.company}</span>
+            <span><b>${j.location}</b></span>
+            <span>Posted ${j.postedLabel}</span>
+          </div>
+          <p class="why">${j.why}</p>
+          <div class="job-foot">
+            <a class="apply-btn" href="${j.link}" target="_blank" rel="noopener">Apply on Indeed →</a>
+            <div class="ctc"><span class="label">CTC / Pay</span>${j.ctc}</div>
+          </div>
+        </div>
+        <div class="meter-wrap">
+          <div class="meter">${meterSVG(j.match)}<div class="pct">${j.match}%</div></div>
+          <div class="meter-lbl">Match score</div>
+        </div>
+      </div>
+    `).join('');
+
+    resultsCount.textContent = `${sorted.length} opportunities`;
+  }
+
+  document.querySelectorAll('.sortbtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.sortbtn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.sort);
+    });
+  });
+
+  render('match');
+
+  // Skill frequency
+  const freqData = [
+    {label:"Social media management", val:90},
+    {label:"Content creation", val:85},
+    {label:"Communication / copywriting", val:75},
+    {label:"Canva / graphic design", val:65},
+    {label:"Video editing", val:55},
+    {label:"Web development (HTML/CSS/JS)", val:35}
+  ];
+  document.getElementById('freq-list').innerHTML = freqData.map(f=>`
+    <div class="freq-row">
+      <div class="freq-label">${f.label}</div>
+      <div class="freq-track"><div class="freq-fill" style="width:${f.val}%"></div></div>
+      <div class="freq-val">${f.val}%</div>
+    </div>
+  `).join('');
+</script>
+
+</body>
+</html>

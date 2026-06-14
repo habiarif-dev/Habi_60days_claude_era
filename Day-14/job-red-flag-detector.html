@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Red Flag Detector</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --red: #f85149;
+    --red-bg: #1a0a0a;
+    --red-border: #3d1010;
+    --amber: #e3b341;
+    --amber-bg: #1a1400;
+    --amber-border: #3d2e00;
+    --green: #3fb950;
+    --green-bg: #0a1a0d;
+    --green-border: #103d18;
+    --blue: #58a6ff;
+    --blue-bg: #0a1628;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .icon-shield {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: var(--red-bg); border: 1px solid var(--red-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; color: var(--text); }
+  .header p { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .day-badge {
+    font-size: 11px; font-weight: 500; padding: 4px 12px;
+    border-radius: 20px; border: 1px solid var(--border);
+    color: var(--muted); background: var(--surface2);
+  }
+
+  /* ── LAYOUT ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  .grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+  /* ── INPUT CARDS ── */
+  .input-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .input-card-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .input-card-header span { font-size: 13px; font-weight: 500; color: var(--text); }
+  .input-card-header small { font-size: 11px; color: var(--muted); margin-left: auto; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-red { background: var(--red); }
+  .dot-blue { background: var(--blue); }
+
+  textarea {
+    width: 100%; height: 200px; background: var(--surface);
+    border: none; outline: none; resize: vertical;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 13px; line-height: 1.7; padding: 14px 16px;
+    caret-color: var(--blue);
+  }
+  textarea::placeholder { color: var(--muted); }
+
+  /* ── BUTTON ── */
+  .btn-analyze {
+    width: 100%; padding: 14px;
+    background: var(--red); color: #fff; border: none;
+    border-radius: var(--radius); font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity .15s, transform .1s;
+    margin-bottom: 32px;
+  }
+  .btn-analyze:hover { opacity: .88; }
+  .btn-analyze:active { transform: scale(.98); }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+
+  /* Score banner */
+  .score-banner {
+    border-radius: var(--radius); padding: 24px 28px;
+    border: 1px solid; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 28px;
+  }
+  .score-circle {
+    width: 90px; height: 90px; border-radius: 50%; border: 3px solid;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .score-num { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; line-height: 1; }
+  .score-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .score-info h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .score-info p { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 520px; }
+  .verdict-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; padding: 5px 14px;
+    border-radius: 20px; margin-top: 10px; border: 1px solid;
+  }
+
+  /* Three col */
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
+  }
+  .card-title::before { content: ''; width: 3px; height: 12px; border-radius: 2px; display: block; }
+  .ct-red::before { background: var(--red); }
+  .ct-green::before { background: var(--green); }
+  .ct-amber::before { background: var(--amber); }
+  .ct-blue::before { background: var(--blue); }
+
+  /* Flag items */
+  .flag-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px; line-height: 1.5; color: var(--text);
+  }
+  .flag-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .sev-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 7px;
+    border-radius: 20px; flex-shrink: 0; margin-top: 2px; border: 1px solid;
+  }
+  .sev-hi { background: var(--red-bg); color: var(--red); border-color: var(--red-border); }
+  .sev-med { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-border); }
+  .sev-lo { background: var(--blue-bg); color: var(--blue); border-color: #1a3050; }
+
+  /* Positive items */
+  .pos-item {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+  }
+  .pos-item:last-child { border-bottom: none; }
+  .pos-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
+
+  /* Risk bars */
+  .risk-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-cat { width: 110px; color: var(--muted); flex-shrink: 0; }
+  .risk-bar-track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .risk-bar-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+  .rb-hi { background: var(--red); }
+  .rb-med { background: var(--amber); }
+  .rb-lo { background: var(--green); }
+  .risk-val { font-size: 11px; font-weight: 600; min-width: 46px; text-align: right; }
+  .rv-hi { color: var(--red); }
+  .rv-med { color: var(--amber); }
+  .rv-lo { color: var(--green); }
+
+  /* Interview Qs */
+  .q-item {
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    border-left: 2px solid var(--amber);
+    background: var(--amber-bg); margin-bottom: 10px;
+    font-size: 13px; line-height: 1.6; color: var(--text);
+  }
+  .q-item:last-child { margin-bottom: 0; }
+  .q-label { font-size: 10px; font-weight: 600; color: var(--amber); margin-bottom: 4px; letter-spacing: .04em; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .grid-input, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .score-banner { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .main { padding: 20px 14px; }
+    .header { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="icon-shield">🚩</div>
+    <div>
+      <h1>Job Red Flag Detector</h1>
+      <p>Paste any JD + company info — get instant risk analysis</p>
+    </div>
+  </div>
+  <span class="day-badge">Day 14 · ABTalks 60-Day Challenge</span>
+</div>
+
+<div class="main">
+
+  <!-- Inputs -->
+  <div class="grid-input">
+    <div class="input-card">
+      <div class="input-card-header">
+        <div class="dot dot-red"></div>
+        <span>Job Description</span>
+        <small>Requirements, responsibilities, benefits, location</small>
+      </div>
+      <textarea id="jd" placeholder="Paste the full job description here…
+
+Include:
+• Job title and experience required
+• Skills and tech stack
+• Responsibilities listed
+• Benefits and perks
+• Work location / remote policy"></textarea>
+    </div>
+    <div class="input-card">
+      <div class="input-card-header">
+        <div class="dot dot-blue"></div>
+        <span>Company Information</span>
+        <small>Size, funding, reviews, culture</small>
+      </div>
+      <textarea id="co" placeholder="Paste company details here…
+
+Include:
+• Company age and team size
+• Funding status
+• Glassdoor / review mentions
+• Turnover or hiring patterns
+• Any news you've found"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-analyze" onclick="runDetector()">
+    🔍 &nbsp; Detect Red Flags
+  </button>
+
+  <!-- Results -->
+  <div id="results">
+
+    <!-- Score Banner -->
+    <div class="score-banner" id="score-banner">
+      <div class="score-circle" id="score-circle">
+        <div class="score-num" id="score-num">--</div>
+        <div class="score-label">/ 100</div>
+      </div>
+      <div class="score-info">
+        <h2 id="verdict-title">—</h2>
+        <p id="verdict-desc">—</p>
+        <div class="verdict-tag" id="verdict-tag">—</div>
+      </div>
+    </div>
+
+    <!-- Risk Breakdown + Flags -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title ct-red">Red Flags</div>
+        <div id="flags-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title ct-green">Positive Signals</div>
+        <div id="pos-list"></div>
+      </div>
+    </div>
+
+    <!-- Risk breakdown -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title ct-amber">Risk Breakdown by Category</div>
+      <div id="risk-rows"></div>
+    </div>
+
+    <!-- Interview Questions -->
+    <div class="card">
+      <div class="card-title ct-blue">Smart Interview Questions</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Ask these to validate the risks found above</p>
+      <div id="q-list"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ─── RED FLAG RULES ───────────────────────────────────────────────────────────
+const FLAGS = [
+  // Unrealistic Requirements
+  { pattern: /junior.{0,60}(5\+|5 \+|five\+?|6\+|7\+|8\+|10\+)\s*years?/i, cat:'Requirements', sev:9, text:'Junior role requires 5+ years of experience — a classic contradictory expectation.' },
+  { pattern: /entry.level.{0,60}(3\+|4\+|5\+)\s*years?/i, cat:'Requirements', sev:9, text:'Entry-level position demands 3+ years — misaligned title and experience bar.' },
+  { pattern: /(react|angular|vue).{0,20}(node|django|laravel|spring).{0,20}(aws|azure|gcp)/i, cat:'Requirements', sev:7, text:'Expects mastery of multiple full frontend stacks plus multiple cloud platforms simultaneously.' },
+  { pattern: /mentor.{0,30}junior/i, cat:'Requirements', sev:6, text:'Junior role expected to mentor other junior developers — contradictory seniority.' },
+  { pattern: /lead.{0,20}(client|meetings?|stakeholder)/i, cat:'Requirements', sev:5, text:'Junior or mid-level asked to independently lead client meetings.' },
+  { pattern: /design.{0,20}architect/i, cat:'Requirements', sev:5, text:'Architecture design responsibility typically reserved for senior/principal engineers.' },
+  { pattern: /(aws|azure|gcp).{0,20}(azure|gcp|aws)/i, cat:'Requirements', sev:6, text:'Requires expertise across multiple cloud platforms simultaneously.' },
+  { pattern: /ai\/ml|machine learning.{0,30}prefer/i, cat:'Requirements', sev:4, text:'AI/ML listed as preferred even for non-AI roles — scope creep signal.' },
+  { pattern: /24\/7|around.the.clock|on.call.{0,20}(required|mandatory)/i, cat:'Culture', sev:9, text:'24/7 on-call support required — severe work-life balance risk.' },
+
+  // Toxic culture
+  { pattern: /wear.{0,10}(many|multiple|several).{0,10}hats?/i, cat:'Culture', sev:8, text:'"Wear many hats" — signals understaffing and broad underpaid scope.' },
+  { pattern: /rockstar|ninja|wizard|superhero/i, cat:'Culture', sev:7, text:'Rockstar/ninja language signals unrealistic expectations and toxic culture.' },
+  { pattern: /hustle|grind.{0,20}culture/i, cat:'Culture', sev:8, text:'Explicit hustle culture reference — burnout risk.' },
+  { pattern: /work.hard.{0,10}play.hard/i, cat:'Culture', sev:7, text:'"Work hard, play hard" typically signals overwork normalised as a benefit.' },
+  { pattern: /must.{0,10}thrive.{0,10}(under|in).{0,10}pressure/i, cat:'Culture', sev:7, text:'Requiring comfort under pressure rather than addressing root cause of pressure.' },
+  { pattern: /fast.?paced/i, cat:'Culture', sev:5, text:'"Fast-paced environment" — common burnout and overwork indicator.' },
+  { pattern: /like.{0,10}(a\s)?family|startup.{0,20}family/i, cat:'Culture', sev:6, text:'"We are like a family" — often used to justify blurred work/life boundaries.' },
+  { pattern: /available.{0,20}(whenever|anytime|always)/i, cat:'Culture', sev:9, text:'Explicit demand to be available at all times — serious boundary violation.' },
+  { pattern: /aggressive.{0,20}(targets?|goals?|growth)/i, cat:'Culture', sev:7, text:'Aggressive growth targets linked to performance pressure and unrealistic KPIs.' },
+  { pattern: /self.?motivated.{0,20}(superstar|star|rockstar)/i, cat:'Culture', sev:6, text:'"Self-motivated superstar" framing overpromises and sets unrealistic cultural bar.' },
+
+  // Remote red flags
+  { pattern: /relocation.{0,40}(may|might|could|required|after|probation)/i, cat:'Remote', sev:9, text:'Relocation may be required post-probation — job isn\'t genuinely remote long-term.' },
+  { pattern: /remote.{0,20}(first|friendly).{0,60}(travel|relocat)/i, cat:'Remote', sev:8, text:'"Remote-first" contradicted by travel or relocation flexibility requirement.' },
+  { pattern: /quarterly.{0,20}travel/i, cat:'Remote', sev:6, text:'Quarterly travel expected — hidden cost and time commitment for remote workers.' },
+
+  // Hiring risks
+  { pattern: /salary.{0,20}(not.{0,10}disclos|not.{0,10}mention|competi|tba|tbd)/i, cat:'Hiring', sev:8, text:'Salary not disclosed or listed as "competitive" — transparency red flag.' },
+  { pattern: /competitive.{0,10}(salary|compensation|pay)/i, cat:'Hiring', sev:6, text:'"Competitive salary" without a range — typically means below-market offer.' },
+  { pattern: /vague.{0,20}responsibilit|responsibilit.{0,30}vague/i, cat:'Hiring', sev:5, text:'Responsibilities appear vague or undefined.' },
+  { pattern: /rapid.{0,10}hir/i, cat:'Company', sev:6, text:'Rapid hiring phase — may indicate high churn, poor retention, or sudden growth without planning.' },
+  { pattern: /multiple.{0,20}open.{0,20}position/i, cat:'Company', sev:6, text:'Multiple open positions simultaneously — could signal mass turnover.' },
+
+  // Company risks
+  { pattern: /founded.{0,10}(8|9|10|11|12)\s*months?/i, cat:'Company', sev:7, text:'Company under 12 months old — very early stage, high instability risk.' },
+  { pattern: /founded.{0,10}[1-2]\s*years?/i, cat:'Company', sev:5, text:'Company under 2 years old — limited track record.' },
+  { pattern: /no.{0,20}(public\s+)?fund|funding.{0,20}not.{0,10}(available|disclosed|known)/i, cat:'Company', sev:8, text:'No public funding information — financial stability unclear.' },
+  { pattern: /long.{0,20}(working\s+)?hours?|overwork/i, cat:'Company', sev:8, text:'Employee reviews mention long working hours — confirmed burnout culture.' },
+  { pattern: /high.{0,20}(employee\s+)?turnover/i, cat:'Company', sev:9, text:'High employee turnover reported — retention problem is serious.' },
+  { pattern: /unrealistic.{0,20}(target|goal|expect)/i, cat:'Company', sev:8, text:'Reviews mention unrealistic targets — management disconnect from reality.' },
+  { pattern: /layoff|restructur|downsiz/i, cat:'Company', sev:9, text:'Layoff or restructuring signals — company in instability phase.' },
+  { pattern: /team.{0,10}(size.{0,5})?(of\s+)?1[0-5]\s*(employee|member|person|people)/i, cat:'Company', sev:5, text:'Very small team (10-15) — limited mentorship, resources, and job security.' },
+];
+
+const POSITIVES = [
+  { pattern: /\$[\d,]+\s*[-–]\s*\$[\d,]+|\d+k\s*[-–]\s*\d+k/i, text:'Salary range disclosed — transparency is a positive hiring signal.' },
+  { pattern: /remote.{0,30}(permanent|indefinitely|no relocation)/i, text:'Genuine permanent remote work offered with no relocation expectations.' },
+  { pattern: /401k|pension|provident.{0,10}fund/i, text:'Retirement benefits mentioned.' },
+  { pattern: /health.{0,20}(insurance|cover|benefit)/i, text:'Health insurance or coverage offered.' },
+  { pattern: /flexible.{0,20}(hours?|schedule|timing)/i, text:'Flexible hours or schedule mentioned.' },
+  { pattern: /learning.{0,20}(budget|allowance|stipend)|training.{0,20}budget/i, text:'Learning or training budget provided.' },
+  { pattern: /equity|stock.{0,10}option|esop/i, text:'Equity or stock options offered.' },
+  { pattern: /clear.{0,30}responsibilit|well.defined.{0,20}role/i, text:'Clear and well-defined responsibilities listed.' },
+  { pattern: /established|founded.{0,10}(in.{0,5})?(200[0-9]|201[0-9])/i, text:'Established company with years of track record.' },
+  { pattern: /series [a-d]|funded.{0,20}(by|with|\$)|raised \$/i, text:'Funding information publicly available — financial transparency.' },
+  { pattern: /work.life.{0,10}balance/i, text:'Work-life balance explicitly mentioned as a value.' },
+  { pattern: /mentorship|mentor.{0,20}program/i, text:'Mentorship program available for growth.' },
+];
+
+const QUESTIONS = {
+  Requirements: [
+    "Can you walk me through what a typical day looks like for someone in this role — specifically what they spend most of their time doing?",
+    "How many engineers are currently on the team, and what's the split between senior and junior members?",
+    "The JD lists a wide range of technologies. Which are actually used day-to-day versus nice-to-haves?",
+  ],
+  Culture: [
+    "What does work-life balance look like in practice on this team? How often do people work evenings or weekends?",
+    "How does the team handle incidents or urgent production issues? Is there a formal on-call rotation?",
+    "Can you describe the last time someone on the team had to work outside normal hours? What triggered it?",
+  ],
+  Remote: [
+    "Is this role permanently remote, or is there a planned return-to-office or relocation requirement?",
+    "How does the team handle time zone differences and collaboration across remote members?",
+    "Is the quarterly travel requirement mandatory, and who covers costs?",
+  ],
+  Hiring: [
+    "What is the full compensation package, including base, bonus, and equity?",
+    "What does the first 90-day success plan look like for this role?",
+    "Why is this position open — is it new headcount or a backfill?",
+  ],
+  Company: [
+    "What is your current runway, and are you actively fundraising?",
+    "What's the average tenure of employees on this team?",
+    "How has leadership changed in the past 12 months?",
+  ],
+};
+
+// ─── DETECTOR ─────────────────────────────────────────────────────────────────
+function runDetector() {
+  const jd = document.getElementById('jd').value.trim();
+  const co = document.getElementById('co').value.trim();
+  if (!jd) { alert('Please paste a job description first.'); return; }
+
+  const full = (jd + ' ' + co).toLowerCase();
+  const combined = jd + ' ' + co;
+
+  // Find flags
+  const found = FLAGS.filter(f => f.pattern.test(combined));
+
+  // Find positives
+  const pos = POSITIVES.filter(p => p.pattern.test(combined));
+
+  // Risk by category
+  const cats = ['Requirements','Culture','Remote','Hiring','Company'];
+  const catScores = {};
+  cats.forEach(c => {
+    const cf = found.filter(f => f.cat === c);
+    const raw = cf.reduce((s, f) => s + f.sev, 0);
+    catScores[c] = Math.min(100, Math.round(raw * 10));
+  });
+
+  // Overall score
+  const totalSev = found.reduce((s, f) => s + f.sev, 0);
+  const score = Math.min(100, Math.round(totalSev * 2.8));
+
+  // Verdict
+  let verdict, vTitle, vDesc, vColor, vBorder, vBg;
+  if (score >= 65) {
+    verdict = '❌ Avoid'; vTitle = 'High Risk — Avoid Applying';
+    vDesc = 'Multiple serious red flags detected. This role shows strong signs of unrealistic expectations, toxic culture, or company instability. Proceed only with extreme caution after thorough vetting.';
+    vColor = '#f85149'; vBorder = '#3d1010'; vBg = '#1a0a0a';
+  } else if (score >= 35) {
+    verdict = '⚠️ Apply with Caution'; vTitle = 'Moderate Risk — Proceed Carefully';
+    vDesc = 'Some red flags detected that warrant careful due diligence. Ask the smart interview questions below before committing, and verify remote/salary terms in writing.';
+    vColor = '#e3b341'; vBorder = '#3d2e00'; vBg = '#1a1400';
+  } else {
+    verdict = '✅ Apply'; vTitle = 'Low Risk — Looks Promising';
+    vDesc = 'Minimal red flags found. This opportunity appears relatively safe. Still verify key details during interviews and do your own company research.';
+    vColor = '#3fb950'; vBorder = '#103d18'; vBg = '#0a1a0d';
+  }
+
+  // Render banner
+  const banner = document.getElementById('score-banner');
+  banner.style.background = vBg;
+  banner.style.borderColor = vBorder;
+
+  const circle = document.getElementById('score-circle');
+  circle.style.borderColor = vColor;
+  document.getElementById('score-num').style.color = vColor;
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('verdict-title').textContent = vTitle;
+  document.getElementById('verdict-title').style.color = vColor;
+  document.getElementById('verdict-desc').textContent = vDesc;
+
+  const tag = document.getElementById('verdict-tag');
+  tag.textContent = verdict;
+  tag.style.color = vColor;
+  tag.style.borderColor = vBorder;
+  tag.style.background = vBg;
+
+  // Render flags
+  const flagsEl = document.getElementById('flags-list');
+  if (found.length === 0) {
+    flagsEl.innerHTML = '<p style="font-size:13px;color:var(--muted);padding:8px 0">No red flags detected from the text provided.</p>';
+  } else {
+    flagsEl.innerHTML = found
+      .sort((a,b) => b.sev - a.sev)
+      .map(f => {
+        const cls = f.sev >= 8 ? 'sev-hi' : f.sev >= 5 ? 'sev-med' : 'sev-lo';
+        return `<div class="flag-item">
+          <span class="sev-badge ${cls}">${f.sev}/10</span>
+          <span>${f.text}</span>
+        </div>`;
+      }).join('');
+  }
+
+  // Render positives
+  const posEl = document.getElementById('pos-list');
+  if (pos.length === 0) {
+    posEl.innerHTML = '<p style="font-size:13px;color:var(--muted);padding:8px 0">No strong positive signals found. Consider asking about benefits and culture explicitly.</p>';
+  } else {
+    posEl.innerHTML = pos.map(p => `
+      <div class="pos-item">
+        <div class="pos-dot"></div>
+        <span>${p.text}</span>
+      </div>`).join('');
+  }
+
+  // Render risk breakdown
+  const riskEl = document.getElementById('risk-rows');
+  riskEl.innerHTML = cats.map(c => {
+    const v = catScores[c];
+    const lvl = v >= 65 ? 'High' : v >= 35 ? 'Medium' : 'Low';
+    const barCls = v >= 65 ? 'rb-hi' : v >= 35 ? 'rb-med' : 'rb-lo';
+    const valCls = v >= 65 ? 'rv-hi' : v >= 35 ? 'rv-med' : 'rv-lo';
+    const pct = v === 0 ? 4 : v;
+    return `<div class="risk-row">
+      <div class="risk-cat">${c}</div>
+      <div class="risk-bar-track">
+        <div class="risk-bar-fill ${barCls}" style="width:${pct}%"></div>
+      </div>
+      <div class="risk-val ${valCls}">${lvl}</div>
+    </div>`;
+  }).join('');
+
+  // Interview questions — pick from triggered categories
+  const triggeredCats = [...new Set(found.map(f => f.cat))];
+  const qPool = triggeredCats.length > 0 ? triggeredCats : ['Hiring','Culture'];
+  const allQs = [];
+  qPool.forEach(c => { if (QUESTIONS[c]) allQs.push(...QUESTIONS[c]); });
+  // Fill to 5 from other categories if needed
+  if (allQs.length < 5) {
+    cats.forEach(c => { if (!qPool.includes(c) && QUESTIONS[c]) allQs.push(...QUESTIONS[c]); });
+  }
+  const finalQs = allQs.slice(0, 5);
+
+  document.getElementById('q-list').innerHTML = finalQs.map((q, i) => `
+    <div class="q-item">
+      <div class="q-label">Q${i+1}</div>
+      ${q}
+    </div>`).join('');
+
+  // Show results
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

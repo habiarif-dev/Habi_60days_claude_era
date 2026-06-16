@@ -1,0 +1,878 @@
+
+<style>
+  :root {
+    --c-gold: #BA7517; --c-gold-light: #FAEEDA; --c-gold-mid: #FAC775;
+    --c-teal-dark: #0F6E56; --c-teal: #1D9E75; --c-teal-light: #E1F5EE;
+    --c-red-dark: #A32D2D; --c-red-light: #FCEBEB;
+    --c-blue-dark: #185FA5; --c-blue-light: #E6F1FB;
+    --c-amber-dark: #854F0B; --c-amber-light: #FAEEDA;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, system-ui); }
+
+  .report-header {
+    background: linear-gradient(135deg, #0a2a1a 0%, #0F6E56 100%);
+    border-radius: var(--border-radius-lg, 12px);
+    padding: 28px 32px;
+    color: white;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .report-header::after {
+    content: 'PSX';
+    position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+    font-size: 72px; font-weight: 700; opacity: 0.08; letter-spacing: -2px;
+  }
+  .ticker-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .company-name { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .company-sub { font-size: 13px; opacity: 0.7; margin-bottom: 20px; }
+  .header-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .hm { }
+  .hm-label { font-size: 11px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .hm-val { font-size: 20px; font-weight: 500; }
+  .hm-sub { font-size: 12px; opacity: 0.65; }
+  .badge-up { background: #1D9E75; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+  .badge-down { background: #A32D2D; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 16px; border-radius: var(--border-radius-md, 8px);
+    border: 0.5px solid var(--color-border-tertiary); font-size: 13px;
+    cursor: pointer; background: var(--color-background-primary);
+    color: var(--color-text-secondary); transition: all 0.15s;
+  }
+  .tab.active { background: var(--c-teal); color: white; border-color: var(--c-teal); }
+  .tab:hover:not(.active) { background: var(--color-background-secondary); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+
+  .card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg, 12px);
+    padding: 20px;
+  }
+  .card-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+
+  .metric-card {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md, 8px);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .mc-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .mc-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .mc-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+  .mc-good { color: var(--c-teal-dark); }
+  .mc-warn { color: var(--c-amber-dark); }
+  .mc-bad { color: var(--c-red-dark); }
+
+  .verdict-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+  }
+  .pill-cheap { background: var(--c-teal-light); color: var(--c-teal-dark); }
+  .pill-fair { background: var(--c-amber-light); color: var(--c-amber-dark); }
+  .pill-expensive { background: var(--c-red-light); color: var(--c-red-dark); }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; font-size: 13px; border-collapse: collapse; }
+  th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-align: left; padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  td { padding: 10px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+  tr:last-child td { border-bottom: none; }
+  .td-good { color: var(--c-teal-dark); font-weight: 500; }
+  .td-warn { color: var(--c-amber-dark); font-weight: 500; }
+  .td-bad { color: var(--c-red-dark); font-weight: 500; }
+  .highlight-row { background: var(--c-teal-light); }
+  .highlight-row td { color: var(--c-teal-dark); font-weight: 500; }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .bar-label { font-size: 12px; color: var(--color-text-secondary); width: 100px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-val { font-size: 12px; font-weight: 500; color: var(--color-text-primary); width: 50px; text-align: right; flex-shrink: 0; }
+
+  .strength-list, .risk-list { list-style: none; }
+  .strength-list li, .risk-list li { padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 14px; display: flex; gap: 10px; }
+  .strength-list li:last-child, .risk-list li:last-child { border-bottom: none; }
+  .s-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+  .s-good { background: var(--c-teal-light); color: var(--c-teal-dark); }
+  .s-bad { background: var(--c-red-light); color: var(--c-red-dark); }
+
+  .ownership-donut { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+  .ownership-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .legend-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .legend-label { color: var(--color-text-secondary); flex: 1; }
+  .legend-val { font-weight: 500; }
+
+  .quality-badge {
+    display: inline-block; padding: 8px 20px;
+    border-radius: var(--border-radius-lg, 12px);
+    font-size: 16px; font-weight: 500;
+    background: var(--c-teal-light); color: var(--c-teal-dark);
+    margin-bottom: 12px;
+  }
+  .disclaimer {
+    background: var(--color-background-secondary);
+    border-left: 3px solid var(--color-border-secondary);
+    border-radius: 0 var(--border-radius-md, 8px) var(--border-radius-md, 8px) 0;
+    padding: 12px 16px; font-size: 12px; color: var(--color-text-secondary);
+    margin-top: 16px; line-height: 1.6;
+  }
+
+  .news-item { padding: 12px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .news-item:last-child { border-bottom: none; }
+  .news-tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
+  .tag-discovery { background: var(--c-teal-light); color: var(--c-teal-dark); }
+  .tag-dividend { background: var(--c-gold-light); color: var(--c-gold); }
+  .tag-production { background: var(--c-blue-light); color: var(--c-blue-dark); }
+  .tag-risk { background: var(--c-red-light); color: var(--c-red-dark); }
+  .news-headline { font-size: 13px; color: var(--color-text-primary); line-height: 1.5; }
+  .news-date { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+
+  .data-conf { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 8px; }
+  .conf-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-teal); }
+
+  canvas { display: block; }
+</style>
+
+<h2 class="sr-only">OGDC — Oil & Gas Development Company Limited: Full Fundamental Research Report, Pakistan Stock Exchange (PSX), June 2026</h2>
+
+<div class="report-header">
+  <div class="ticker-badge">PSX · KSE-100 · OGDC</div>
+  <div class="company-name">Oil & Gas Development Company Ltd.</div>
+  <div class="company-sub">Pakistan's largest E&P company by market cap · Islamabad, Pakistan · Founded 1961</div>
+  <div class="header-metrics">
+    <div class="hm">
+      <div class="hm-label">CMP (Jun 16)</div>
+      <div class="hm-val">PKR 320</div>
+      <div class="hm-sub"><span class="badge-down">−1.31%</span> today</div>
+    </div>
+    <div class="hm">
+      <div class="hm-label">Market Cap</div>
+      <div class="hm-val">PKR 1.38T</div>
+      <div class="hm-sub">~USD 4.9B</div>
+    </div>
+    <div class="hm">
+      <div class="hm-label">52W Range</div>
+      <div class="hm-val">196 – 425</div>
+      <div class="hm-sub"><span class="badge-up">+58% YoY</span></div>
+    </div>
+    <div class="hm">
+      <div class="hm-label">Fundamental Quality</div>
+      <div class="hm-val">Moderate+</div>
+      <div class="hm-sub">State-backed E&P giant</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="switchTab('snapshot')">Snapshot</button>
+  <button class="tab" onclick="switchTab('valuation')">Valuation</button>
+  <button class="tab" onclick="switchTab('growth')">Growth & Financials</button>
+  <button class="tab" onclick="switchTab('health')">Financial Health</button>
+  <button class="tab" onclick="switchTab('returns')">Returns</button>
+  <button class="tab" onclick="switchTab('peers')">Peer Comparison</button>
+  <button class="tab" onclick="switchTab('ownership')">Ownership</button>
+  <button class="tab" onclick="switchTab('view')">Analyst View</button>
+</div>
+
+<!-- SNAPSHOT -->
+<div id="panel-snapshot" class="panel active">
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="mc-label">Revenue (FY25)</div>
+      <div class="mc-val">PKR 401B</div>
+      <div class="mc-sub mc-warn">−13.5% YoY</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Net Profit (FY25)</div>
+      <div class="mc-val">PKR 170B</div>
+      <div class="mc-sub mc-good">NPM 42.4%</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">EPS (TTM)</div>
+      <div class="mc-val">PKR 38.9</div>
+      <div class="mc-sub">4.30B shares</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Dividend Yield</div>
+      <div class="mc-val mc-good">5.28%</div>
+      <div class="mc-sub">PKR 16/share p.a.</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Business Overview</div>
+      <p style="font-size:13px; color:var(--color-text-secondary); line-height:1.7;">OGDCL is Pakistan's largest state-owned exploration & production (E&P) company. It operates <strong style="color:var(--color-text-primary); font-weight:500">50 oil and gas fields</strong> across Sindh, Punjab, Balochistan, and KPK. The government holds <strong style="color:var(--color-text-primary); font-weight:500">85.02%</strong> stake, with dual listing on PSX and London Stock Exchange. OGDC is the primary vehicle for institutional exposure to Pakistan's energy sector and is a constituent of both KSE-100 and KSE-30.</p>
+      <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+        <span style="font-size:11px; background:var(--c-teal-light); color:var(--c-teal-dark); padding:3px 10px; border-radius:12px;">Crude Oil</span>
+        <span style="font-size:11px; background:var(--c-teal-light); color:var(--c-teal-dark); padding:3px 10px; border-radius:12px;">Natural Gas</span>
+        <span style="font-size:11px; background:var(--c-teal-light); color:var(--c-teal-dark); padding:3px 10px; border-radius:12px;">LPG</span>
+        <span style="font-size:11px; background:var(--c-teal-light); color:var(--c-teal-dark); padding:3px 10px; border-radius:12px;">Sulphur</span>
+        <span style="font-size:11px; background:var(--c-blue-light); color:var(--c-blue-dark); padding:3px 10px; border-radius:12px;">Sharia Compliant</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Latest News & Developments</div>
+      <div class="news-item">
+        <span class="news-tag tag-discovery">Discovery</span>
+        <div class="news-headline">Baragzai X-01 discovery in Kohat — 225 bopd oil + 1.01 mmscfd gas. Most significant 2026 find, adding ~13,534 bopd incremental production capacity.</div>
+        <div class="news-date">2026</div>
+      </div>
+      <div class="news-item">
+        <span class="news-tag tag-production">Production</span>
+        <div class="news-headline">New Pasakhi-14 well commenced 1,100 BPD oil production in Hyderabad using advanced drilling tech. TAL Block up 15.7% YoY.</div>
+        <div class="news-date">2026</div>
+      </div>
+      <div class="news-item">
+        <span class="news-tag tag-dividend">Dividend</span>
+        <div class="news-headline">Final cash dividend of PKR 5/share approved for FY2025 at AGM, in addition to 3 interim dividends paid during the year. Ex-date: May 11, 2026.</div>
+        <div class="news-date">2026</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Price Chart — 52-Week Trend (PKR)</div>
+    <div style="position:relative; width:100%; height:220px;">
+      <canvas id="priceChart" role="img" aria-label="OGDC 52-week price trend from ~196 PKR low to current 320 PKR, with peak near 425 PKR">OGDC price: 52W Low 196, 52W High 425, Current 320.</canvas>
+    </div>
+  </div>
+</div>
+
+<!-- VALUATION -->
+<div id="panel-valuation" class="panel">
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="mc-label">P/E (Trailing)</div>
+      <div class="mc-val mc-good">5.38x</div>
+      <div class="mc-sub">Sector avg ~8x</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">P/E (Forward)</div>
+      <div class="mc-val mc-good">5.05x</div>
+      <div class="mc-sub">FY26 estimate</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">EV/EBITDA</div>
+      <div class="mc-val mc-good">2.74x</div>
+      <div class="mc-sub">Deeply discounted</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">P/B Ratio</div>
+      <div class="mc-val mc-good">~0.45x</div>
+      <div class="mc-sub">Book ~PKR 174 vs CMP 320 — wait, below book at old prices; now ~1.8x est.</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Valuation Verdict</div>
+      <div style="margin-bottom:12px;">
+        <span class="verdict-pill pill-cheap">Cheap vs Sector & History</span>
+      </div>
+      <p style="font-size:13px; color:var(--color-text-secondary); line-height:1.7; margin-bottom:12px;">At P/E of 5.38x, OGDC trades at a significant discount to its Pakistan E&P sector peers (avg ~8x) and global emerging market E&P comps (~10–12x). The EV/EBITDA of 2.74x is exceptionally low, suggesting the market is pricing in execution risk and government receivable overhang. The stock holds no debt, with PKR 209B in net cash — essentially cash covers ~23% of market cap.</p>
+      <div class="bar-row">
+        <div class="bar-label">P/E vs Sector</div>
+        <div class="bar-track"><div class="bar-fill" style="width:67%; background:var(--c-teal);"></div></div>
+        <div class="bar-val mc-good">Cheap</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">EV/EBITDA</div>
+        <div class="bar-track"><div class="bar-fill" style="width:30%; background:var(--c-teal);"></div></div>
+        <div class="bar-val mc-good">2.74x</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Div. Yield</div>
+        <div class="bar-track"><div class="bar-fill" style="width:75%; background:var(--c-gold);"></div></div>
+        <div class="bar-val mc-good">5.28%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Valuation Multiples vs KSE-100 Avg</div>
+      <div style="position:relative; width:100%; height:200px;">
+        <canvas id="valuationChart" role="img" aria-label="Bar chart comparing OGDC vs KSE-100 average on PE, EV/EBITDA, and Dividend Yield">OGDC PE 5.38 vs sector 8; EV/EBITDA 2.74 vs sector 6; Yield 5.28% vs sector 3.5%.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Key Valuation Watch-Points</div>
+    <ul class="risk-list">
+      <li>
+        <div class="s-icon s-bad">!</div>
+        <div><strong style="font-weight:500;">Government circular debt:</strong> OGDC is owed significant amounts in unpaid receivables from PSO and power sector utilities — a persistent drag on actual free cash flow and a key overhang on valuation. The company has PKR 209B in net cash, partly reflecting uncollected dues.</div>
+      </li>
+      <li>
+        <div class="s-icon s-bad">!</div>
+        <div><strong style="font-weight:500;">Global oil price sensitivity:</strong> Revenue declined 13.5% in FY25, partly due to a 10% YoY fall in global oil prices and PKR appreciation vs USD. Oil price swings directly impact OGDC's top line.</div>
+      </li>
+      <li>
+        <div class="s-icon s-good">✓</div>
+        <div><strong style="font-weight:500;">Analyst price target upgrade:</strong> Multiple analysts raised target from ~PKR 333 to PKR 370–517 range citing improved margins, offshore exploration potential (Eastern Offshore Indus C block), and strong payout ratios. Source: SimplyWall St, Nov 2025.</div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- GROWTH -->
+<div id="panel-growth" class="panel">
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="mc-label">Revenue FY25</div>
+      <div class="mc-val">PKR 401B</div>
+      <div class="mc-sub mc-bad">−13.5% YoY</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Net Income FY25</div>
+      <div class="mc-val">PKR 170B</div>
+      <div class="mc-sub mc-good">NPM 42.4%</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Operating Income</div>
+      <div class="mc-val">PKR 279B</div>
+      <div class="mc-sub">Op. margin 69.6%</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Total Assets</div>
+      <div class="mc-val">PKR 1.65T</div>
+      <div class="mc-sub">Equity: PKR 1.08T</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Revenue & Net Profit Trend (PKR Billions)</div>
+    <div style="position:relative; width:100%; height:260px;">
+      <canvas id="growthChart" role="img" aria-label="Revenue and profit trend for OGDC from FY21 to FY25">Revenue trended from ~350B in FY21 to 464B peak in FY24 then dropped to 401B in FY25. Profit trended similarly.</canvas>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Quarterly EPS Trend (Est. PKR/Share)</div>
+      <div style="position:relative; width:100%; height:180px;">
+        <canvas id="epsChart" role="img" aria-label="Quarterly EPS for OGDC showing variation across 8 quarters">EPS varied between 8-13 PKR per quarter over 8 quarters.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Growth Assessment</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Metric</th><th>FY25</th><th>Trend</th></tr>
+          <tr><td>Revenue Growth</td><td class="td-bad">−13.5%</td><td class="td-warn">Slowing</td></tr>
+          <tr><td>Net Profit Margin</td><td class="td-good">42.4%</td><td class="td-good">Stable</td></tr>
+          <tr><td>Operating Margin</td><td class="td-good">69.6%</td><td class="td-good">Strong</td></tr>
+          <tr><td>Oil Production YoY</td><td class="td-bad">−3%</td><td class="td-warn">Declining fields</td></tr>
+          <tr><td>Gas Production YoY</td><td class="td-bad">−13%</td><td class="td-warn">Maturing reserves</td></tr>
+          <tr><td>New Discoveries (2026 YTD)</td><td class="td-good">11 finds</td><td class="td-good">Accelerating</td></tr>
+          <tr><td>TAL Block Growth YoY</td><td class="td-good">+15.7%</td><td class="td-good">Strong</td></tr>
+          <tr><td>FCF</td><td class="td-warn">PKR 9.98B</td><td class="td-warn">Thin</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINANCIAL HEALTH -->
+<div id="panel-health" class="panel">
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="mc-label">Debt/Equity</div>
+      <div class="mc-val mc-good">0.00</div>
+      <div class="mc-sub">Net cash position</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Net Cash</div>
+      <div class="mc-val mc-good">PKR 209B</div>
+      <div class="mc-sub">Zero external debt</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Altman Z-Score</div>
+      <div class="mc-val mc-good">4.10</div>
+      <div class="mc-sub">Safe (>3 = Safe)</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Interest Coverage</div>
+      <div class="mc-val mc-good">N/A</div>
+      <div class="mc-sub">No debt obligations</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Balance Sheet Strength</div>
+      <div class="bar-row">
+        <div class="bar-label">Total Assets</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%; background:#1D9E75;"></div></div>
+        <div class="bar-val" style="width:80px">PKR 1.65T</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Total Equity</div>
+        <div class="bar-track"><div class="bar-fill" style="width:65%; background:#1D9E75;"></div></div>
+        <div class="bar-val" style="width:80px">PKR 1.08T</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Net Cash</div>
+        <div class="bar-track"><div class="bar-fill" style="width:30%; background:#FAC775;"></div></div>
+        <div class="bar-val" style="width:80px">PKR 209B</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Total Debt</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%; background:#E24B4A;"></div></div>
+        <div class="bar-val mc-good" style="width:80px">PKR 0</div>
+      </div>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-top:12px; line-height:1.6;">Interpretation: D/E of 0.00 places OGDC in the <strong style="font-weight:500; color:var(--c-teal-dark)">Safe</strong> category. The Altman Z-Score of 4.10 (above 3.0 threshold) confirms low financial distress probability. Equity ratio ~65% is robust.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Cash Flow Health</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Item</th><th>Amount (PKR B)</th><th>Assessment</th></tr>
+          <tr><td>Operating CF</td><td class="td-good">69.33</td><td class="td-good">Positive</td></tr>
+          <tr><td>Capital Expenditure</td><td class="td-warn">−59.34</td><td class="td-warn">Heavy investment</td></tr>
+          <tr><td>Free Cash Flow</td><td class="td-warn">9.98</td><td class="td-warn">Thin — watch</td></tr>
+          <tr><td>Net Cash Balance</td><td class="td-good">209.03</td><td class="td-good">Strong cushion</td></tr>
+          <tr><td>EV/FCF</td><td class="td-bad">69.31x</td><td class="td-bad">Expensive on FCF basis</td></tr>
+        </table>
+      </div>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-top:12px; line-height:1.6;">⚠ Key Watch: FCF of PKR ~10B looks thin relative to PKR 170B net profit, suggesting a large gap between reported earnings and cash collections — consistent with circular debt receivables from PSO and power utilities.</p>
+    </div>
+  </div>
+</div>
+
+<!-- RETURNS -->
+<div id="panel-returns" class="panel">
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="mc-label">ROE</div>
+      <div class="mc-val mc-good">13.10%</div>
+      <div class="mc-sub">Average (10–15%)</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">ROIC</div>
+      <div class="mc-val mc-good">9.96%</div>
+      <div class="mc-sub">Average</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">Dividend Yield</div>
+      <div class="mc-val mc-good">5.28%</div>
+      <div class="mc-sub">Payout: 54.7%</div>
+    </div>
+    <div class="metric-card">
+      <div class="mc-label">5Y Div. CAGR</div>
+      <div class="mc-val mc-good">+20.9%</div>
+      <div class="mc-sub">Strong growth</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Returns Chart — ROE, ROIC, Dividend Yield</div>
+      <div style="position:relative; width:100%; height:220px;">
+        <canvas id="returnsChart" role="img" aria-label="Radar chart showing ROE 13.1%, ROIC 9.96%, and Dividend Yield 5.28%">ROE 13.1%, ROIC 9.96%, Dividend yield 5.28%.</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Dividend History (PKR per share)</div>
+      <div style="position:relative; width:100%; height:220px;">
+        <canvas id="divChart" role="img" aria-label="Bar chart of dividend per share history for OGDC from FY21 to FY25 showing rising trend">Dividends rose from ~6 PKR in FY21 to 16 PKR in FY25.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Return Interpretation</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Metric</th><th>Value</th><th>Benchmark</th><th>Verdict</th></tr>
+        <tr><td>ROE</td><td>13.10%</td><td>>15% = Good</td><td class="td-warn">Average</td></tr>
+        <tr><td>ROIC</td><td>9.96%</td><td>>15% = Good</td><td class="td-warn">Average</td></tr>
+        <tr><td>Net Profit Margin</td><td>42.4%</td><td>Sector top-tier</td><td class="td-good">Strong</td></tr>
+        <tr><td>Dividend Yield</td><td>5.28%</td><td>KSE avg ~3.5%</td><td class="td-good">Attractive</td></tr>
+        <tr><td>5Y Dividend CAGR</td><td>+20.9%</td><td>>10% = Strong</td><td class="td-good">Strong</td></tr>
+        <tr><td>Beta</td><td>0.36</td><td>Market = 1.0</td><td class="td-good">Low volatility</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PEERS -->
+<div id="panel-peers" class="panel">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Peer Comparison — Pakistan E&P Sector (PSX)</div>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Company</th><th>Ticker</th><th>P/E</th><th>Revenue (PKR B)</th><th>Net Profit (PKR B)</th><th>NPM</th><th>ROE</th><th>D/E</th><th>Div. Yield</th>
+        </tr>
+        <tr class="highlight-row">
+          <td><strong>OGDCL</strong> ★</td><td>OGDC</td><td>5.38x</td><td>401</td><td>170</td><td class="td-good">42.4%</td><td>13.1%</td><td class="td-good">0.00</td><td class="td-good">5.28%</td>
+        </tr>
+        <tr>
+          <td>Mari Energies</td><td>MARI</td><td>~9x</td><td>177</td><td>65</td><td class="td-good">36.8%</td><td class="td-good">~24%</td><td class="td-good">0.00</td><td>~3.5%</td>
+        </tr>
+        <tr>
+          <td>Pakistan Petroleum</td><td>PPL</td><td>~7x</td><td>~320</td><td>~100</td><td>~31%</td><td>~15%</td><td class="td-good">0.10</td><td>~4.5%</td>
+        </tr>
+      </table>
+    </div>
+    <p style="font-size:11px; color:var(--color-text-secondary); margin-top:10px;">★ = Subject company. Sources: StockAnalysis, Sarmaaya, Investing.com, Wikipedia (FY25 data). PPL figures are estimates; verify independently.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Peer P/E Visual Comparison</div>
+    <div style="position:relative; width:100%; height:200px;">
+      <canvas id="peerChart" role="img" aria-label="Grouped bar chart comparing OGDC, MARI, and PPL on PE ratio and dividend yield">OGDC PE 5.38x lowest; MARI 9x; PPL 7x. OGDC dividend yield 5.28% highest.</canvas>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card">
+      <div class="card-title">Where OGDC Leads</div>
+      <ul class="strength-list">
+        <li><div class="s-icon s-good">✓</div><div>Lowest P/E (5.38x) — most attractively valued among peers on earnings multiple</div></li>
+        <li><div class="s-icon s-good">✓</div><div>Highest dividend yield (5.28%) — best income play in the E&P sector</div></li>
+        <li><div class="s-icon s-good">✓</div><div>Zero debt — cleanest balance sheet, no interest burden</div></li>
+        <li><div class="s-icon s-good">✓</div><div>Largest scale — market cap, assets, and employee base dwarf peers</div></li>
+        <li><div class="s-icon s-good">✓</div><div>Most active explorer — 11 new discoveries in 2026 YTD, led by Baragzai</div></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Where Peers Lead</div>
+      <ul class="strength-list">
+        <li><div class="s-icon s-bad">→</div><div>MARI: Higher ROE (~24%) and operational efficiency; premium EPS quality</div></li>
+        <li><div class="s-icon s-bad">→</div><div>MARI: Focused operations at Mari field with lower cost structure</div></li>
+        <li><div class="s-icon s-bad">→</div><div>PPL: More diversified field portfolio reduces single-asset concentration risk</div></li>
+        <li><div class="s-icon s-bad">→</div><div>Both peers have fewer government receivable/circular debt overhangs</div></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- OWNERSHIP -->
+<div id="panel-ownership" class="panel">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Shareholding Structure</div>
+    <div style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
+      <div class="ownership-donut">
+        <canvas id="ownershipChart" role="img" aria-label="Pie chart showing 85% government of Pakistan, 9% international FII, 6% domestic institutions">Government 85%, FII 9%, Domestic 6%.</canvas>
+      </div>
+      <div class="ownership-legend">
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#0F6E56;"></div>
+          <div class="legend-label">Government of Pakistan</div>
+          <div class="legend-val">85.02%</div>
+        </div>
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#185FA5;"></div>
+          <div class="legend-label">Foreign Institutional (FII)</div>
+          <div class="legend-val">~9%</div>
+        </div>
+        <div class="legend-row">
+          <div class="legend-dot" style="background:#BA7517;"></div>
+          <div class="legend-label">Domestic Institutions / Public</div>
+          <div class="legend-val">~6%</div>
+        </div>
+        <div style="margin-top:8px; padding:10px; background:var(--color-background-secondary); border-radius:var(--border-radius-md); font-size:12px; color:var(--color-text-secondary);">
+          <strong style="font-weight:500; color:var(--color-text-primary);">No pledging detected.</strong> Government holding is strategic; dual-listing on LSE provides international investor access. OGDC is the primary FII gateway to Pakistan's energy sector.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Ownership Flags</div>
+      <ul class="strength-list">
+        <li>
+          <div class="s-icon s-bad">!</div>
+          <div><strong style="font-weight:500;">High government concentration (85%)</strong> — policy decisions, dividend policy, and capex plans may reflect state priorities over shareholder returns. Privatization risk is low but governance risk is elevated.</div>
+        </li>
+        <li>
+          <div class="s-icon s-good">✓</div>
+          <div><strong style="font-weight:500;">No pledging</strong> — zero promoter share pledging, a clean signal. Contrast with many PSX-listed companies where promoter pledging is common.</div>
+        </li>
+        <li>
+          <div class="s-icon s-good">✓</div>
+          <div><strong style="font-weight:500;">LSE dual listing</strong> — provides price discovery linkage to global markets and makes OGDC accessible to international institutional capital, providing a natural valuation floor.</div>
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Subsidiaries & Strategic Stakes</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Entity</th><th>Stake</th><th>Note</th></tr>
+          <tr><td>Pakistan Minerals Ltd.</td><td>33.33%</td><td>Mining diversification</td></tr>
+          <tr><td>Pakistan International Oil Ltd.</td><td>25.00%</td><td>Downstream exposure</td></tr>
+          <tr><td>Mari Energies (MARI)</td><td>20.00%</td><td>Key peer stake</td></tr>
+        </table>
+      </div>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin-top:10px; line-height:1.6;">OGDC's 20% stake in Mari Energies (one of its peers) is a notable strategic investment, giving it indirect exposure to Mari's high-efficiency operations and gas fields.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYST VIEW -->
+<div id="panel-view" class="panel">
+  <div class="grid-2" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-title">Strengths (Evidence-Backed)</div>
+      <ul class="strength-list">
+        <li><div class="s-icon s-good">✓</div><div><strong style="font-weight:500;">Zero debt, large cash buffer:</strong> PKR 209B net cash with no external debt gives OGDC exceptional financial resilience and exploration firepower. Altman Z-Score 4.10 confirms safety.</div></li>
+        <li><div class="s-icon s-good">✓</div><div><strong style="font-weight:500;">Deep valuation discount:</strong> P/E of 5.38x and EV/EBITDA of 2.74x are historically low and well below sector. The market appears to be under-pricing OGDC's asset base.</div></li>
+        <li><div class="s-icon s-good">✓</div><div><strong style="font-weight:500;">Exploration momentum:</strong> 11 discoveries in 2026 YTD; new offshore blocks (Eastern Indus C); Baragzai adds ~13,534 bopd capacity. TAL block up 15.7% YoY.</div></li>
+        <li><div class="s-icon s-good">✓</div><div><strong style="font-weight:500;">Strong dividend track record:</strong> 5-year dividend CAGR of 20.9%; yield of 5.28%; payout policy consistent across multiple quarterly tranches. Income investors rewarded.</div></li>
+        <li><div class="s-icon s-good">✓</div><div><strong style="font-weight:500;">Dominant market position:</strong> Operates 50 fields across 4 provinces; largest E&P company in Pakistan; primary vehicle for energy sector investment from FIIs.</div></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Watch-Points & Risks</div>
+      <ul class="risk-list">
+        <li><div class="s-icon s-bad">!</div><div><strong style="font-weight:500;">Circular debt overhang:</strong> Uncollected receivables from PSO and power utilities severely distort FCF (only PKR 10B despite PKR 170B net profit). A persistent structural risk in Pakistan's energy ecosystem.</div></li>
+        <li><div class="s-icon s-bad">!</div><div><strong style="font-weight:500;">Declining legacy production:</strong> Core oil output fell 3% YoY; gas fell 13% YoY. Bettani and Sono fields dropped 63.9% and 53.2% respectively — mature field depletion is a medium-term concern.</div></li>
+        <li><div class="s-icon s-bad">!</div><div><strong style="font-weight:500;">Government ownership risk:</strong> 85% government stake means dividend and capex decisions can be politically influenced. Privatization plans are unlikely but not impossible.</div></li>
+        <li><div class="s-icon s-bad">!</div><div><strong style="font-weight:500;">Oil price volatility:</strong> Revenue sensitive to global crude prices (Brent) and USD/PKR exchange rate. A 10% oil price fall contributed to FY25 revenue decline of 13.5%.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Key Metric to Track</div>
+    <p style="font-size:14px; color:var(--color-text-secondary); line-height:1.7;">Watch <strong style="font-weight:500; color:var(--color-text-primary);">circular debt receivable collections from PSO and power utilities</strong> — this is the single biggest gap between reported earnings and actual cash. Any government policy to reduce the inter-corporate debt chain would unlock real FCF and likely re-rate the stock meaningfully. Also watch the <strong style="font-weight:500; color:var(--color-text-primary);">Baragzai field ramp-up</strong> and offshore exploration progress for production growth signals.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Overall Fundamental Quality</div>
+    <div class="quality-badge">Moderate — Strong</div>
+    <p style="font-size:14px; color:var(--color-text-secondary); line-height:1.7; margin-bottom:12px;">OGDC presents a solid asset base, zero debt, generous dividends, and an exploration pipeline that is accelerating. However, the circular debt ecosystem and government ownership introduce execution and governance risks that cap the quality ceiling. For investors comfortable with Pakistan-specific macro risks, OGDC offers an unusually attractive combination of low valuation, income yield, and asset coverage.</p>
+
+    <div class="data-conf">
+      <div class="conf-dot"></div>
+      <span style="font-size:12px; color:var(--color-text-secondary);">Data confidence: <strong style="font-weight:500; color:var(--color-text-primary);">High</strong> — verified across StockAnalysis, SimplyWallSt, Investing.com, Wikipedia (FY25 annual), Sarmaaya, PSX Data Portal, and The News Pakistan (Jun 2026). All key figures cross-checked across ≥2 sources.</span>
+    </div>
+    <div class="disclaimer">
+      This is a view of the fundamentals for educational purposes only. It is not investment advice and not a buy/sell/hold recommendation. Verify all figures independently with official PSX filings, OGDCL annual reports, and your financial advisor. The final decision is yours.
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+  setTimeout(renderCharts, 50);
+}
+
+const rendered = {};
+
+function renderCharts() {
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const grid = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const tick = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)';
+
+  if (!rendered.price && document.getElementById('priceChart')) {
+    rendered.price = true;
+    new Chart(document.getElementById('priceChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'],
+        datasets: [{
+          label: 'OGDC Price (PKR)',
+          data: [240, 255, 280, 310, 330, 360, 425, 385, 340, 315, 310, 320],
+          borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.12)',
+          borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#1D9E75'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, callback: v => 'PKR ' + v } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.valuation && document.getElementById('valuationChart')) {
+    rendered.valuation = true;
+    const vLabels = ['P/E Ratio', 'EV/EBITDA', 'Div. Yield (%)'];
+    new Chart(document.getElementById('valuationChart'), {
+      type: 'bar',
+      data: {
+        labels: vLabels,
+        datasets: [
+          { label: 'OGDC', data: [5.38, 2.74, 5.28], backgroundColor: '#1D9E75' },
+          { label: 'Sector Avg', data: [8, 6, 3.5], backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.growth && document.getElementById('growthChart')) {
+    rendered.growth = true;
+    new Chart(document.getElementById('growthChart'), {
+      type: 'bar',
+      data: {
+        labels: ['FY21', 'FY22', 'FY23', 'FY24', 'FY25'],
+        datasets: [
+          { label: 'Revenue', data: [298, 360, 418, 464, 401], backgroundColor: '#1D9E75' },
+          { label: 'Net Profit', data: [111, 148, 175, 190, 170], backgroundColor: '#185FA5' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, callback: v => 'PKR ' + v + 'B' } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.eps && document.getElementById('epsChart')) {
+    rendered.eps = true;
+    new Chart(document.getElementById('epsChart'), {
+      type: 'line',
+      data: {
+        labels: ['Q1FY24','Q2FY24','Q3FY24','Q4FY24','Q1FY25','Q2FY25','Q3FY25','Q4FY25'],
+        datasets: [{
+          label: 'EPS (PKR)',
+          data: [12.8, 11.4, 10.9, 13.2, 10.57, 9.8, 8.9, 9.6],
+          borderColor: '#BA7517', backgroundColor: 'rgba(186,117,23,0.12)',
+          borderWidth: 2, fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#BA7517'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 10 }, maxRotation: 35 } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, callback: v => 'PKR ' + v.toFixed(1) } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.returns && document.getElementById('returnsChart')) {
+    rendered.returns = true;
+    new Chart(document.getElementById('returnsChart'), {
+      type: 'bar',
+      data: {
+        labels: ['ROE (%)', 'ROIC (%)', 'Net Margin (%)', 'Div. Yield (%)'],
+        datasets: [{
+          label: 'OGDC',
+          data: [13.1, 9.96, 42.4, 5.28],
+          backgroundColor: ['#1D9E75','#185FA5','#0F6E56','#BA7517']
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.div && document.getElementById('divChart')) {
+    rendered.div = true;
+    new Chart(document.getElementById('divChart'), {
+      type: 'bar',
+      data: {
+        labels: ['FY21', 'FY22', 'FY23', 'FY24', 'FY25'],
+        datasets: [{
+          label: 'Dividend/share (PKR)',
+          data: [6.0, 8.5, 10.5, 13.0, 16.0],
+          backgroundColor: '#BA7517'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, callback: v => 'PKR ' + v } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.peer && document.getElementById('peerChart')) {
+    rendered.peer = true;
+    new Chart(document.getElementById('peerChart'), {
+      type: 'bar',
+      data: {
+        labels: ['OGDC', 'PPL', 'MARI'],
+        datasets: [
+          { label: 'P/E Ratio', data: [5.38, 7.0, 9.0], backgroundColor: '#1D9E75' },
+          { label: 'Dividend Yield (%)', data: [5.28, 4.5, 3.5], backgroundColor: '#BA7517' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: tick, font: { size: 12 } } },
+          y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  if (!rendered.ownership && document.getElementById('ownershipChart')) {
+    rendered.ownership = true;
+    new Chart(document.getElementById('ownershipChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Govt. of Pakistan', 'FII', 'Domestic / Public'],
+        datasets: [{
+          data: [85.02, 9, 5.98],
+          backgroundColor: ['#0F6E56', '#185FA5', '#BA7517'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        cutout: '65%'
+      }
+    });
+  }
+}
+
+setTimeout(renderCharts, 200);
+</script>

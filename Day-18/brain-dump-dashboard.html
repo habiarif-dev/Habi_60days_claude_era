@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Dump → Action Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F7FA;
+    --surface: #FFFFFF;
+    --surface-2: #F0F3F8;
+    --border: #E2E8F0;
+    --text-primary: #1A202C;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --accent: #6366F1;
+    --accent-light: #EEF2FF;
+    --accent-mid: #C7D2FE;
+    --green: #10B981;
+    --green-light: #ECFDF5;
+    --orange: #F59E0B;
+    --orange-light: #FFFBEB;
+    --red: #EF4444;
+    --red-light: #FEF2F2;
+    --blue: #3B82F6;
+    --blue-light: #EFF6FF;
+    --purple: #8B5CF6;
+    --purple-light: #F5F3FF;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 4px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), #8B5CF6);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .brand-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .brand-name span { color: var(--accent); }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .badge-day {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--accent-mid);
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    display: flex;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 10px 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--surface-2); color: var(--text-primary); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .nav-item .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+  .nav-item .nav-count {
+    margin-left: auto;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .nav-item.active .nav-count { background: var(--accent-mid); color: var(--accent); }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    padding: 28px;
+    overflow-x: hidden;
+  }
+
+  /* ── INPUT PANEL ── */
+  .input-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .panel-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .format-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .ftab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .ftab:hover { border-color: var(--accent); color: var(--accent); }
+  .ftab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  textarea.dump-input {
+    width: 100%;
+    height: 160px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--text-primary);
+    resize: vertical;
+    outline: none;
+    background: var(--bg);
+    transition: border 0.15s;
+    line-height: 1.7;
+  }
+  textarea.dump-input:focus { border-color: var(--accent); background: #fff; }
+  .input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+  }
+  .char-count { font-size: 12px; color: var(--text-muted); }
+  .btn-process {
+    background: linear-gradient(135deg, var(--accent), #8B5CF6);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.15s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+  }
+  .btn-process:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-process:active { transform: translateY(0); }
+  .spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULTS ── */
+  .results { display: none; }
+  .results.visible { display: block; }
+
+  /* stat strip */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.1s;
+  }
+  .stat-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .stat-val { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; }
+  .stat-card.s-actions .stat-val { color: var(--accent); }
+  .stat-card.s-risks .stat-val { color: var(--red); }
+  .stat-card.s-open .stat-val { color: var(--orange); }
+  .stat-card.s-done .stat-val { color: var(--green); }
+  .stat-card.s-conflicts .stat-val { color: var(--purple); }
+
+  /* section cards */
+  .section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .section-grid.full { grid-template-columns: 1fr; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+    gap: 8px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .sec-icon { font-size: 15px; }
+  .card-count {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+  }
+  .chevron { font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
+  .card-head.collapsed .chevron { transform: rotate(-90deg); }
+  .card-body { padding: 16px 18px; }
+  .card-body.collapsed { display: none; }
+
+  /* summary */
+  .summary-text {
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--text-secondary);
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* takeaway chips */
+  .takeaway-list { display: flex; flex-direction: column; gap: 10px; }
+  .takeaway-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 13px;
+    color: var(--text-primary);
+    transition: background 0.15s;
+  }
+  .takeaway-item:hover { background: var(--accent-light); }
+  .takeaway-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex-shrink: 0; }
+
+  /* action table */
+  .action-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .action-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding: 6px 12px 10px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .action-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    vertical-align: middle;
+  }
+  .action-table tr:last-child td { border-bottom: none; }
+  .action-table tbody tr { transition: background 0.12s; }
+  .action-table tbody tr:hover { background: var(--surface-2); }
+  .task-name { font-weight: 500; }
+  .owner-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 20px;
+    padding: 2px 9px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .deadline { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+  .deadline.overdue { color: var(--red); font-weight: 600; }
+
+  /* status badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-high    { background: var(--red-light);    color: var(--red);    border: 1px solid #FCA5A5; }
+  .badge-medium  { background: var(--orange-light);  color: var(--orange);  border: 1px solid #FCD34D; }
+  .badge-low     { background: var(--green-light);   color: var(--green);   border: 1px solid #6EE7B7; }
+  .badge-conflict{ background: var(--purple-light);  color: var(--purple);  border: 1px solid #C4B5FD; }
+  .badge-open    { background: var(--orange-light);  color: var(--orange);  border: 1px solid #FCD34D; }
+  .badge-done    { background: var(--green-light);   color: var(--green);   border: 1px solid #6EE7B7; }
+  .badge-pending { background: var(--blue-light);    color: var(--blue);    border: 1px solid #93C5FD; }
+
+  /* risk / question items */
+  .item-list { display: flex; flex-direction: column; gap: 10px; }
+  .risk-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: box-shadow 0.15s;
+  }
+  .risk-item:hover { box-shadow: var(--shadow-sm); }
+  .risk-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .risk-content { flex: 1; }
+  .risk-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+  .risk-desc  { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+
+  /* progress bar for action items */
+  .progress-bar-wrap { margin-top: 12px; padding: 12px 14px; background: var(--surface-2); border-radius: var(--radius-sm); }
+  .pb-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .pb-track { height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .pb-fill   { height: 100%; background: linear-gradient(90deg, var(--accent), #8B5CF6); border-radius: 4px; transition: width 1s ease; }
+
+  /* filter bar */
+  .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filter-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-secondary);
+    transition: all 0.12s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* additional notes */
+  .notes-blob {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    white-space: pre-line;
+  }
+
+  /* sample selector */
+  .sample-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 18px;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: 14px;
+    border: 1px solid var(--accent-mid);
+  }
+  .sample-bar-label { font-size: 12px; font-weight: 600; color: var(--accent); }
+  .sample-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--accent-mid);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #fff;
+    color: var(--accent);
+    transition: all 0.12s;
+  }
+  .sample-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--text-primary);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* empty state */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+  .empty-state small { font-size: 12.5px; }
+
+  /* loading overlay */
+  .loading-overlay {
+    display: none;
+    text-align: center;
+    padding: 48px 20px;
+  }
+  .loading-overlay.visible { display: block; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  .loading-text { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+  .loading-sub  { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .section-grid { grid-template-columns: 1fr; }
+    .main { padding: 16px; }
+    .topbar { padding: 0 16px; }
+  }
+  @media (max-width: 600px) {
+    .action-table th:nth-child(3),
+    .action-table td:nth-child(3) { display: none; }
+    .stat-strip { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* checkbox */
+  .action-check { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  /* ai badge */
+  .ai-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: linear-gradient(135deg, var(--accent-light), var(--purple-light));
+    color: var(--accent);
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-mid);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">🧠</div>
+    <div class="brand-name">Brain<span>Dump</span> → Action Planner</div>
+  </div>
+  <div class="topbar-actions">
+    <span class="badge-day">Day 18 / 60</span>
+    <span class="ai-badge">✦ AI Powered</span>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Sections</div>
+    <button class="nav-item active" onclick="scrollTo('summary-card')">
+      <span class="nav-icon">📋</span> Summary
+    </button>
+    <button class="nav-item" onclick="scrollTo('takeaway-card')">
+      <span class="nav-icon">💡</span> Key Takeaways
+    </button>
+    <button class="nav-item" onclick="scrollTo('actions-card')">
+      <span class="nav-icon">✅</span> Action Items
+      <span class="nav-count" id="sb-actions">—</span>
+    </button>
+    <button class="nav-item" onclick="scrollTo('open-card')">
+      <span class="nav-icon">❓</span> Open Questions
+      <span class="nav-count" id="sb-open">—</span>
+    </button>
+    <button class="nav-item" onclick="scrollTo('risks-card')">
+      <span class="nav-icon">⚠️</span> Risks / Blockers
+      <span class="nav-count" id="sb-risks">—</span>
+    </button>
+    <button class="nav-item" onclick="scrollTo('conflicts-card')">
+      <span class="nav-icon">⚡</span> Conflicts
+      <span class="nav-count" id="sb-conflicts">—</span>
+    </button>
+    <button class="nav-item" onclick="scrollTo('notes-card')">
+      <span class="nav-icon">📝</span> Additional Notes
+    </button>
+    <div class="sidebar-label" style="margin-top:8px;">Tools</div>
+    <button class="nav-item" onclick="exportMarkdown()">
+      <span class="nav-icon">⬇️</span> Export Summary
+    </button>
+    <button class="nav-item" onclick="clearAll()">
+      <span class="nav-icon">🗑️</span> Clear
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- INPUT PANEL -->
+    <div class="input-panel">
+      <div class="panel-header">
+        <div class="panel-title">📥 Paste Your Notes</div>
+        <div class="format-tabs">
+          <div class="ftab active" onclick="setFormat(this,'meeting')">🤝 Meeting</div>
+          <div class="ftab" onclick="setFormat(this,'brainstorm')">🌩️ Brainstorm</div>
+          <div class="ftab" onclick="setFormat(this,'class')">📚 Class Notes</div>
+          <div class="ftab" onclick="setFormat(this,'voice')">🎤 Voice Memo</div>
+          <div class="ftab" onclick="setFormat(this,'project')">🚀 Project</div>
+        </div>
+      </div>
+
+      <!-- sample loader -->
+      <div class="sample-bar">
+        <span class="sample-bar-label">Try a sample →</span>
+        <button class="sample-btn" onclick="loadSample('meeting')">Meeting Notes</button>
+        <button class="sample-btn" onclick="loadSample('brainstorm')">Brainstorm</button>
+        <button class="sample-btn" onclick="loadSample('class')">Class Notes</button>
+        <button class="sample-btn" onclick="loadSample('voice')">Voice Memo</button>
+      </div>
+
+      <textarea class="dump-input" id="dumpInput" placeholder="Paste your messy notes, transcript, voice memo, or brain dump here…" oninput="updateCount()"></textarea>
+      <div class="input-footer">
+        <span class="char-count" id="charCount">0 characters</span>
+        <button class="btn-process" onclick="processNotes()">
+          <span id="btnSpinner" class="spinner"></span>
+          <span id="btnText">✦ Analyze Notes</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Analyzing your notes with AI…</div>
+      <div class="loading-sub" id="loadingStep">Extracting action items</div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+      <div class="es-icon">🧠</div>
+      <p>Your structured dashboard will appear here</p>
+      <small>Paste notes above and click Analyze Notes — or load a sample to see it in action.</small>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results" id="results">
+
+      <!-- STAT STRIP -->
+      <div class="stat-strip" id="statStrip"></div>
+
+      <!-- SUMMARY + TAKEAWAYS -->
+      <div class="section-grid" id="summary-card">
+        <div class="card" id="summaryCard">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">📋</span> Summary</div>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="summaryBody"></div>
+        </div>
+        <div class="card" id="takeaway-card">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">💡</span> Key Takeaways</div>
+            <span class="card-count" id="tkCount">0</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="takeawayBody"></div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="section-grid full" id="actions-card">
+        <div class="card">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">✅</span> Action Items</div>
+            <span class="card-count" id="acCount">0</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="actionsBody"></div>
+        </div>
+      </div>
+
+      <!-- OPEN Q + RISKS -->
+      <div class="section-grid" style="margin-bottom:16px;">
+        <div class="card" id="open-card">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">❓</span> Open Questions</div>
+            <span class="card-count" id="oqCount">0</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="openBody"></div>
+        </div>
+        <div class="card" id="risks-card">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">⚠️</span> Risks / Blockers</div>
+            <span class="card-count" id="rkCount">0</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="risksBody"></div>
+        </div>
+      </div>
+
+      <!-- CONFLICTS + NOTES -->
+      <div class="section-grid">
+        <div class="card" id="conflicts-card">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">⚡</span> Conflicts</div>
+            <span class="card-count" id="cfCount">0</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="conflictsBody"></div>
+        </div>
+        <div class="card" id="notes-card">
+          <div class="card-head" onclick="toggleCard(this)">
+            <div class="card-title"><span class="sec-icon">📝</span> Additional Notes</div>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="card-body" id="notesBody"></div>
+        </div>
+      </div>
+
+    </div><!-- /results -->
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SAMPLES ──
+const SAMPLES = {
+  meeting: `Team Sync – Product Launch Planning
+Date: June 15, 2026 | Attendees: Sara (PM), Dev (Lead Dev), Aisha (Design), Raza (QA), Zara (Marketing)
+
+Sara kicked off by saying the launch is locked for July 10. Dev pushed back—he doesn't think the backend will be stable enough by then, needs at least 2 more weeks. Sara said the date is non-negotiable because of the trade show.
+
+Aisha mentioned that landing page designs are 80% done. She needs final copy from Zara by June 22 or she can't finish. Zara said she won't have final copy until June 28, which conflicts with Aisha's deadline.
+
+Dev said integration with the payment gateway is blocked—they're waiting on API keys from the vendor. No ETA from vendor yet. Raza flagged that QA can't start until the payment integration is working.
+
+Action items:
+- Sara to follow up with vendor for API keys today
+- Aisha to send Zara the landing page wireframe by June 17
+- Zara to provide draft copy to Aisha by June 22 (stretch goal)
+- Dev to share backend stability report with Sara by June 19
+- Raza to draft QA test plan so it's ready to execute the moment integration is done
+
+Open questions:
+- What's the backup plan if the backend isn't stable by July 10?
+- Who approves final copy—Sara or the client?
+- Will the trade show have a live demo requirement?
+
+Concerns: If vendor API keys don't arrive this week, the entire launch timeline is at risk.`,
+
+  brainstorm: `App idea brainstorm – Student Productivity App
+Random thoughts, June 16
+
+OK so the core idea is a focus timer but like actually smart. Not just pomodoro. Track what subject you're studying. Auto-suggest break times based on how long you've been going. Maybe gamify it a bit?
+
+Features I'm thinking:
+- Streak system (like Duolingo)
+- Subject tagging for sessions
+- Weekly study report / analytics
+- Maybe AI tip of the day?
+- Group study mode – see friends studying live
+- Offline mode is crucial, students have bad wifi
+
+Monetization? Maybe freemium. Basic timer free, analytics behind paywall. Or a one-time student discount price. Not sure.
+
+Competitors: Forest, Focus Bear, Notion. We'd differentiate on the social/group angle.
+
+Tech stack TBD. Flutter for cross-platform maybe? Backend needs to handle real-time presence for group mode – Firebase? 
+
+Big risks: getting students to actually change habits. App fatigue. Might need influencer push.
+
+Who builds this? I can't do it alone. Need a dev, maybe a UI/UX person. Budget? No idea yet. 
+
+Questions I haven't answered:
+- Does group study mode actually help or distract?
+- What age range are we targeting? Uni only or high school too?
+- How do we handle privacy for study data?
+- Is anyone else building this exact thing?`,
+
+  class: `OOP Lecture – Inheritance & Polymorphism
+CS201 | Prof. Ahmad | June 14, 2026
+
+Main topic today: Inheritance. Allows a class (child) to acquire properties and methods of another class (parent). Big concept!
+
+Types covered:
+1. Single Inheritance – one parent
+2. Multilevel – A → B → C
+3. Multiple Inheritance – not in Java (use interfaces)
+4. Hierarchical – one parent, many children
+
+Polymorphism = "many forms"
+- Compile-time: Method Overloading (same name, diff params)
+- Runtime: Method Overriding (child rewrites parent method)
+
+Key rules:
+- Use "extends" keyword in Java
+- super() calls parent constructor
+- @Override annotation recommended
+- private members NOT inherited
+
+Assignment due: June 21 – implement a Shape hierarchy (Circle, Rectangle, Triangle) using inheritance + overriding area() method.
+
+Things I didn't fully get:
+- When exactly to use abstract class vs interface?
+- How does the JVM resolve method calls at runtime?
+- Can we override static methods? (prof said no but didn't explain fully)
+
+Extra: Prof mentioned design patterns next week – Strategy Pattern uses polymorphism heavily. Check Head First Design Patterns ch.1.`,
+
+  voice: `[Voice Memo Transcript – recorded June 16, 2026, 11:43pm]
+
+OK so I'm driving back from the meeting and just want to get this out before I forget. Um. The client loved the prototype, which is great. But they want three new features—dark mode, export to PDF, and a notification system. Dark mode is easy. PDF export… that's more work, probably a week at least. Notifications require backend changes, that's a whole thing.
+
+They also mentioned the budget—they're willing to increase it by 15% if we can hit the September deadline. We need to formally respond to that by end of next week.
+
+Oh and I forgot to mention in the meeting—the current database schema doesn't support multi-user roles, which the new notification feature needs. That's a blocker nobody talked about. I should flag this to Dev first thing tomorrow.
+
+Also the contract renewal is coming up in August. We should probably start drafting the renewal proposal in July. Note to self: check with legal about the IP clause that was flagged last time.
+
+Hmm what else. The marketing deck needs updating before we share it with the new investor contact. Ask Zara to update the slides with the new feature screenshots. Give her this week.
+
+That's probably it. Oh—follow up with the client about whether they want a weekly update email or a Slack channel. They were undecided.`
+};
+
+const FORMAT_LABELS = {
+  meeting: 'Meeting Notes', brainstorm: 'Brainstorm Session',
+  class: 'Class Notes', voice: 'Voice Memo Transcript', project: 'Project Discussion'
+};
+
+let currentFormat = 'meeting';
+let parsedData = null;
+
+function setFormat(el, fmt) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentFormat = fmt;
+}
+
+function loadSample(type) {
+  document.getElementById('dumpInput').value = SAMPLES[type];
+  updateCount();
+  const map = { meeting: 0, brainstorm: 1, class: 2, voice: 3 };
+  const tabs = document.querySelectorAll('.ftab');
+  tabs.forEach(t => t.classList.remove('active'));
+  if (tabs[map[type]]) tabs[map[type]].classList.add('active');
+  currentFormat = type;
+  showToast('Sample loaded — click Analyze Notes!');
+}
+
+function updateCount() {
+  const len = document.getElementById('dumpInput').value.length;
+  document.getElementById('charCount').textContent = `${len.toLocaleString()} characters`;
+}
+
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+}
+
+function toggleCard(head) {
+  head.classList.toggle('collapsed');
+  const body = head.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+async function processNotes() {
+  const notes = document.getElementById('dumpInput').value.trim();
+  if (!notes) { showToast('Please paste some notes first!'); return; }
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('loadingOverlay').classList.add('visible');
+
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('btnSpinner');
+  btnText.textContent = 'Analyzing…';
+  spinner.style.display = 'block';
+
+  const steps = ['Extracting action items…', 'Identifying risks & blockers…', 'Finding open questions…', 'Detecting conflicts…', 'Building your dashboard…'];
+  let si = 0;
+  const stepInterval = setInterval(() => {
+    document.getElementById('loadingStep').textContent = steps[si % steps.length];
+    si++;
+  }, 900);
+
+  const prompt = `You are a professional meeting analyst and project coordinator. Analyze the following ${FORMAT_LABELS[currentFormat] || 'notes'} and extract structured information. Return ONLY a valid JSON object with NO markdown, NO backticks, NO extra text. 
+
+JSON structure (all fields required):
+{
+  "summary": "2-3 sentence overview of what these notes cover",
+  "keyTakeaways": ["takeaway 1", "takeaway 2", ...],
+  "actionItems": [
+    {"task": "task description", "owner": "person name or Not specified", "deadline": "date or Not specified", "priority": "high|medium|low", "status": "pending|completed"}
+  ],
+  "openQuestions": [
+    {"question": "the question", "context": "brief context or Not specified"}
+  ],
+  "risks": [
+    {"title": "risk/blocker title", "description": "detail", "severity": "high|medium|low"}
+  ],
+  "conflicts": [
+    {"title": "conflict description", "detail": "explanation"}
+  ],
+  "additionalNotes": "any extra context that doesn't fit above, or empty string"
+}
+
+RULES:
+- Never invent or assume information not in the notes
+- Use exact names/dates from the notes
+- If something is not specified, use the string "Not specified"
+- Keep each field concise and accurate
+- Minimum 3 keyTakeaways if the content supports it
+
+NOTES TO ANALYZE:
+${notes}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    parsedData = JSON.parse(clean);
+    renderDashboard(parsedData);
+  } catch (e) {
+    console.error(e);
+    showToast('Error parsing response. Try again.');
+    document.getElementById('loadingOverlay').classList.remove('visible');
+    document.getElementById('emptyState').style.display = 'block';
+  }
+
+  clearInterval(stepInterval);
+  btnText.textContent = '✦ Analyze Notes';
+  spinner.style.display = 'none';
+}
+
+function renderDashboard(d) {
+  document.getElementById('loadingOverlay').classList.remove('visible');
+  document.getElementById('results').classList.add('visible');
+
+  // counts
+  const ac = (d.actionItems || []).length;
+  const oc = (d.openQuestions || []).length;
+  const rc = (d.risks || []).length;
+  const cc = (d.conflicts || []).length;
+  const done = (d.actionItems || []).filter(x => x.status === 'completed').length;
+
+  // sidebar counts
+  document.getElementById('sb-actions').textContent = ac;
+  document.getElementById('sb-open').textContent = oc;
+  document.getElementById('sb-risks').textContent = rc;
+  document.getElementById('sb-conflicts').textContent = cc;
+
+  // stat strip
+  document.getElementById('statStrip').innerHTML = `
+    <div class="stat-card s-actions" onclick="document.getElementById('actions-card').scrollIntoView({behavior:'smooth'})">
+      <div class="stat-label">Action Items</div>
+      <div class="stat-val">${ac}</div>
+    </div>
+    <div class="stat-card s-risks" onclick="document.getElementById('risks-card').scrollIntoView({behavior:'smooth'})">
+      <div class="stat-label">Risks / Blockers</div>
+      <div class="stat-val">${rc}</div>
+    </div>
+    <div class="stat-card s-open" onclick="document.getElementById('open-card').scrollIntoView({behavior:'smooth'})">
+      <div class="stat-label">Open Questions</div>
+      <div class="stat-val">${oc}</div>
+    </div>
+    <div class="stat-card s-done">
+      <div class="stat-label">Completed</div>
+      <div class="stat-val">${done}</div>
+    </div>
+    <div class="stat-card s-conflicts" onclick="document.getElementById('conflicts-card').scrollIntoView({behavior:'smooth'})">
+      <div class="stat-label">Conflicts</div>
+      <div class="stat-val">${cc}</div>
+    </div>
+  `;
+
+  // summary
+  document.getElementById('summaryBody').innerHTML = `<div class="summary-text">${d.summary || 'Not specified'}</div>`;
+
+  // takeaways
+  const tk = d.keyTakeaways || [];
+  document.getElementById('tkCount').textContent = tk.length;
+  document.getElementById('takeawayBody').innerHTML = tk.length
+    ? `<div class="takeaway-list">${tk.map(t => `<div class="takeaway-item"><div class="takeaway-dot"></div><span>${t}</span></div>`).join('')}</div>`
+    : '<div style="color:var(--text-muted);font-size:13px;">No key takeaways identified.</div>';
+
+  // actions
+  document.getElementById('acCount').textContent = ac;
+  const pct = ac > 0 ? Math.round((done / ac) * 100) : 0;
+  const filterBar = `<div class="filter-bar" id="actionFilterBar">
+    <button class="filter-btn active" onclick="filterActions(this,'all')">All (${ac})</button>
+    <button class="filter-btn" onclick="filterActions(this,'high')">🔴 High</button>
+    <button class="filter-btn" onclick="filterActions(this,'medium')">🟠 Medium</button>
+    <button class="filter-btn" onclick="filterActions(this,'low')">🟢 Low</button>
+    <button class="filter-btn" onclick="filterActions(this,'pending')">⏳ Pending</button>
+    <button class="filter-btn" onclick="filterActions(this,'completed')">✅ Done</button>
+  </div>`;
+  const progressBar = `<div class="progress-bar-wrap">
+    <div class="pb-label"><span>Completion Progress</span><span>${done}/${ac} tasks done (${pct}%)</span></div>
+    <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+  </div>`;
+  const rows = (d.actionItems || []).map((a, i) => {
+    const p = a.priority || 'medium';
+    const st = a.status || 'pending';
+    const badgeP = p === 'high' ? `<span class="badge badge-high">🔴 High</span>` : p === 'medium' ? `<span class="badge badge-medium">🟠 Medium</span>` : `<span class="badge badge-low">🟢 Low</span>`;
+    const badgeSt = st === 'completed' ? `<span class="badge badge-done">✅ Done</span>` : `<span class="badge badge-pending">⏳ Pending</span>`;
+    return `<tr data-priority="${p}" data-status="${st}">
+      <td><input class="action-check" type="checkbox" ${st==='completed'?'checked':''} onchange="toggleDone(this,${i})"></td>
+      <td><span class="task-name">${a.task}</span></td>
+      <td>${a.owner !== 'Not specified' ? `<span class="owner-pill">👤 ${a.owner}</span>` : '<span style="color:var(--text-muted);font-size:12px;">Not specified</span>'}</td>
+      <td><span class="deadline">${a.deadline}</span></td>
+      <td>${badgeP}</td>
+      <td>${badgeSt}</td>
+    </tr>`;
+  });
+  document.getElementById('actionsBody').innerHTML = filterBar + (ac
+    ? `<div style="overflow-x:auto"><table class="action-table"><thead><tr><th></th><th>Task</th><th>Owner</th><th>Deadline</th><th>Priority</th><th>Status</th></tr></thead><tbody id="actionRows">${rows.join('')}</tbody></table></div>` + progressBar
+    : '<div style="color:var(--text-muted);font-size:13px;">No action items identified.</div>');
+  setTimeout(() => { const f = document.getElementById('pbFill'); if (f) f.style.width = pct + '%'; }, 200);
+
+  // open questions
+  document.getElementById('oqCount').textContent = oc;
+  document.getElementById('openBody').innerHTML = oc
+    ? `<div class="item-list">${(d.openQuestions || []).map(q => `<div class="risk-item"><div class="risk-icon">❓</div><div class="risk-content"><div class="risk-title">${q.question}</div>${q.context && q.context !== 'Not specified' ? `<div class="risk-desc">${q.context}</div>` : ''}</div><span class="badge badge-open">Open</span></div>`).join('')}</div>`
+    : '<div style="color:var(--text-muted);font-size:13px;">No open questions found.</div>';
+
+  // risks
+  document.getElementById('rkCount').textContent = rc;
+  document.getElementById('risksBody').innerHTML = rc
+    ? `<div class="item-list">${(d.risks || []).map(r => {
+        const sev = r.severity || 'medium';
+        const b = sev === 'high' ? `<span class="badge badge-high">🔴 High</span>` : sev === 'medium' ? `<span class="badge badge-medium">🟠 Medium</span>` : `<span class="badge badge-low">🟢 Low</span>`;
+        return `<div class="risk-item"><div class="risk-icon">⚠️</div><div class="risk-content"><div class="risk-title">${r.title}</div><div class="risk-desc">${r.description}</div></div>${b}</div>`;
+      }).join('')}</div>`
+    : '<div style="color:var(--text-muted);font-size:13px;">No risks or blockers identified.</div>';
+
+  // conflicts
+  document.getElementById('cfCount').textContent = cc;
+  document.getElementById('conflictsBody').innerHTML = cc
+    ? `<div class="item-list">${(d.conflicts || []).map(c => `<div class="risk-item"><div class="risk-icon">⚡</div><div class="risk-content"><div class="risk-title">${c.title}</div><div class="risk-desc">${c.detail}</div></div><span class="badge badge-conflict">⚠️ Conflict</span></div>`).join('')}</div>`
+    : '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">No conflicts detected.</div>';
+
+  // notes
+  document.getElementById('notesBody').innerHTML = d.additionalNotes && d.additionalNotes.trim()
+    ? `<div class="notes-blob">${d.additionalNotes}</div>`
+    : '<div style="color:var(--text-muted);font-size:13px;">No additional notes.</div>';
+
+  showToast('Dashboard ready! ✦');
+}
+
+function filterActions(btn, filter) {
+  document.querySelectorAll('#actionFilterBar .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const rows = document.querySelectorAll('#actionRows tr');
+  rows.forEach(r => {
+    if (filter === 'all') { r.style.display = ''; return; }
+    const match = r.dataset.priority === filter || r.dataset.status === filter;
+    r.style.display = match ? '' : 'none';
+  });
+}
+
+function toggleDone(cb, idx) {
+  if (!parsedData) return;
+  parsedData.actionItems[idx].status = cb.checked ? 'completed' : 'pending';
+  renderDashboard(parsedData);
+}
+
+function clearAll() {
+  document.getElementById('dumpInput').value = '';
+  document.getElementById('charCount').textContent = '0 characters';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('emptyState').style.display = 'block';
+  parsedData = null;
+  showToast('Cleared!');
+}
+
+function exportMarkdown() {
+  if (!parsedData) { showToast('Analyze notes first!'); return; }
+  const d = parsedData;
+  let md = `# Brain Dump → Action Plan\n\n## Summary\n${d.summary}\n\n## Key Takeaways\n${(d.keyTakeaways||[]).map(t=>`- ${t}`).join('\n')}\n\n## Action Items\n| Task | Owner | Deadline | Priority | Status |\n|------|-------|----------|----------|--------|\n${(d.actionItems||[]).map(a=>`| ${a.task} | ${a.owner} | ${a.deadline} | ${a.priority} | ${a.status} |`).join('\n')}\n\n## Open Questions\n${(d.openQuestions||[]).map(q=>`- ${q.question}`).join('\n')}\n\n## Risks / Blockers\n${(d.risks||[]).map(r=>`- **${r.title}** (${r.severity}): ${r.description}`).join('\n')}\n\n## Conflicts\n${(d.conflicts||[]).map(c=>`- **${c.title}**: ${c.detail}`).join('\n')}\n`;
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'brain-dump-summary.md';
+  a.click();
+  showToast('Markdown exported!');
+}
+</script>
+</body>
+</html>

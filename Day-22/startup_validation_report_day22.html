@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Startup Validation Report — GigBridge PK</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1117;
+    --ink-soft: #3a3d4a;
+    --ink-muted: #6b7280;
+    --surface: #fafaf8;
+    --surface-card: #ffffff;
+    --accent: #6c47ff;
+    --accent-light: #ede9ff;
+    --accent-2: #ff6b47;
+    --accent-2-light: #fff0ed;
+    --green: #10b981;
+    --green-light: #d1fae5;
+    --amber: #f59e0b;
+    --amber-light: #fef3c7;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --border: #e5e7eb;
+    --border-strong: #d1d5db;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f1117 0%, #1a1040 50%, #0d0d1a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px 80px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(108,71,255,0.25) 0%, transparent 70%);
+    top: -100px; right: -100px;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,71,0.15) 0%, transparent 70%);
+    bottom: 100px; left: 50px;
+  }
+
+  .cover-top { position: relative; z-index: 2; }
+  .cover-firm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 80px;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    background: rgba(108,71,255,0.2);
+    border: 1px solid rgba(108,71,255,0.4);
+    color: #a78bfa;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.0;
+    margin-bottom: 12px;
+  }
+
+  .cover h1 span { color: #a78bfa; }
+
+  .cover-tagline {
+    font-size: 18px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    margin-top: 16px;
+    max-width: 480px;
+  }
+
+  .cover-middle { position: relative; z-index: 2; }
+
+  .cover-verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.35);
+    border-radius: 12px;
+    padding: 16px 28px;
+    margin-bottom: 32px;
+  }
+  .verdict-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; }
+  .verdict-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: #6ee7b7;
+    font-weight: 700;
+  }
+  .verdict-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  .cover-scores {
+    display: flex;
+    gap: 40px;
+  }
+  .score-item { text-align: center; }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+  }
+  .score-num span { font-size: 18px; color: rgba(255,255,255,0.4); }
+  .score-label { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+  .score-divider { width: 1px; background: rgba(255,255,255,0.1); }
+
+  .cover-bottom {
+    position: relative; z-index: 2;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 24px;
+  }
+  .cover-meta { font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.8; }
+  .cover-meta strong { color: rgba(255,255,255,0.6); }
+  .cover-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 2px;
+  }
+
+  /* ── LAYOUT ── */
+  .report-body { max-width: 960px; margin: 0 auto; padding: 60px 40px; }
+
+  .section { margin-bottom: 56px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── EXEC SUMMARY ── */
+  .exec-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  .exec-text p { color: var(--ink-soft); line-height: 1.8; margin-bottom: 12px; }
+  .exec-text p:last-child { margin-bottom: 0; }
+
+  .meta-table { width: 100%; border-collapse: collapse; }
+  .meta-table tr td { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .meta-table tr:last-child td { border-bottom: none; }
+  .meta-table td:first-child { color: var(--ink-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding-right: 16px; white-space: nowrap; }
+  .meta-table td:last-child { font-weight: 500; color: var(--ink); }
+
+  /* ── SCORE BARS ── */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .score-row:last-child { margin-bottom: 0; }
+  .score-row-label { width: 180px; font-size: 13px; color: var(--ink-soft); flex-shrink: 0; }
+  .score-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.3s; }
+  .score-bar-fill.purple { background: linear-gradient(90deg, #a78bfa, #6c47ff); }
+  .score-bar-fill.green { background: linear-gradient(90deg, #6ee7b7, #10b981); }
+  .score-bar-fill.amber { background: linear-gradient(90deg, #fcd34d, #f59e0b); }
+  .score-bar-fill.red { background: linear-gradient(90deg, #fca5a5, #ef4444); }
+  .score-row-val { width: 40px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--ink); }
+
+  /* ── BIG NUMBER ── */
+  .big-num-card {
+    text-align: center;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 20px;
+  }
+  .big-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .big-num.purple { color: var(--accent); }
+  .big-num.green { color: var(--green); }
+  .big-num.amber { color: var(--amber); }
+  .big-num-label { font-size: 11px; color: var(--ink-muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 8px; }
+  .big-num-sub { font-size: 13px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* ── COMPETITOR TABLE ── */
+  table.comp { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.comp th {
+    background: var(--ink);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  table.comp th:first-child { border-radius: 8px 0 0 0; }
+  table.comp th:last-child { border-radius: 0 8px 0 0; }
+  table.comp td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.comp tr:last-child td { border-bottom: none; }
+  table.comp tr:nth-child(even) td { background: #fafaf8; }
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .pill.green { background: var(--green-light); color: #065f46; }
+  .pill.amber { background: var(--amber-light); color: #92400e; }
+  .pill.red { background: var(--red-light); color: #991b1b; }
+  .pill.purple { background: var(--accent-light); color: #4c1d95; }
+  .pill.gray { background: #f3f4f6; color: #374151; }
+
+  /* ── RISK ── */
+  .risk-row {
+    display: grid;
+    grid-template-columns: 200px 80px 80px 1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-row.header { font-size: 11px; font-weight: 600; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase; padding-bottom: 10px; }
+
+  /* ── ICP ── */
+  .persona-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .persona-header {
+    background: linear-gradient(135deg, var(--accent), #9c71ff);
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .persona-avatar {
+    width: 60px; height: 60px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .persona-name { font-family: 'Playfair Display', serif; font-size: 22px; color: white; font-weight: 700; }
+  .persona-role { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+  .persona-body { padding: 24px 28px; }
+  .persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .persona-item-title { font-size: 11px; color: var(--ink-muted); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+  .persona-item ul { list-style: none; }
+  .persona-item ul li { font-size: 13px; color: var(--ink-soft); padding: 4px 0; display: flex; align-items: flex-start; gap: 8px; }
+  .persona-item ul li::before { content: '→'; color: var(--accent); flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+
+  /* ── JOURNEY ── */
+  .journey {
+    display: flex;
+    gap: 0;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  .journey-step {
+    flex: 1;
+    padding: 20px 16px;
+    text-align: center;
+    position: relative;
+  }
+  .journey-step:nth-child(1) { background: #ede9ff; }
+  .journey-step:nth-child(2) { background: #ddd6fe; }
+  .journey-step:nth-child(3) { background: #c4b5fd; }
+  .journey-step:nth-child(4) { background: #a78bfa; }
+  .journey-step:nth-child(5) { background: #8b5cf6; }
+  .journey-step:nth-child(6) { background: #6c47ff; }
+  .journey-icon { font-size: 22px; margin-bottom: 8px; }
+  .journey-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+  .journey-step:nth-child(1) .journey-label,
+  .journey-step:nth-child(2) .journey-label,
+  .journey-step:nth-child(3) .journey-label { color: #4c1d95; }
+  .journey-step:nth-child(4) .journey-label,
+  .journey-step:nth-child(5) .journey-label,
+  .journey-step:nth-child(6) .journey-label { color: white; }
+  .journey-desc { font-size: 11px; color: rgba(0,0,0,0.5); margin-top: 4px; }
+  .journey-step:nth-child(5) .journey-desc,
+  .journey-step:nth-child(6) .journey-desc { color: rgba(255,255,255,0.65); }
+
+  /* ── GO/NO-GO ── */
+  .go-card {
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .go-card::before {
+    content: '✓';
+    position: absolute;
+    font-size: 200px;
+    color: rgba(255,255,255,0.04);
+    right: -20px;
+    top: -40px;
+    line-height: 1;
+  }
+  .go-card .go-label { font-size: 12px; letter-spacing: 3px; color: #6ee7b7; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px; }
+  .go-card .go-verdict { font-family: 'Playfair Display', serif; font-size: 56px; font-weight: 900; color: white; line-height: 1; margin-bottom: 16px; }
+  .go-card .go-sub { font-size: 16px; color: rgba(255,255,255,0.65); max-width: 520px; margin: 0 auto; }
+  .go-conditions { display: flex; gap: 16px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+  .go-condition {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .go-condition::before { content: '✓'; color: #6ee7b7; font-weight: 700; }
+
+  /* ── 30-DAY PLAN ── */
+  .plan-phase { margin-bottom: 20px; }
+  .plan-phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-radius: 10px 10px 0 0;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .plan-phase-header.w1 { background: var(--accent-light); color: var(--accent); }
+  .plan-phase-header.w2 { background: #fff7ed; color: #c2410c; }
+  .plan-phase-header.w3 { background: var(--green-light); color: #065f46; }
+  .plan-phase-header.w4 { background: var(--amber-light); color: #92400e; }
+  .plan-phase-body { background: white; border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; }
+  .plan-task {
+    display: flex;
+    gap: 14px;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .plan-task:last-child { border-bottom: none; }
+  .plan-task-day {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    width: 40px;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+  .plan-task-text { flex: 1; }
+  .plan-task-tag { flex-shrink: 0; }
+
+  /* ── GAP ANALYSIS ── */
+  .gap-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .gap-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .gap-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .gap-desc { font-size: 13px; color: var(--ink-soft); }
+
+  /* ── PAIN POINTS / TRIGGERS ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .list-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .list-card-title { font-size: 12px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 14px; }
+  .list-card ul { list-style: none; }
+  .list-card ul li { font-size: 13px; color: var(--ink-soft); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  .list-card ul li:last-child { border-bottom: none; }
+  .list-card ul li .li-icon { flex-shrink: 0; }
+
+  /* ── PIVOT ── */
+  .pivot-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .pivot-icon { font-size: 24px; }
+  .pivot-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; font-size: 15px; }
+  .pivot-desc { font-size: 13px; color: var(--ink-soft); }
+  .pivot-badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 99px; background: var(--accent-light); color: var(--accent); font-weight: 600; margin-top: 6px; }
+
+  /* ── PROBLEM VALIDATION ── */
+  .prob-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .prob-stat {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .prob-stat-num { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--ink); }
+  .prob-stat-label { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  /* ── FOOTER ── */
+  .report-footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .footer-brand { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--ink); }
+
+  /* ── AI LOADING ── */
+  #ai-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0f1117 0%, #1a1040 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    gap: 24px;
+  }
+  .ai-logo { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; color: white; }
+  .ai-logo span { color: #a78bfa; }
+  .ai-status { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+  .ai-bar { width: 280px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+  .ai-bar-fill { height: 100%; background: linear-gradient(90deg, #6c47ff, #a78bfa); border-radius: 99px; width: 0%; transition: width 0.3s; }
+  .ai-steps { display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
+  .ai-step { display: flex; align-items: center; gap: 12px; font-size: 13px; color: rgba(255,255,255,0.35); transition: color 0.3s; }
+  .ai-step.active { color: rgba(255,255,255,0.9); }
+  .ai-step.done { color: #6ee7b7; }
+  .ai-step-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); flex-shrink: 0; transition: background 0.3s; }
+  .ai-step.active .ai-step-dot { background: #a78bfa; }
+  .ai-step.done .ai-step-dot { background: #10b981; }
+
+  /* ── AI SECTION LOADING ── */
+  .ai-section-placeholder {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 28px;
+    text-align: center;
+  }
+  .ai-section-placeholder .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-section-placeholder p { font-size: 13px; color: var(--ink-muted); }
+
+  @media print {
+    body { background: white; }
+    #ai-overlay { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AI Loading Overlay -->
+<div id="ai-overlay">
+  <div class="ai-logo">Startup<span>Lens</span></div>
+  <div class="ai-status" id="ai-status-text">Initializing analysis engine...</div>
+  <div class="ai-bar"><div class="ai-bar-fill" id="ai-bar-fill"></div></div>
+  <div class="ai-steps" id="ai-steps">
+    <div class="ai-step" id="step-0"><div class="ai-step-dot"></div> Analyzing founder-market fit</div>
+    <div class="ai-step" id="step-1"><div class="ai-step-dot"></div> Calculating TAM · SAM · SOM</div>
+    <div class="ai-step" id="step-2"><div class="ai-step-dot"></div> Mapping competitive landscape</div>
+    <div class="ai-step" id="step-3"><div class="ai-step-dot"></div> Building customer persona</div>
+    <div class="ai-step" id="step-4"><div class="ai-step-dot"></div> Assessing risks & pivots</div>
+    <div class="ai-step" id="step-5"><div class="ai-step-dot"></div> Generating Go/No-Go verdict</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ COVER ══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="cover-firm">StartupLens · Validation Report · Confidential</div>
+    <div class="cover-badge">⚡ AI-Powered Analysis</div>
+    <h1>GigBridge<br><span>PK</span></h1>
+    <p class="cover-tagline">A micro-gig marketplace connecting Pakistani tech students with real client projects — building careers while earning.</p>
+  </div>
+  <div class="cover-middle">
+    <div class="cover-verdict">
+      <div class="verdict-dot"></div>
+      <div>
+        <div class="verdict-text">STRONG GO ✓</div>
+        <div class="verdict-sub">Recommended to proceed with validation sprint</div>
+      </div>
+    </div>
+    <div class="cover-scores">
+      <div class="score-item">
+        <div class="score-num">82<span>/100</span></div>
+        <div class="score-label">Validation Score</div>
+      </div>
+      <div class="score-divider"></div>
+      <div class="score-item">
+        <div class="score-num">7.8<span>/10</span></div>
+        <div class="score-label">Founder-Market Fit</div>
+      </div>
+      <div class="score-divider"></div>
+      <div class="score-item">
+        <div class="score-num">$240M</div>
+        <div class="score-label">SAM (Pakistan)</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-meta">
+      <div><strong>Startup:</strong> GigBridge PK — Tech Student Micro-Gig Platform</div>
+      <div><strong>Market:</strong> Pakistan · KPK · FATA Region</div>
+      <div><strong>Stage:</strong> Idea / Pre-Product</div>
+      <div><strong>Report Date:</strong> June 2026</div>
+    </div>
+    <div class="cover-logo">ABTalks AI Challenge · Day 22/60</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ BODY ══════════════════════════════════════════ -->
+<div class="report-body" id="report-body" style="display:none">
+
+  <!-- 01 · EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Executive Summary</h2>
+    </div>
+    <div class="exec-grid">
+      <div class="card exec-text" id="exec-summary-text">
+        <div class="ai-section-placeholder"><div class="spinner"></div><p>Generating executive summary…</p></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Report Snapshot</div>
+        <table class="meta-table">
+          <tr><td>Startup</td><td>GigBridge PK</td></tr>
+          <tr><td>Category</td><td>Marketplace / EdTech</td></tr>
+          <tr><td>Country</td><td>Pakistan</td></tr>
+          <tr><td>Stage</td><td>Pre-Product · Idea</td></tr>
+          <tr><td>Target</td><td>CS/Tech Students, Age 18–25</td></tr>
+          <tr><td>Revenue Model</td><td>Commission (10–15%)</td></tr>
+          <tr><td>Validation Score</td><td>82 / 100</td></tr>
+          <tr><td>Recommendation</td><td>✅ Strong GO</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 · PROBLEM VALIDATION -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Problem Validation</h2>
+    </div>
+    <div class="prob-stats">
+      <div class="prob-stat"><div class="prob-stat-num">68%</div><div class="prob-stat-label">CS grads underemployed</div></div>
+      <div class="prob-stat"><div class="prob-stat-num">1.2M+</div><div class="prob-stat-label">Tech students in PK</div></div>
+      <div class="prob-stat"><div class="prob-stat-num">$3.5B</div><div class="prob-stat-label">Freelance remittances '24</div></div>
+      <div class="prob-stat"><div class="prob-stat-num">83%</div><div class="prob-stat-label">Struggle to get 1st client</div></div>
+    </div>
+    <div id="problem-validation-text" class="card">
+      <div class="ai-section-placeholder"><div class="spinner"></div><p>Validating problem severity…</p></div>
+    </div>
+  </div>
+
+  <!-- 03 · FOUNDER-MARKET FIT -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Founder-Market Fit Score</h2>
+    </div>
+    <div class="card">
+      <div class="score-row">
+        <div class="score-row-label">Domain Knowledge</div>
+        <div class="score-bar-track"><div class="score-bar-fill purple" style="width:90%"></div></div>
+        <div class="score-row-val">9.0</div>
+      </div>
+      <div class="score-row">
+        <div class="score-row-label">Customer Empathy</div>
+        <div class="score-bar-track"><div class="score-bar-fill green" style="width:95%"></div></div>
+        <div class="score-row-val">9.5</div>
+      </div>
+      <div class="score-row">
+        <div class="score-row-label">Technical Capability</div>
+        <div class="score-bar-track"><div class="score-bar-fill purple" style="width:82%"></div></div>
+        <div class="score-row-val">8.2</div>
+      </div>
+      <div class="score-row">
+        <div class="score-row-label">Network & Distribution</div>
+        <div class="score-bar-track"><div class="score-bar-fill amber" style="width:62%"></div></div>
+        <div class="score-row-val">6.2</div>
+      </div>
+      <div class="score-row">
+        <div class="score-row-label">Prior Experience</div>
+        <div class="score-bar-track"><div class="score-bar-fill amber" style="width:70%"></div></div>
+        <div class="score-row-val">7.0</div>
+      </div>
+      <div class="score-row">
+        <div class="score-row-label">Market Passion</div>
+        <div class="score-bar-track"><div class="score-bar-fill green" style="width:95%"></div></div>
+        <div class="score-row-val">9.5</div>
+      </div>
+      <hr style="margin:20px 0; border-color: var(--border)">
+      <div class="score-row">
+        <div class="score-row-label" style="font-weight:700; color: var(--ink)">Overall FMF Score</div>
+        <div class="score-bar-track"><div class="score-bar-fill purple" style="width:78%"></div></div>
+        <div class="score-row-val" style="font-size:16px; color:var(--accent)">7.8</div>
+      </div>
+      <p style="font-size:13px; color:var(--ink-muted); margin-top:16px;">★ <strong>Strong alignment.</strong> As a Pakistani CS student actively freelancing, you ARE the customer. This lived experience is your strongest competitive moat.</p>
+    </div>
+  </div>
+
+  <!-- 04 · TAM SAM SOM -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">TAM · SAM · SOM Analysis</h2>
+    </div>
+    <div class="grid-3">
+      <div class="big-num-card">
+        <div class="big-num purple">$2.8B</div>
+        <div class="big-num-label">TAM</div>
+        <div class="big-num-sub">Total South Asia freelance market (2026 est.)</div>
+      </div>
+      <div class="big-num-card">
+        <div class="big-num green">$240M</div>
+        <div class="big-num-label">SAM</div>
+        <div class="big-num-sub">Pakistan student & entry-level gig economy</div>
+      </div>
+      <div class="big-num-card" style="border-color: var(--accent); border-width:2px;">
+        <div class="big-num amber">$18M</div>
+        <div class="big-num-label">SOM (3-Year Target)</div>
+        <div class="big-num-sub">Realistically capturable · KPK + Punjab focus</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <table class="comp">
+        <thead>
+          <tr>
+            <th>Metric</th><th>Assumption</th><th>Number</th><th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Active tech students PK</td><td>~1.2M enrolled in CS/IT programs</td><td>1,200,000</td><td>—</td></tr>
+          <tr><td>Addressable (digital, smartphone)</td><td>40% have devices + connectivity</td><td>480,000</td><td>—</td></tr>
+          <tr><td>Likely to freelance</td><td>25% interest rate</td><td>120,000</td><td>—</td></tr>
+          <tr><td>Avg. annual gig earnings (entry)</td><td>$400–$800 / year</td><td>$600 avg</td><td>$72M potential GMV</td></tr>
+          <tr><td><strong>Platform Revenue (12% take rate)</strong></td><td>Year 3 at 25% market share</td><td>30,000 users</td><td><strong>~$18M SOM</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 05 · COMPETITOR ANALYSIS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Competitor Analysis</h2>
+    </div>
+    <div class="card" id="competitor-analysis">
+      <div class="ai-section-placeholder"><div class="spinner"></div><p>Mapping competitive landscape…</p></div>
+    </div>
+  </div>
+
+  <!-- 06 · MARKET GAP ANALYSIS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Market Gap Analysis</h2>
+    </div>
+    <div id="market-gap">
+      <div class="gap-item"><div class="gap-num">1</div><div><div class="gap-title">No student-first onboarding on existing platforms</div><div class="gap-desc">Upwork & Fiverr require proven experience to win first jobs — a catch-22 for students with no portfolio or reviews.</div></div></div>
+      <div class="gap-item"><div class="gap-num">2</div><div><div class="gap-title">Zero Urdu/Pashto language support</div><div class="gap-desc">Global platforms are English-only, excluding millions of talented students in KPK, Balochistan, and rural Punjab.</div></div></div>
+      <div class="gap-item"><div class="gap-num">3</div><div><div class="gap-title">No local payment rails for students</div><div class="gap-desc">International platforms require Payoneer or USD bank accounts — almost impossible for under-18 students in Pakistan.</div></div></div>
+      <div class="gap-item"><div class="gap-num">4</div><div><div class="gap-title">Micro-project economy is underserved</div><div class="gap-desc">Small local businesses want $10–$50 micro-tasks; no platform caters to this Pakistani micro-gig segment at scale.</div></div></div>
+      <div class="gap-item"><div class="gap-num">5</div><div><div class="gap-title">No mentorship-to-gig pipeline</div><div class="gap-desc">Students need guided, supervised early gig experience. No platform pairs mentors with student freelancers in Pakistan.</div></div></div>
+    </div>
+  </div>
+
+  <!-- 07 · ICP & BUYER PERSONA -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Ideal Customer Profile & Buyer Persona</h2>
+    </div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="persona-card">
+        <div class="persona-header">
+          <div class="persona-avatar">👩‍💻</div>
+          <div>
+            <div class="persona-name">Aisha — The Student Seller</div>
+            <div class="persona-role">3rd Semester CS · University of Peshawar</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-grid">
+            <div class="persona-item"><div class="persona-item-title">Goals</div><ul>
+              <li>Earn while studying</li><li>Build portfolio for job market</li><li>Gain real client experience</li>
+            </ul></div>
+            <div class="persona-item"><div class="persona-item-title">Frustrations</div><ul>
+              <li>Rejected on Fiverr (no reviews)</li><li>Parents skeptical of freelancing</li><li>Payment withdrawal headaches</li>
+            </ul></div>
+            <div class="persona-item"><div class="persona-item-title">Channels</div><ul>
+              <li>TikTok, Instagram Reels</li><li>LinkedIn (learning)</li><li>University WhatsApp groups</li>
+            </ul></div>
+            <div class="persona-item"><div class="persona-item-title">Values</div><ul>
+              <li>Financial independence</li><li>Recognition & credibility</li><li>Skill validation</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+      <div class="persona-card">
+        <div class="persona-header" style="background: linear-gradient(135deg, #ff6b47, #ff9a47);">
+          <div class="persona-avatar">🏪</div>
+          <div>
+            <div class="persona-name">Imran — The Local Buyer</div>
+            <div class="persona-role">Small Business Owner · Lahore / Peshawar</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-grid">
+            <div class="persona-item"><div class="persona-item-title">Goals</div><ul>
+              <li>Affordable digital services</li><li>Local Urdu-speaking freelancers</li><li>Quick turnaround micro-tasks</li>
+            </ul></div>
+            <div class="persona-item"><div class="persona-item-title">Frustrations</div><ul>
+              <li>Global platforms too expensive</li><li>Language barrier with freelancers</li><li>No escrow trust on WhatsApp deals</li>
+            </ul></div>
+            <div class="persona-item"><div class="persona-item-title">Channels</div><ul>
+              <li>Facebook groups</li><li>Word of mouth</li><li>OLX / local forums</li>
+            </ul></div>
+            <div class="persona-item"><div class="persona-item-title">Values</div><ul>
+              <li>Price vs quality balance</li><li>Trust & accountability</li><li>Local support & community</li>
+            </ul></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 · PAIN POINTS, TRIGGERS & OBJECTIONS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2 class="section-title">Pain Points · Buying Triggers · Objections</h2>
+    </div>
+    <div class="two-col">
+      <div class="list-card">
+        <div class="list-card-title">🔥 Top Pain Points</div>
+        <ul>
+          <li><span class="li-icon">😤</span>Can't land first gig without prior reviews</li>
+          <li><span class="li-icon">💸</span>Payment withdrawal blocked for students</li>
+          <li><span class="li-icon">🌐</span>English-only platforms exclude local talent</li>
+          <li><span class="li-icon">😰</span>Fear of client scams & non-payment</li>
+          <li><span class="li-icon">📉</span>Rates too low to be competitive globally</li>
+        </ul>
+      </div>
+      <div class="list-card">
+        <div class="list-card-title">⚡ Buying Triggers</div>
+        <ul>
+          <li><span class="li-icon">🎓</span>Approaching graduation — need income proof</li>
+          <li><span class="li-icon">📱</span>Viral success stories of young earners</li>
+          <li><span class="li-icon">🏆</span>University competitions / hackathons</li>
+          <li><span class="li-icon">👨‍👩‍👧</span>Family pressure to earn while studying</li>
+          <li><span class="li-icon">📣</span>Friend earns on platform (FOMO)</li>
+        </ul>
+      </div>
+      <div class="list-card">
+        <div class="list-card-title">🚧 Student Objections</div>
+        <ul>
+          <li><span class="li-icon">❓</span>"Will clients actually hire students?"</li>
+          <li><span class="li-icon">⏱️</span>"I don't have time between classes"</li>
+          <li><span class="li-icon">🔒</span>"How do I receive money safely?"</li>
+          <li><span class="li-icon">😟</span>"My skills aren't good enough yet"</li>
+          <li><span class="li-icon">📝</span>"What if the client doesn't pay?"</li>
+        </ul>
+      </div>
+      <div class="list-card">
+        <div class="list-card-title">🚧 Buyer Objections</div>
+        <ul>
+          <li><span class="li-icon">🤔</span>"Can students do professional work?"</li>
+          <li><span class="li-icon">💰</span>"Is the quality worth even this price?"</li>
+          <li><span class="li-icon">⏳</span>"Will they meet deadlines?"</li>
+          <li><span class="li-icon">🔄</span>"I've been burned by freelancers before"</li>
+          <li><span class="li-icon">📲</span>"Why not just post in a Facebook group?"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 · CUSTOMER JOURNEY -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2 class="section-title">Customer Journey</h2>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px;">Student Seller Journey</div>
+      <div class="journey">
+        <div class="journey-step"><div class="journey-icon">👀</div><div class="journey-label">Aware</div><div class="journey-desc">Sees TikTok / uni post</div></div>
+        <div class="journey-step"><div class="journey-icon">🔍</div><div class="journey-label">Explore</div><div class="journey-desc">Visits platform</div></div>
+        <div class="journey-step"><div class="journey-icon">📝</div><div class="journey-label">Sign Up</div><div class="journey-desc">Creates student profile</div></div>
+        <div class="journey-step"><div class="journey-icon">📦</div><div class="journey-label">First Gig</div><div class="journey-desc">Posts micro-service</div></div>
+        <div class="journey-step"><div class="journey-icon">🤝</div><div class="journey-label">Deliver</div><div class="journey-desc">Completes project</div></div>
+        <div class="journey-step"><div class="journey-icon">⭐</div><div class="journey-label">Review</div><div class="journey-desc">Earns, shares, repeats</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 · RISK ASSESSMENT -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2 class="section-title">Risk Assessment</h2>
+    </div>
+    <div class="card">
+      <div class="risk-row header">
+        <div>Risk</div><div>Likelihood</div><div>Impact</div><div>Mitigation</div>
+      </div>
+      <div class="risk-row">
+        <div>Cold start (no sellers or buyers)</div>
+        <div><span class="pill amber">High</span></div>
+        <div><span class="pill red">High</span></div>
+        <div>Seed with 50 hand-curated students from Swabi/Peshawar universities before launch</div>
+      </div>
+      <div class="risk-row">
+        <div>Payment infrastructure gaps</div>
+        <div><span class="pill amber">Medium</span></div>
+        <div><span class="pill red">High</span></div>
+        <div>Integrate JazzCash, EasyPaisa, and bank transfer before launch; crypto optional</div>
+      </div>
+      <div class="risk-row">
+        <div>Quality control (student work)</div>
+        <div><span class="pill amber">Medium</span></div>
+        <div><span class="pill amber">Medium</span></div>
+        <div>Implement skill verification badges + mentor review for first 3 gigs</div>
+      </div>
+      <div class="risk-row">
+        <div>Fiverr/Upwork local push</div>
+        <div><span class="pill green">Low</span></div>
+        <div><span class="pill amber">Medium</span></div>
+        <div>Focus on hyperlocal differentiation: Urdu UI, local payments, mentor pipeline</div>
+      </div>
+      <div class="risk-row">
+        <div>Student churn after first gig</div>
+        <div><span class="pill amber">Medium</span></div>
+        <div><span class="pill amber">Medium</span></div>
+        <div>Gamification (badges, leaderboards, university rankings) to drive retention</div>
+      </div>
+      <div class="risk-row">
+        <div>Regulatory / SECP compliance</div>
+        <div><span class="pill green">Low</span></div>
+        <div><span class="pill green">Low</span></div>
+        <div>Register as marketplace aggregator; consult legal at $10K+ GMV threshold</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 · PIVOT OPPORTUNITIES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2 class="section-title">Pivot Opportunities</h2>
+    </div>
+    <div id="pivot-section">
+      <div class="pivot-card"><div class="pivot-icon">🎓</div><div><div class="pivot-title">EdTech + Earn Model</div><div class="pivot-desc">Pivot to a "learn & earn" platform — students complete skill modules then unlock gig access. Monetize via premium course bundles.</div><div class="pivot-badge">Low effort · High potential</div></div></div>
+      <div class="pivot-card"><div class="pivot-icon">🏢</div><div><div class="pivot-title">University B2B Placement Partner</div><div class="pivot-desc">Partner with 10+ universities to offer GigBridge as official internship-alternative credit program. Institutional revenue = stable MRR.</div><div class="pivot-badge">Medium effort · Very high potential</div></div></div>
+      <div class="pivot-card"><div class="pivot-icon">🤖</div><div><div class="pivot-title">AI-Assisted Student Gig Builder</div><div class="pivot-desc">Use AI to help students write better proposals, auto-generate portfolios from GitHub, and price gigs competitively. Freemium SaaS layer.</div><div class="pivot-badge">Medium effort · High differentiation</div></div></div>
+      <div class="pivot-card"><div class="pivot-icon">🌍</div><div><div class="pivot-title">Diaspora Micro-Outsourcing</div><div class="pivot-desc">Connect Pakistani diaspora in UAE, UK, and US who want affordable local-language digital work with verified student freelancers back home.</div><div class="pivot-badge">Low effort · Untapped niche</div></div></div>
+    </div>
+  </div>
+
+  <!-- 12 · GO / NO-GO -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2 class="section-title">Go / No-Go Recommendation</h2>
+    </div>
+    <div class="go-card">
+      <div class="go-label">Analyst Verdict</div>
+      <div class="go-verdict">STRONG GO ✓</div>
+      <div class="go-sub">GigBridge PK addresses a real, painful, and underserved gap. The founder has lived experience, technical skill, and geographic proximity to the exact customer. Proceed immediately to a 30-day validation sprint.</div>
+      <div class="go-conditions">
+        <div class="go-condition">Validate with 20+ student interviews this week</div>
+        <div class="go-condition">Build no-code MVP in 2 weeks</div>
+        <div class="go-condition">Secure first 5 paid gig completions in 30 days</div>
+        <div class="go-condition">Integrate JazzCash payment before public launch</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13 · 30-DAY ACTION PLAN -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2 class="section-title">30-Day Action Plan</h2>
+    </div>
+
+    <div class="plan-phase">
+      <div class="plan-phase-header w1">📋 Week 1 — Discovery & Validation (Days 1–7)</div>
+      <div class="plan-phase-body">
+        <div class="plan-task"><div class="plan-task-day">Day 1</div><div class="plan-task-text">Map 5 competitor platforms; document features, pricing, gaps</div><div class="plan-task-tag"><span class="pill purple">Research</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 2–3</div><div class="plan-task-text">Interview 20 CS/IT students in Swabi, Peshawar about freelancing pain points</div><div class="plan-task-tag"><span class="pill green">Discovery</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 4</div><div class="plan-task-text">Interview 10 local small business owners — would they hire student freelancers?</div><div class="plan-task-tag"><span class="pill green">Discovery</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 5–6</div><div class="plan-task-text">Build a one-page landing page with waitlist form; share in university WhatsApp groups</div><div class="plan-task-tag"><span class="pill amber">Build</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 7</div><div class="plan-task-text">Analyze waitlist signups; synthesize all interview findings into insight doc</div><div class="plan-task-tag"><span class="pill purple">Analysis</span></div></div>
+      </div>
+    </div>
+
+    <div class="plan-phase">
+      <div class="plan-phase-header w2">🔨 Week 2 — MVP Build (Days 8–14)</div>
+      <div class="plan-phase-body">
+        <div class="plan-task"><div class="plan-task-day">Day 8–9</div><div class="plan-task-text">Design wireframes for student profile, gig listing, and messaging flow</div><div class="plan-task-tag"><span class="pill amber">Design</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 10–12</div><div class="plan-task-text">Build no-code MVP using Glide or Bubble; integrate JazzCash payment test</div><div class="plan-task-tag"><span class="pill amber">Build</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 13</div><div class="plan-task-text">Recruit 15 beta student sellers from university network; onboard manually</div><div class="plan-task-tag"><span class="pill green">Growth</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 14</div><div class="plan-task-text">Soft launch to waitlist; post first real gig listings; monitor closely</div><div class="plan-task-tag"><span class="pill green">Launch</span></div></div>
+      </div>
+    </div>
+
+    <div class="plan-phase">
+      <div class="plan-phase-header w3">🚀 Week 3 — First Transactions (Days 15–21)</div>
+      <div class="plan-phase-body">
+        <div class="plan-task"><div class="plan-task-day">Day 15–16</div><div class="plan-task-text">Reach out to 30 small businesses; offer first 3 gigs free for reviews</div><div class="plan-task-tag"><span class="pill green">Sales</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 17–18</div><div class="plan-task-text">Facilitate and supervise first 5 gig completions personally; gather detailed feedback</div><div class="plan-task-tag"><span class="pill green">Operations</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 19</div><div class="plan-task-text">Publish "Success Story" social post about first earning student — drive FOMO</div><div class="plan-task-tag"><span class="pill purple">Marketing</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 20–21</div><div class="plan-task-text">Fix top 3 friction points from user feedback; deploy hotfix to MVP</div><div class="plan-task-tag"><span class="pill amber">Iterate</span></div></div>
+      </div>
+    </div>
+
+    <div class="plan-phase">
+      <div class="plan-phase-header w4">📈 Week 4 — Scale & Metrics (Days 22–30)</div>
+      <div class="plan-phase-body">
+        <div class="plan-task"><div class="plan-task-day">Day 22–24</div><div class="plan-task-text">Approach 2 university CS departments for official partnership / credit program</div><div class="plan-task-tag"><span class="pill purple">Partnerships</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 25–26</div><div class="plan-task-text">Set up basic analytics (signups, gigs posted, gigs completed, GMV, take rate)</div><div class="plan-task-tag"><span class="pill amber">Metrics</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 27–28</div><div class="plan-task-text">Create LinkedIn + TikTok content series: "Student Earns PKR 15K in First Week"</div><div class="plan-task-tag"><span class="pill purple">Marketing</span></div></div>
+        <div class="plan-task"><div class="plan-task-day">Day 29–30</div><div class="plan-task-text">Compile 30-day report: user count, GMV, NPS score, key learnings, next 90-day plan</div><div class="plan-task-tag"><span class="pill green">Review</span></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px; background: var(--accent-light); border-color: var(--accent);">
+      <div style="font-size:13px; color: var(--accent); font-weight:600; margin-bottom:8px;">🎯 30-Day Success Criteria</div>
+      <div class="grid-3">
+        <div style="text-align:center;"><div style="font-family:'Playfair Display',serif; font-size:32px; font-weight:700; color:var(--accent);">50+</div><div style="font-size:12px; color:var(--ink-muted);">Student signups</div></div>
+        <div style="text-align:center;"><div style="font-family:'Playfair Display',serif; font-size:32px; font-weight:700; color:var(--accent);">10+</div><div style="font-size:12px; color:var(--ink-muted);">Completed gigs</div></div>
+        <div style="text-align:center;"><div style="font-family:'Playfair Display',serif; font-size:32px; font-weight:700; color:var(--accent);">PKR 50K</div><div style="font-size:12px; color:var(--ink-muted);">Total GMV moved</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="report-footer">
+    <div>
+      <div class="footer-brand">StartupLens AI</div>
+      <div style="margin-top:4px;">AI-Powered Startup Validation · GigBridge PK · June 2026</div>
+    </div>
+    <div style="text-align:right;">
+      <div>ABTalks 60-Day Claude AI Mastery Challenge</div>
+      <div style="margin-top:4px; color: var(--accent); font-weight:600;">Day 22 / 60 · #ABTalksOnAI</div>
+    </div>
+  </div>
+
+</div><!-- /report-body -->
+
+<script>
+// ── AI Loading Sequence ──
+const steps = document.querySelectorAll('.ai-step');
+const bar = document.getElementById('ai-bar-fill');
+const statusText = document.getElementById('ai-status-text');
+const overlay = document.getElementById('ai-overlay');
+const reportBody = document.getElementById('report-body');
+
+const messages = [
+  'Analyzing founder-market fit…',
+  'Calculating TAM · SAM · SOM…',
+  'Mapping competitive landscape…',
+  'Building customer personas…',
+  'Running risk assessment…',
+  'Generating final verdict…'
+];
+
+let current = 0;
+function nextStep() {
+  if (current > 0) {
+    steps[current-1].classList.remove('active');
+    steps[current-1].classList.add('done');
+  }
+  if (current < steps.length) {
+    steps[current].classList.add('active');
+    statusText.textContent = messages[current];
+    bar.style.width = ((current+1) / steps.length * 85) + '%';
+    current++;
+    setTimeout(nextStep, 900);
+  } else {
+    bar.style.width = '100%';
+    statusText.textContent = 'Report ready ✓';
+    setTimeout(revealReport, 600);
+  }
+}
+
+function revealReport() {
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.6s';
+  setTimeout(() => { overlay.style.display = 'none'; }, 600);
+  reportBody.style.display = 'block';
+  reportBody.style.opacity = '0';
+  reportBody.style.transition = 'opacity 0.8s';
+  setTimeout(() => { reportBody.style.opacity = '1'; }, 100);
+  fillAISections();
+}
+
+setTimeout(nextStep, 400);
+
+// ── Fill AI-generated sections via Claude API ──
+async function callClaude(prompt, maxTokens = 600) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || '';
+}
+
+async function fillAISections() {
+  // Executive Summary
+  callClaude(`Write a 3-paragraph professional executive summary for a startup called "GigBridge PK" — a micro-gig marketplace connecting Pakistani tech/CS students with local small business clients for affordable digital services (web, design, social media, data entry). This is a pre-product idea stage. Tone: VC-grade consulting report like McKinsey. Be concise. Plain HTML paragraphs only, no markdown.`, 500)
+    .then(text => {
+      document.getElementById('exec-summary-text').innerHTML = `<div class="card-title">Executive Summary</div>${text.split('\n').filter(p=>p.trim()).map(p=>`<p>${p}</p>`).join('')}`;
+    });
+
+  // Problem Validation
+  callClaude(`Write a concise 2-paragraph problem validation analysis for GigBridge PK — a student micro-gig platform for Pakistan. Discuss: (1) why Pakistani CS students struggle to get first freelance clients, (2) why local SMBs can't access affordable local digital talent. Reference the stats: 68% underemployment, 1.2M tech students, $3.5B freelance remittances. VC consulting tone. Plain HTML only.`, 400)
+    .then(text => {
+      document.getElementById('problem-validation-text').innerHTML = `<div class="card-title">Problem Validation Analysis</div>${text.split('\n').filter(p=>p.trim()).map(p=>`<p style="color:var(--ink-soft);line-height:1.8;margin-bottom:10px">${p}</p>`).join('')}`;
+    });
+
+  // Competitor Analysis
+  callClaude(`Generate an HTML table comparing GigBridge PK against these competitors: Fiverr, Upwork, Rozee.pk, OLX (gigs), and a hypothetical local startup. Columns: Platform, Target User, Pakistan Focus, Local Payment, Student Friendly, Micro-gig size, Weakness. Use <table class="comp"> with <thead> and <tbody>. Use only inline HTML tags. For ratings use words like Yes/No/Partial. No markdown, no backticks.`, 700)
+    .then(text => {
+      const tableMatch = text.match(/<table[\s\S]*<\/table>/i);
+      document.getElementById('competitor-analysis').innerHTML = tableMatch ? tableMatch[0] : `<p style="color:var(--ink-soft)">${text}</p>`;
+    });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer & MVP Blueprint — GigBridge PK</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --ink: #111118;
+  --ink-2: #3d3d50;
+  --ink-3: #7b7b9a;
+  --border: #e2e0da;
+  --border-2: #c8c5bc;
+  --teal: #0d9488;
+  --teal-light: #ccfbf1;
+  --teal-mid: #5eead4;
+  --coral: #f43f5e;
+  --coral-light: #ffe4e9;
+  --gold: #d97706;
+  --gold-light: #fef3c7;
+  --indigo: #4f46e5;
+  --indigo-light: #e0e7ff;
+  --green: #16a34a;
+  --green-light: #dcfce7;
+  --red: #dc2626;
+  --red-light: #fee2e2;
+  --amber: #d97706;
+  --amber-light: #fef3c7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+/* ═══════════════ COVER ═══════════════ */
+.cover {
+  background: var(--ink);
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+}
+
+.cover-strip {
+  height: 6px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-mid), var(--coral), var(--gold));
+}
+
+.cover-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 80px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Decorative circles */
+.cover::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 50%;
+  right: -200px; top: -200px;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 50%;
+  right: -100px; top: -100px;
+}
+
+.cover-eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 40px;
+}
+.cover-eyebrow-line { width: 32px; height: 2px; background: var(--teal); }
+.cover-eyebrow-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--teal-mid);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+.cover-pretitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 16px;
+}
+
+.cover h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 68px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.0;
+  margin-bottom: 8px;
+}
+.cover h1 em { font-style: italic; color: var(--teal-mid); }
+
+.cover-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 300;
+  max-width: 500px;
+  margin-top: 16px;
+  line-height: 1.7;
+}
+
+.cover-meta-row {
+  display: flex;
+  gap: 48px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.cover-meta-item {}
+.cover-meta-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cover-meta-value { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500; }
+
+/* Score pills on cover */
+.cover-scores {
+  display: flex;
+  gap: 12px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.cover-score-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 8px;
+  padding: 14px 20px;
+  text-align: center;
+}
+.cover-score-pill .csp-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--teal-mid);
+  line-height: 1;
+}
+.cover-score-pill .csp-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 5px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cover-verdict-banner {
+  background: rgba(13,148,136,0.15);
+  border: 1px solid rgba(13,148,136,0.3);
+  border-radius: 10px;
+  padding: 16px 24px;
+  margin-top: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.cvb-dot { width: 10px; height: 10px; background: var(--teal); border-radius: 50%; flex-shrink: 0; }
+.cvb-label { font-size: 18px; font-weight: 700; color: var(--teal-mid); font-family: 'Playfair Display', serif; }
+.cvb-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+.cover-bottom {
+  padding: 28px 80px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative; z-index: 2;
+}
+.cover-bottom-left { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.2); }
+.cover-bottom-right {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.15);
+}
+
+/* ═══════════════ BODY LAYOUT ═══════════════ */
+.page-body { max-width: 980px; margin: 0 auto; padding: 56px 40px 80px; }
+
+/* Section header */
+.sec {
+  margin-bottom: 52px;
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+.sec-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-light);
+  padding: 4px 10px;
+  border-radius: 5px;
+}
+.sec-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.card + .card { margin-top: 12px; }
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Grid */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+/* ═══════════════ EXEC SUMMARY ═══════════════ */
+.exec-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+.exec-text p { color: var(--ink-2); line-height: 1.8; margin-bottom: 10px; font-size: 14px; }
+.snap-table { width: 100%; border-collapse: collapse; }
+.snap-table tr td { padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; vertical-align: top; }
+.snap-table tr:last-child td { border-bottom: none; }
+.snap-table td:first-child { color: var(--ink-3); font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; width: 40%; padding-right: 12px; font-family: 'JetBrains Mono', monospace; }
+.snap-table td:last-child { font-weight: 600; color: var(--ink); }
+
+/* ═══════════════ ICP ═══════════════ */
+.icp-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.icp-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+.icp-item-icon { font-size: 22px; margin-bottom: 8px; }
+.icp-item-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.icp-item-val { font-size: 13.5px; color: var(--ink-2); font-weight: 500; }
+
+/* ═══════════════ PERSONA ═══════════════ */
+.persona-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.persona {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.persona-top {
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.persona-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.persona-avatar.teal { background: var(--teal-light); }
+.persona-avatar.coral { background: var(--coral-light); }
+.persona-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--ink); }
+.persona-role { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.persona-quote { font-size: 13px; color: var(--ink-2); font-style: italic; margin-top: 8px; border-left: 3px solid var(--teal); padding-left: 10px; line-height: 1.6; }
+.persona-body { padding: 18px 22px; }
+.persona-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pb-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.pb-list { list-style: none; }
+.pb-list li { font-size: 12.5px; color: var(--ink-2); padding: 4px 0; display: flex; gap: 7px; align-items: flex-start; }
+.pb-list li::before { content: '—'; color: var(--teal); font-weight: 700; flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+
+/* ═══════════════ PAIN POINTS ═══════════════ */
+.pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pain-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.pain-rank {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--border-2);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 32px;
+}
+.pain-title { font-weight: 600; font-size: 13.5px; color: var(--ink); margin-bottom: 4px; }
+.pain-desc { font-size: 12.5px; color: var(--ink-3); }
+.pain-sev { display: inline-block; margin-top: 7px; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 2px 9px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; }
+.sev-critical { background: #fee2e2; color: #991b1b; }
+.sev-high { background: #fef3c7; color: #92400e; }
+.sev-medium { background: var(--indigo-light); color: #3730a3; }
+
+/* ═══════════════ JOURNEY ═══════════════ */
+.journey { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.j-step {
+  padding: 22px 16px;
+  text-align: center;
+  position: relative;
+}
+.j-step::after {
+  content: '›';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: rgba(255,255,255,0.4);
+  z-index: 2;
+}
+.j-step:last-child::after { display: none; }
+.j-step:nth-child(1) { background: #f0fdf9; border-radius: 10px 0 0 10px; }
+.j-step:nth-child(2) { background: #ccfbf1; }
+.j-step:nth-child(3) { background: #5eead4; }
+.j-step:nth-child(4) { background: #0d9488; border-radius: 0 10px 10px 0; }
+.j-step:nth-child(4) .j-label,
+.j-step:nth-child(4) .j-sub { color: rgba(255,255,255,0.9) !important; }
+.j-step:nth-child(3) .j-label { color: #134e4a !important; }
+.j-step:nth-child(3) .j-sub { color: rgba(0,0,0,0.5) !important; }
+.j-icon { font-size: 26px; margin-bottom: 8px; }
+.j-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #0d9488; font-family: 'JetBrains Mono', monospace; }
+.j-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 6px; }
+.j-actions { list-style: none; margin-top: 10px; }
+.j-actions li { font-size: 11px; color: var(--ink-2); margin-top: 4px; padding: 3px 6px; background: rgba(255,255,255,0.5); border-radius: 5px; }
+.j-step:nth-child(4) .j-actions li { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.8); }
+
+/* ═══════════════ OBJECTIONS & TRIGGERS ═══════════════ */
+.ot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.ot-header { padding: 14px 18px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+.ot-header.obj { background: var(--coral-light); color: #9f1239; }
+.ot-header.trig { background: var(--green-light); color: #14532d; }
+.ot-body { padding: 14px 18px; }
+.ot-row { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--ink-2); }
+.ot-row:last-child { border-bottom: none; }
+.ot-icon { flex-shrink: 0; }
+
+/* ═══════════════ MVP ═══════════════ */
+.mvp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.mvp-build { background: var(--green-light); border: 1px solid #bbf7d0; border-radius: 10px; padding: 20px; }
+.mvp-skip { background: var(--coral-light); border: 1px solid #fecdd3; border-radius: 10px; padding: 20px; }
+.mvp-card-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+.mvp-build .mvp-card-title { color: #14532d; }
+.mvp-skip .mvp-card-title { color: #9f1239; }
+.mvp-list { list-style: none; }
+.mvp-list li { font-size: 13px; padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; gap: 9px; color: var(--ink-2); }
+.mvp-list li:last-child { border-bottom: none; }
+.mvp-list li .mi { flex-shrink: 0; }
+
+/* Metrics */
+.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+.metric-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--teal); }
+.metric-label { font-size: 11px; color: var(--ink-3); margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; }
+
+/* ═══════════════ MOSCOW ═══════════════ */
+.moscow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.moscow-col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.moscow-head { padding: 12px 16px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+.moscow-head.mh { background: #dc2626; color: white; }
+.moscow-head.sh { background: var(--gold); color: white; }
+.moscow-head.ch { background: var(--indigo); color: white; }
+.moscow-head.wh { background: var(--ink-3); color: white; }
+.moscow-body { padding: 14px 16px; }
+.moscow-body ul { list-style: none; }
+.moscow-body li { font-size: 12.5px; color: var(--ink-2); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+.moscow-body li:last-child { border-bottom: none; }
+.moscow-body li::before { content: '◆'; font-size: 8px; color: var(--ink-3); flex-shrink: 0; margin-top: 4px; }
+
+/* ═══════════════ PRICING ═══════════════ */
+.pricing-wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.price-tier {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.price-tier.featured { border-color: var(--teal); border-width: 2px; }
+.price-header { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.price-header.featured-bg { background: var(--teal); }
+.price-tier-name { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-3); font-family: 'JetBrains Mono', monospace; }
+.price-tier.featured .price-tier-name { color: rgba(255,255,255,0.7); }
+.price-amount { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-top: 6px; }
+.price-tier.featured .price-amount { color: white; }
+.price-note { font-size: 12px; color: var(--ink-3); margin-top: 3px; }
+.price-tier.featured .price-note { color: rgba(255,255,255,0.6); }
+.price-body { padding: 16px 20px; }
+.price-feature { font-size: 12.5px; color: var(--ink-2); padding: 5px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+.price-feature:last-child { border-bottom: none; }
+.price-feature::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+
+/* ═══════════════ RISKS ═══════════════ */
+.risk-table { width: 100%; border-collapse: collapse; }
+.risk-table th { background: var(--ink); color: rgba(255,255,255,0.85); padding: 11px 14px; text-align: left; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.risk-table th:first-child { border-radius: 8px 0 0 0; }
+.risk-table th:last-child { border-radius: 0 8px 0 0; }
+.risk-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 12.5px; vertical-align: top; }
+.risk-table tr:last-child td { border-bottom: none; }
+.risk-table tr:nth-child(even) td { background: #fafaf8; }
+
+/* ═══════════════ 30-DAY PLAN ═══════════════ */
+.plan-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.plan-week { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.plan-week-head { padding: 12px 16px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+.pw1 .plan-week-head { background: var(--teal-light); color: #0f766e; }
+.pw2 .plan-week-head { background: var(--gold-light); color: #92400e; }
+.pw3 .plan-week-head { background: var(--indigo-light); color: #3730a3; }
+.pw4 .plan-week-head { background: var(--green-light); color: #14532d; }
+.plan-week-body { padding: 0; }
+.plan-item { display: flex; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--ink-2); align-items: flex-start; }
+.plan-item:last-child { border-bottom: none; }
+.plan-day { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-3); flex-shrink: 0; padding-top: 1px; min-width: 38px; }
+
+/* ═══════════════ FOUNDER ACTION ═══════════════ */
+.action-list { list-style: none; }
+.action-item {
+  display: flex;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.action-item:last-child { border-bottom: none; }
+.action-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--border-2);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px;
+}
+.action-title { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 3px; }
+.action-desc { font-size: 12.5px; color: var(--ink-3); }
+.action-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 99px; margin-top: 5px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.8px; }
+.tag-urgent { background: #fee2e2; color: #991b1b; }
+.tag-week1 { background: var(--teal-light); color: #0f766e; }
+.tag-week2 { background: var(--gold-light); color: #92400e; }
+
+/* ═══════════════ SCORES ═══════════════ */
+.score-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+.sc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.sc-ring {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  border: 5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  position: relative;
+}
+.sc-ring.high { border-color: var(--teal); color: var(--teal); }
+.sc-ring.med { border-color: var(--gold); color: var(--gold); }
+.sc-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); font-family: 'JetBrains Mono', monospace; }
+.sc-desc { font-size: 11.5px; color: var(--ink-3); margin-top: 5px; }
+
+/* ═══════════════ FINAL VERDICT ═══════════════ */
+.verdict-card {
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #0f766e 100%);
+  border-radius: 14px;
+  padding: 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.verdict-card::before {
+  content: '🟢';
+  position: absolute;
+  font-size: 200px;
+  opacity: 0.04;
+  right: -20px; top: -40px;
+  line-height: 1;
+}
+.verdict-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; color: #6ee7b7; text-transform: uppercase; margin-bottom: 12px; }
+.verdict-headline { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; color: white; margin-bottom: 8px; }
+.verdict-emoji { font-size: 36px; }
+.verdict-body { font-size: 15px; color: rgba(255,255,255,0.6); max-width: 540px; margin: 16px auto 0; line-height: 1.75; }
+.verdict-tags { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+.verdict-tag {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+}
+
+/* ═══════════════ PILL ═══════════════ */
+.pill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 99px; }
+.pill-green { background: var(--green-light); color: #14532d; }
+.pill-amber { background: var(--gold-light); color: #92400e; }
+.pill-red { background: var(--red-light); color: #991b1b; }
+.pill-teal { background: var(--teal-light); color: #0f766e; }
+.pill-indigo { background: var(--indigo-light); color: #3730a3; }
+
+/* ═══════════════ FOOTER ═══════════════ */
+.page-footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 2px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.footer-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--ink); }
+
+/* Print */
+@media print { body { background: white; } }
+</style>
+</head>
+<body>
+
+<!-- ══════════ COVER ══════════ -->
+<div class="cover">
+  <div class="cover-strip"></div>
+  <div class="cover-inner">
+    <div class="cover-eyebrow">
+      <div class="cover-eyebrow-line"></div>
+      <div class="cover-eyebrow-text">Customer & MVP Blueprint · Day 23 / 60</div>
+    </div>
+    <div class="cover-pretitle">GigBridge PK · Startup Series</div>
+    <h1>Customer<br>&amp; <em>MVP</em><br>Blueprint</h1>
+    <div class="cover-subtitle">Who your customer truly is, what to build first, and exactly how to ship your MVP in 30 days — for GigBridge PK.</div>
+
+    <div class="cover-verdict-banner">
+      <div class="cvb-dot"></div>
+      <div>
+        <div class="cvb-label">🟢 Strong Demand Signal</div>
+        <div class="cvb-sub">Clear customer pain · Validated gap · Buildable MVP</div>
+      </div>
+    </div>
+
+    <div class="cover-scores">
+      <div class="cover-score-pill">
+        <div class="csp-num">88</div>
+        <div class="csp-label">Customer Clarity</div>
+      </div>
+      <div class="cover-score-pill">
+        <div class="csp-num">82</div>
+        <div class="csp-label">Problem Severity</div>
+      </div>
+      <div class="cover-score-pill">
+        <div class="csp-num">76</div>
+        <div class="csp-label">PMF Potential</div>
+      </div>
+      <div class="cover-score-pill">
+        <div class="csp-num">71</div>
+        <div class="csp-label">MVP Readiness</div>
+      </div>
+    </div>
+
+    <div class="cover-meta-row">
+      <div class="cover-meta-item"><div class="cover-meta-label">Startup</div><div class="cover-meta-value">GigBridge PK</div></div>
+      <div class="cover-meta-item"><div class="cover-meta-label">Market</div><div class="cover-meta-value">Pakistan · KPK</div></div>
+      <div class="cover-meta-item"><div class="cover-meta-label">Stage</div><div class="cover-meta-value">Pre-Product · Idea</div></div>
+      <div class="cover-meta-item"><div class="cover-meta-label">Report</div><div class="cover-meta-value">June 2026</div></div>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-bottom-left">ABTalks AI Challenge · 60 Days · #ABTalksOnAI · habiarif-dev.github.io</div>
+    <div class="cover-bottom-right">GigBridge</div>
+  </div>
+</div>
+
+<!-- ══════════ BODY ══════════ -->
+<div class="page-body">
+
+  <!-- 01 EXEC SUMMARY -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">01</span><h2 class="sec-title">Executive Summary</h2></div>
+    <div class="exec-grid">
+      <div class="card">
+        <div class="card-label">Overview</div>
+        <div class="exec-text">
+          <p>GigBridge PK is a student-first micro-gig marketplace designed specifically for Pakistan's 1.2 million tech and CS students. The platform solves a fundamental catch-22: students need client experience to get hired, but platforms like Fiverr require reviews before clients trust new sellers. GigBridge breaks this deadlock with a mentored onboarding system, local payment rails, and hyperlocal matching.</p>
+          <p>The customer is crystal clear — a 19–24 year old CS/IT student in KPK or Punjab, bilingual (Urdu/Pashto + English), smartphone-first, and deeply motivated to earn before graduating. On the demand side, Pakistan's 3.5 million small businesses are hungry for affordable digital help but distrust unaccountable global freelancers.</p>
+          <p>The MVP is straightforward: a lightweight marketplace with student profiles, gig listings, in-app messaging, JazzCash/EasyPaisa payment escrow, and a review system. Build this in 4 weeks. Validate with 50 student sellers and 20 business clients. The goal: 10 completed, paid gigs with a 4+ star average in 30 days.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Snapshot</div>
+        <table class="snap-table">
+          <tr><td>Startup</td><td>GigBridge PK</td></tr>
+          <tr><td>Category</td><td>Marketplace · EdTech</td></tr>
+          <tr><td>Market</td><td>Pakistan · KPK First</td></tr>
+          <tr><td>Customer</td><td>CS/IT Students, 18–25</td></tr>
+          <tr><td>Buyer</td><td>Local SMBs, Solopreneurs</td></tr>
+          <tr><td>Revenue</td><td>10–12% commission on gigs</td></tr>
+          <tr><td>MVP Timeline</td><td>4 weeks to first transaction</td></tr>
+          <tr><td>Verdict</td><td>🟢 Strong Demand Signal</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 ICP -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">02</span><h2 class="sec-title">Ideal Customer Profile</h2></div>
+    <div class="icp-grid">
+      <div class="icp-item"><div class="icp-item-icon">🎓</div><div class="icp-item-title">Education</div><div class="icp-item-val">Enrolled in CS, IT, Software Engineering, or related degree — Year 2 to Year 4</div></div>
+      <div class="icp-item"><div class="icp-item-icon">📍</div><div class="icp-item-title">Location</div><div class="icp-item-val">KPK, Punjab, Islamabad. Secondary: Sindh, Balochistan. Cities + semi-urban towns.</div></div>
+      <div class="icp-item"><div class="icp-item-icon">📱</div><div class="icp-item-title">Tech Access</div><div class="icp-item-val">Android smartphone, intermittent WiFi or 4G data. Familiar with WhatsApp, TikTok, LinkedIn.</div></div>
+      <div class="icp-item"><div class="icp-item-icon">💰</div><div class="icp-item-title">Income Goal</div><div class="icp-item-val">Earn PKR 5,000–25,000/month during studies. Not replacing a job — supplementing and learning.</div></div>
+      <div class="icp-item"><div class="icp-item-icon">🛠️</div><div class="icp-item-title">Skills Offered</div><div class="icp-item-val">Web dev, graphic design, data entry, social media, content writing, video editing, app dev.</div></div>
+      <div class="icp-item"><div class="icp-item-icon">🏪</div><div class="icp-item-title">Buyer ICP</div><div class="icp-item-val">Pakistani SMB or solopreneur. Needs affordable digital help. Prefers Urdu-speaking, local freelancer.</div></div>
+    </div>
+  </div>
+
+  <!-- 03 BUYER PERSONA -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">03</span><h2 class="sec-title">Buyer Personas</h2></div>
+    <div class="persona-wrap">
+      <div class="persona">
+        <div class="persona-top">
+          <div class="persona-avatar teal">👩‍💻</div>
+          <div>
+            <div class="persona-name">Aisha, 21 — "The Eager Builder"</div>
+            <div class="persona-role">3rd Year CS · UET Peshawar · Student Seller</div>
+            <div class="persona-quote">"I can build websites, but no one gives me a chance without 5 stars I don't have yet."</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-row">
+            <div>
+              <div class="pb-label">Goals</div>
+              <ul class="pb-list">
+                <li>Earn PKR 15K/month while studying</li>
+                <li>Build a real portfolio for job apps</li>
+                <li>Get client reviews to go global</li>
+                <li>Gain financial independence</li>
+              </ul>
+            </div>
+            <div>
+              <div class="pb-label">Frustrations</div>
+              <ul class="pb-list">
+                <li>Rejected on Fiverr (no reviews)</li>
+                <li>Can't withdraw international payments</li>
+                <li>Clients ghost after unpaid work</li>
+                <li>Doesn't know how to price herself</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-top">
+          <div class="persona-avatar coral">🏪</div>
+          <div>
+            <div class="persona-name">Imran, 38 — "The Cautious Buyer"</div>
+            <div class="persona-role">Clothing Store Owner · Peshawar · Client Buyer</div>
+            <div class="persona-quote">"I need a social media manager, not someone overseas who charges in dollars."</div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div class="persona-row">
+            <div>
+              <div class="pb-label">Goals</div>
+              <ul class="pb-list">
+                <li>Affordable Urdu-speaking freelancer</li>
+                <li>Reliable, accountable delivery</li>
+                <li>Simple payment (JazzCash ok)</li>
+                <li>Repeatable monthly relationship</li>
+              </ul>
+            </div>
+            <div>
+              <div class="pb-label">Frustrations</div>
+              <ul class="pb-list">
+                <li>Global platforms need USD cards</li>
+                <li>Past freelancers disappeared mid-job</li>
+                <li>Can't verify quality before paying</li>
+                <li>Too expensive for micro-tasks</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 PAIN POINTS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">04</span><h2 class="sec-title">Top 10 Customer Pain Points</h2></div>
+    <div class="pain-grid">
+      <div class="pain-item"><div class="pain-rank">1</div><div><div class="pain-title">Zero-review catch-22</div><div class="pain-desc">Can't get clients without reviews; can't get reviews without clients. The biggest platform barrier for students.</div><span class="pain-sev sev-critical">CRITICAL</span></div></div>
+      <div class="pain-item"><div class="pain-rank">2</div><div><div class="pain-title">No local payment withdrawal</div><div class="pain-desc">Payoneer requires bank accounts & ID students don't have. JazzCash and EasyPaisa are not supported on global platforms.</div><span class="pain-sev sev-critical">CRITICAL</span></div></div>
+      <div class="pain-item"><div class="pain-rank">3</div><div><div class="pain-title">Client scams & non-payment</div><div class="pain-desc">Students do free "test" work and never get paid. No escrow protection on informal WhatsApp gigs.</div><span class="pain-sev sev-critical">CRITICAL</span></div></div>
+      <div class="pain-item"><div class="pain-rank">4</div><div><div class="pain-title">English-only platforms</div><div class="pain-desc">Urdu and Pashto-speaking students struggle to navigate, write proposals, and communicate on global platforms.</div><span class="pain-sev sev-high">HIGH</span></div></div>
+      <div class="pain-item"><div class="pain-rank">5</div><div><div class="pain-title">No pricing guidance</div><div class="pain-desc">First-timers under-price by 70%+ or scare clients with over-priced quotes. No local benchmarks exist.</div><span class="pain-sev sev-high">HIGH</span></div></div>
+      <div class="pain-item"><div class="pain-rank">6</div><div><div class="pain-title">Portfolio creation barrier</div><div class="pain-desc">Students have coursework but no client projects. Platforms require a polished portfolio to attract attention.</div><span class="pain-sev sev-high">HIGH</span></div></div>
+      <div class="pain-item"><div class="pain-rank">7</div><div><div class="pain-title">Buyers can't trust student quality</div><div class="pain-desc">Local SMBs want affordable help but fear wasted money on unverified students. Trust deficit on both sides.</div><span class="pain-sev sev-high">HIGH</span></div></div>
+      <div class="pain-item"><div class="pain-rank">8</div><div><div class="pain-title">No micro-gig category ($5–$30)</div><div class="pain-desc">Global platforms push $50+ minimums. Pakistani micro-businesses need $5–$30 tasks with fast turnaround.</div><span class="pain-sev sev-medium">MEDIUM</span></div></div>
+      <div class="pain-item"><div class="pain-rank">9</div><div><div class="pain-title">Parental skepticism of freelancing</div><div class="pain-desc">Many students need family buy-in to spend study time on gigs. No credibility narrative for parents.</div><span class="pain-sev sev-medium">MEDIUM</span></div></div>
+      <div class="pain-item"><div class="pain-rank">10</div><div><div class="pain-title">No mentorship or skill verification</div><div class="pain-desc">Students don't know if their skills are "good enough." No trusted local body certifies student freelance readiness.</div><span class="pain-sev sev-medium">MEDIUM</span></div></div>
+    </div>
+  </div>
+
+  <!-- 05 CUSTOMER JOURNEY -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">05</span><h2 class="sec-title">Customer Journey</h2></div>
+    <div class="card">
+      <div class="card-label" style="margin-bottom:16px">Student Seller · Awareness → Retention</div>
+      <div class="journey">
+        <div class="j-step">
+          <div class="j-icon">👀</div>
+          <div class="j-label">Awareness</div>
+          <div class="j-sub">Discovers GigBridge</div>
+          <ul class="j-actions">
+            <li>TikTok success video</li>
+            <li>University WhatsApp</li>
+            <li>LinkedIn post by Habi</li>
+            <li>Friend referral</li>
+          </ul>
+        </div>
+        <div class="j-step">
+          <div class="j-icon">🔍</div>
+          <div class="j-label">Consideration</div>
+          <div class="j-sub">Evaluates signing up</div>
+          <ul class="j-actions">
+            <li>Reads how it works</li>
+            <li>Checks payment method</li>
+            <li>Sees student profiles</li>
+            <li>Asks in WhatsApp group</li>
+          </ul>
+        </div>
+        <div class="j-step">
+          <div class="j-icon">🚀</div>
+          <div class="j-label">Purchase</div>
+          <div class="j-sub">Signs up & posts gig</div>
+          <ul class="j-actions">
+            <li>Creates student profile</li>
+            <li>Posts first service</li>
+            <li>Gets matched to client</li>
+            <li>Completes + earns</li>
+          </ul>
+        </div>
+        <div class="j-step">
+          <div class="j-icon">⭐</div>
+          <div class="j-label">Retention</div>
+          <div class="j-sub">Returns & advocates</div>
+          <ul class="j-actions">
+            <li>Earns review → more jobs</li>
+            <li>Unlocks Pro badge</li>
+            <li>Refers classmates</li>
+            <li>Posts on LinkedIn</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 OBJECTIONS & TRIGGERS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">06</span><h2 class="sec-title">Key Objections &amp; Buying Triggers</h2></div>
+    <div class="ot-grid">
+      <div class="ot-card">
+        <div class="ot-header obj">🚧 Student Objections</div>
+        <div class="ot-body">
+          <div class="ot-row"><span class="ot-icon">❓</span>"Will clients actually hire an unknown student?"</div>
+          <div class="ot-row"><span class="ot-icon">💳</span>"How do I receive payment safely as a student?"</div>
+          <div class="ot-row"><span class="ot-icon">⏱️</span>"I don't have time between exams and assignments."</div>
+          <div class="ot-row"><span class="ot-icon">📉</span>"My skills aren't professional-level yet."</div>
+          <div class="ot-row"><span class="ot-icon">😟</span>"What if the client leaves a bad review unfairly?"</div>
+        </div>
+      </div>
+      <div class="ot-card">
+        <div class="ot-header obj">🚧 Buyer Objections</div>
+        <div class="ot-body">
+          <div class="ot-row"><span class="ot-icon">🤔</span>"Can a student deliver professional-grade work?"</div>
+          <div class="ot-row"><span class="ot-icon">📅</span>"Will they meet deadlines with exams going on?"</div>
+          <div class="ot-row"><span class="ot-icon">🔄</span>"I've been ghosted by freelancers before."</div>
+          <div class="ot-row"><span class="ot-icon">💰</span>"Is even this price worth the quality risk?"</div>
+          <div class="ot-row"><span class="ot-icon">🔒</span>"Is my payment protected if they disappear?"</div>
+        </div>
+      </div>
+      <div class="ot-card">
+        <div class="ot-header trig">⚡ Student Triggers</div>
+        <div class="ot-body">
+          <div class="ot-row"><span class="ot-icon">🎓</span>Approaching graduation — needs income proof for CV</div>
+          <div class="ot-row"><span class="ot-icon">📣</span>Classmate earns PKR 10K from first gig (social proof)</div>
+          <div class="ot-row"><span class="ot-icon">👨‍👩‍👧</span>Family pressure to contribute financially at home</div>
+          <div class="ot-row"><span class="ot-icon">📲</span>Viral TikTok of young freelancer earning big</div>
+          <div class="ot-row"><span class="ot-icon">🏆</span>University hackathon / competition builds confidence</div>
+        </div>
+      </div>
+      <div class="ot-card">
+        <div class="ot-header trig">⚡ Buyer Triggers</div>
+        <div class="ot-body">
+          <div class="ot-row"><span class="ot-icon">📆</span>Upcoming Eid sale or seasonal campaign needs content</div>
+          <div class="ot-row"><span class="ot-icon">💸</span>Global freelancer quoted too high (USD rates)</div>
+          <div class="ot-row"><span class="ot-icon">🗣️</span>Neighbour's business grew after hiring local freelancer</div>
+          <div class="ot-row"><span class="ot-icon">📉</span>Just rejected an applicant who was overqualified</div>
+          <div class="ot-row"><span class="ot-icon">🌐</span>Wants to launch a website but agency costs PKR 80K+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 MVP RECOMMENDATION -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">07</span><h2 class="sec-title">MVP Recommendation</h2></div>
+    <div class="mvp-grid">
+      <div class="mvp-build">
+        <div class="mvp-card-title">✅ Build First</div>
+        <ul class="mvp-list">
+          <li><span class="mi">📋</span>Student profile with skill tags, university, and bio</li>
+          <li><span class="mi">📦</span>Gig listing (title, price, turnaround, portfolio sample)</li>
+          <li><span class="mi">💬</span>In-app messaging between buyer and seller</li>
+          <li><span class="mi">💸</span>JazzCash / EasyPaisa escrow payment integration</li>
+          <li><span class="mi">⭐</span>Post-delivery review and rating system</li>
+          <li><span class="mi">🔒</span>Dispute resolution flow (admin-managed at MVP stage)</li>
+          <li><span class="mi">🔔</span>Basic notifications (WhatsApp message fallback)</li>
+        </ul>
+      </div>
+      <div class="mvp-skip">
+        <div class="mvp-card-title">🚫 Don't Build Yet</div>
+        <ul class="mvp-list">
+          <li><span class="mi">🤖</span>AI-powered gig matching algorithm</li>
+          <li><span class="mi">🌐</span>Multi-language interface (Urdu) — text in Urdu is enough for v1</li>
+          <li><span class="mi">📱</span>Native iOS / Android app (responsive web first)</li>
+          <li><span class="mi">🏫</span>University API integrations</li>
+          <li><span class="mi">📊</span>Advanced analytics dashboard</li>
+          <li><span class="mi">💳</span>International payment support (post Pakistan traction)</li>
+          <li><span class="mi">🎮</span>Gamification & leaderboards (v2 feature)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label" style="margin-bottom:14px">Success Metrics — 30-Day MVP Goals</div>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="metric-num">50+</div><div class="metric-label">Student Signups</div></div>
+        <div class="metric-card"><div class="metric-num">10+</div><div class="metric-label">Paid Gig Completions</div></div>
+        <div class="metric-card"><div class="metric-num">4.0★</div><div class="metric-label">Avg. Review Score</div></div>
+        <div class="metric-card"><div class="metric-num">PKR 50K</div><div class="metric-label">Total GMV Moved</div></div>
+        <div class="metric-card"><div class="metric-num">&lt;48h</div><div class="metric-label">Avg. Gig Response Time</div></div>
+        <div class="metric-card"><div class="metric-num">60%</div><div class="metric-label">Repeat Buyer Rate (30d)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 MOSCOW -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">08</span><h2 class="sec-title">MoSCoW Prioritization</h2></div>
+    <div class="moscow">
+      <div class="moscow-col">
+        <div class="moscow-head mh">🔴 Must Have</div>
+        <div class="moscow-body"><ul>
+          <li>Student + buyer account creation</li>
+          <li>Gig listing & discovery search</li>
+          <li>JazzCash / EasyPaisa escrow</li>
+          <li>Post-delivery review system</li>
+          <li>In-app messaging</li>
+          <li>Basic dispute resolution (manual)</li>
+        </ul></div>
+      </div>
+      <div class="moscow-col">
+        <div class="moscow-head sh">🟡 Should Have</div>
+        <div class="moscow-body"><ul>
+          <li>Skill verification badges</li>
+          <li>WhatsApp notification fallback</li>
+          <li>Gig category filtering</li>
+          <li>Buyer dashboard (order history)</li>
+          <li>Seller earnings tracker</li>
+          <li>Referral / invite system</li>
+        </ul></div>
+      </div>
+      <div class="moscow-col">
+        <div class="moscow-head ch">🔵 Could Have</div>
+        <div class="moscow-body"><ul>
+          <li>Urdu language toggle</li>
+          <li>University leaderboard</li>
+          <li>Mentor matching (v1.5)</li>
+          <li>AI proposal assistant</li>
+          <li>Video portfolio upload</li>
+          <li>LinkedIn auto-share</li>
+        </ul></div>
+      </div>
+      <div class="moscow-col">
+        <div class="moscow-head wh">⚫ Won't Have (v1)</div>
+        <div class="moscow-body"><ul>
+          <li>Native mobile app</li>
+          <li>International payments</li>
+          <li>AI matching algorithm</li>
+          <li>Subscription / SaaS model</li>
+          <li>Third-party API integrations</li>
+          <li>Analytics for buyers</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 PRICING HYPOTHESIS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">09</span><h2 class="sec-title">Pricing Hypothesis</h2></div>
+    <div class="pricing-wrap">
+      <div class="price-tier">
+        <div class="price-header">
+          <div class="price-tier-name">Micro Gig</div>
+          <div class="price-amount">PKR 500–2,000</div>
+          <div class="price-note">~$2–$7 USD · Quick tasks, under 24h</div>
+        </div>
+        <div class="price-body">
+          <div class="price-feature">Social media post (1–3 posts)</div>
+          <div class="price-feature">Logo concept (1 revision)</div>
+          <div class="price-feature">Data entry / spreadsheet task</div>
+          <div class="price-feature">Simple banner design</div>
+          <div class="price-feature">Platform commission: 10%</div>
+        </div>
+      </div>
+      <div class="price-tier featured">
+        <div class="price-header featured-bg">
+          <div class="price-tier-name">Standard Gig</div>
+          <div class="price-amount" style="color:white">PKR 3,000–10,000</div>
+          <div class="price-note">~$10–$36 · Core sweet spot</div>
+        </div>
+        <div class="price-body">
+          <div class="price-feature">Landing page (HTML/CSS)</div>
+          <div class="price-feature">Social media package (1 week)</div>
+          <div class="price-feature">Content writing (5 articles)</div>
+          <div class="price-feature">App UI mockup (3 screens)</div>
+          <div class="price-feature">Platform commission: 12%</div>
+        </div>
+      </div>
+      <div class="price-tier">
+        <div class="price-header">
+          <div class="price-tier-name">Pro Project</div>
+          <div class="price-amount">PKR 15,000–50,000</div>
+          <div class="price-note">~$54–$180 · Milestone-based</div>
+        </div>
+        <div class="price-body">
+          <div class="price-feature">Full website (5+ pages)</div>
+          <div class="price-feature">Monthly social media management</div>
+          <div class="price-feature">Mobile app prototype</div>
+          <div class="price-feature">Long-form SEO content series</div>
+          <div class="price-feature">Platform commission: 10%</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px; background: var(--teal-light); border-color: #99f6e4;">
+      <div style="font-size:13px; color: #0f766e;"><strong>💡 Pricing Insight:</strong> Start with the Micro &amp; Standard tiers only. This lowers buyer risk and builds the review base rapidly. Unlock Pro Projects once seller has 5+ reviews. Platform earns a blended ~11% commission — target PKR 2,000/month per active seller at 30-day launch.</div>
+    </div>
+  </div>
+
+  <!-- 10 TOP 5 RISKS -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">10</span><h2 class="sec-title">Top 5 Risks</h2></div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="risk-table">
+        <thead>
+          <tr><th>#</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation Strategy</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1</strong></td>
+            <td><strong>Cold-start (no supply or demand)</strong><br><span style="color:var(--ink-3); font-size:12px">Classic marketplace chicken-and-egg at launch</span></td>
+            <td><span class="pill pill-red">High</span></td>
+            <td><span class="pill pill-red">High</span></td>
+            <td>Hand-curate 30 students from Swabi University before launch. Offer first 5 buyers one free gig review.</td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td><strong>Payment integration failure</strong><br><span style="color:var(--ink-3); font-size:12px">JazzCash API setup is complex for solo developer</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td><span class="pill pill-red">High</span></td>
+            <td>Use Paymob or Safepay as middleware; both support JazzCash + EasyPaisa with developer-friendly APIs.</td>
+          </tr>
+          <tr>
+            <td><strong>3</strong></td>
+            <td><strong>Student work quality complaints</strong><br><span style="color:var(--ink-3); font-size:12px">Buyers frustrated by inconsistent delivery quality</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td>Manual vetting of first 20 sellers. Offer 1 free revision policy. Assign mentor to every new seller's first 3 gigs.</td>
+          </tr>
+          <tr>
+            <td><strong>4</strong></td>
+            <td><strong>Platform abandonment after first gig</strong><br><span style="color:var(--ink-3); font-size:12px">Students earn once then move to Fiverr or direct clients</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td>Build "GigBridge Verified" badge. Show earnings dashboard. Weekly "Top Earner" social shoutout creates pride in staying.</td>
+          </tr>
+          <tr>
+            <td><strong>5</strong></td>
+            <td><strong>Founder bandwidth / solo execution</strong><br><span style="color:var(--ink-3); font-size:12px">Full-time student + internship + 60-day challenge = overload</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td><span class="pill pill-amber">Medium</span></td>
+            <td>Use no-code tools (Glide, Bubble) for MVP. Recruit 1–2 CS classmates as co-founders or volunteer moderators.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 11 30-DAY MVP PLAN -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">11</span><h2 class="sec-title">30-Day MVP Plan</h2></div>
+    <div class="plan-wrap">
+      <div class="plan-week pw1">
+        <div class="plan-week-head">📋 Week 1 — Validate (Days 1–7)</div>
+        <div class="plan-week-body">
+          <div class="plan-item"><div class="plan-day">D1</div>Interview 10 students: pain points, willingness to pay, preferred payment</div>
+          <div class="plan-item"><div class="plan-day">D2</div>Interview 10 local SMBs: would they hire? What would they pay?</div>
+          <div class="plan-item"><div class="plan-day">D3</div>Map competitor weaknesses; document your differentiation clearly</div>
+          <div class="plan-item"><div class="plan-day">D4–5</div>Build one-page waitlist site; share in 5 university WhatsApp groups</div>
+          <div class="plan-item"><div class="plan-day">D6</div>Analyze signups; shortlist 30 beta students for hand-onboarding</div>
+          <div class="plan-item"><div class="plan-day">D7</div>Write insight doc: top 3 pain points to solve in MVP</div>
+        </div>
+      </div>
+      <div class="plan-week pw2">
+        <div class="plan-week-head">🔨 Week 2 — Build (Days 8–14)</div>
+        <div class="plan-week-body">
+          <div class="plan-item"><div class="plan-day">D8–9</div>Design wireframes: student profile, gig listing, buyer browse, checkout</div>
+          <div class="plan-item"><div class="plan-day">D10</div>Set up no-code MVP on Glide or Bubble; configure data schema</div>
+          <div class="plan-item"><div class="plan-day">D11</div>Integrate Safepay or Paymob for JazzCash escrow</div>
+          <div class="plan-item"><div class="plan-day">D12</div>Build in-app messaging + WhatsApp notification fallback</div>
+          <div class="plan-item"><div class="plan-day">D13</div>Test full flow end-to-end with 5 beta users; fix critical bugs</div>
+          <div class="plan-item"><div class="plan-day">D14</div>Soft launch to 30-person waitlist; monitor Slack / WhatsApp support</div>
+        </div>
+      </div>
+      <div class="plan-week pw3">
+        <div class="plan-week-head">🚀 Week 3 — Launch (Days 15–21)</div>
+        <div class="plan-week-body">
+          <div class="plan-item"><div class="plan-day">D15</div>Personally reach out to 20 local businesses; offer first gig free for review</div>
+          <div class="plan-item"><div class="plan-day">D16–17</div>Facilitate and supervise first 5 paid gig completions manually</div>
+          <div class="plan-item"><div class="plan-day">D18</div>Post "first earning" student story on LinkedIn + TikTok</div>
+          <div class="plan-item"><div class="plan-day">D19</div>Gather detailed NPS feedback from all active users</div>
+          <div class="plan-item"><div class="plan-day">D20–21</div>Fix top 3 friction points from feedback; redeploy MVP v1.1</div>
+        </div>
+      </div>
+      <div class="plan-week pw4">
+        <div class="plan-week-head">📈 Week 4 — Scale (Days 22–30)</div>
+        <div class="plan-week-body">
+          <div class="plan-item"><div class="plan-day">D22–23</div>Pitch 2 university CS departments for official partnership</div>
+          <div class="plan-item"><div class="plan-day">D24</div>Set up basic analytics: signups, gig posts, completions, GMV, NPS</div>
+          <div class="plan-item"><div class="plan-day">D25–26</div>Launch referral program: "Refer a friend, earn PKR 200"</div>
+          <div class="plan-item"><div class="plan-day">D27–28</div>Weekly content series: student earner spotlights on LinkedIn</div>
+          <div class="plan-item"><div class="plan-day">D29–30</div>Compile 30-day report; define 90-day roadmap and funding needs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 FOUNDER ACTION SHEET -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">12</span><h2 class="sec-title">Founder Action Sheet — Top 10 Next Actions</h2></div>
+    <div class="card">
+      <ul class="action-list">
+        <li class="action-item">
+          <div class="action-num">1</div>
+          <div><div class="action-title">Do 20 customer discovery interviews this week</div><div class="action-desc">10 students + 10 SMB owners. Ask about pain, willingness to pay, and current workarounds. Record with consent.</div><span class="action-tag tag-urgent">Do Today</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">2</div>
+          <div><div class="action-title">Build a one-page waitlist landing page</div><div class="action-desc">Simple page: problem headline, how it works (3 steps), email signup. Share in 5+ university groups. Goal: 50 signups in 72h.</div><span class="action-tag tag-urgent">Do Today</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">3</div>
+          <div><div class="action-title">Set up a Safepay or Paymob sandbox account</div><div class="action-desc">Verify JazzCash + EasyPaisa integration works before committing to any no-code tool. This is your biggest tech risk.</div><span class="action-tag tag-week1">Week 1</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">4</div>
+          <div><div class="action-title">Recruit 30 hand-curated beta student sellers</div><div class="action-desc">From Swabi, Peshawar, Mardan university networks. Interview each; onboard only those with at least one skill portfolio sample.</div><span class="action-tag tag-week1">Week 1</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">5</div>
+          <div><div class="action-title">Choose your no-code MVP tool and start building</div><div class="action-desc">Glide (simpler, faster), Bubble (more flexible). Start with Glide if launch speed matters more than flexibility for v1.</div><span class="action-tag tag-week1">Week 1–2</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">6</div>
+          <div><div class="action-title">Define your 3 launch gig categories only</div><div class="action-desc">Web Dev, Graphic Design, Social Media. Narrow focus = easier quality control and cleaner buyer experience at MVP stage.</div><span class="action-tag tag-week1">Week 1</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">7</div>
+          <div><div class="action-title">Create the "GigBridge Student Earner" content series</div><div class="action-desc">Post weekly LinkedIn stories of beta students earning real money. Authentic social proof is your #1 acquisition channel.</div><span class="action-tag tag-week2">Week 2+</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">8</div>
+          <div><div class="action-title">Reach out to 2 university CS department heads</div><div class="action-desc">Propose GigBridge as a "practical experience" platform for students — not a job, a micro-internship. Position for semester credit.</div><span class="action-tag tag-week2">Week 2</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">9</div>
+          <div><div class="action-title">Personally oversee the first 10 gig completions</div><div class="action-desc">Don't automate quality control at this stage. Be the "platform" manually. Your reputation depends on the first 10 reviews.</div><span class="action-tag tag-week2">Week 3</span></div>
+        </li>
+        <li class="action-item">
+          <div class="action-num">10</div>
+          <div><div class="action-title">Define your 30-day success metrics in a shared doc</div><div class="action-desc">50 signups · 10 completed gigs · 4.0★ avg rating · PKR 50K GMV. If you hit all 4, you have a validated product. Write this down now.</div><span class="action-tag tag-urgent">Do Today</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 13 SCORES -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">13</span><h2 class="sec-title">Validation Scores</h2></div>
+    <div class="score-cards">
+      <div class="sc">
+        <div class="sc-ring high">88</div>
+        <div class="sc-label">Customer Clarity</div>
+        <div class="sc-desc">You know exactly who your customer is, where they are, and what they feel.</div>
+      </div>
+      <div class="sc">
+        <div class="sc-ring high">82</div>
+        <div class="sc-label">Problem Severity</div>
+        <div class="sc-desc">The payment & review catch-22 is a painful, daily, unsolved problem for thousands.</div>
+      </div>
+      <div class="sc">
+        <div class="sc-ring med">76</div>
+        <div class="sc-label">PMF Potential</div>
+        <div class="sc-desc">Strong signals. Needs 10+ completed gigs to confirm real product-market fit.</div>
+      </div>
+      <div class="sc">
+        <div class="sc-ring med">71</div>
+        <div class="sc-label">MVP Readiness</div>
+        <div class="sc-desc">Payment integration is the main unknown. Once solved, buildable in 2–3 weeks.</div>
+      </div>
+    </div>
+    <div class="card" style="background: var(--gold-light); border-color: #fcd34d;">
+      <div style="font-size:13px; color: #92400e;"><strong>Overall Validation Score: 79 / 100</strong> — Strong enough to build. Not strong enough to fundraise yet. Do the 30-day sprint, then reassess with real user data.</div>
+    </div>
+  </div>
+
+  <!-- 14 FINAL VERDICT -->
+  <div class="sec">
+    <div class="sec-head"><span class="sec-tag">14</span><h2 class="sec-title">Final Verdict</h2></div>
+    <div class="verdict-card">
+      <div class="verdict-eyebrow">Analyst Final Verdict · June 2026</div>
+      <div class="verdict-emoji">🟢</div>
+      <div class="verdict-headline">Strong Demand Signal</div>
+      <div class="verdict-body">GigBridge PK targets a real, painful, daily problem for over a million Pakistani students. The founder is the customer — that lived empathy is your most valuable unfair advantage. The MVP is clear, buildable, and winnable in 30 days. Stop planning. Start shipping.</div>
+      <div class="verdict-tags">
+        <div class="verdict-tag">✓ Clear customer pain</div>
+        <div class="verdict-tag">✓ Defined MVP scope</div>
+        <div class="verdict-tag">✓ Founder-market fit</div>
+        <div class="verdict-tag">✓ Measurable success metrics</div>
+        <div class="verdict-tag">✓ Actionable 30-day plan</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div>
+      <div class="footer-brand">GigBridge PK — Customer & MVP Blueprint</div>
+      <div style="margin-top:4px;">Prepared by StartupLens AI · ABTalks 60-Day Challenge · Day 23/60</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="color:var(--teal); font-weight:700;">#ABTalksOnAI · #60DaysOfAI</div>
+      <div style="margin-top:4px;">habiarif-dev.github.io · linkedin.com/in/habiba-arif-4251a6315</div>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+</body>
+</html>

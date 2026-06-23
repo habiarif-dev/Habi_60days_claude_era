@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Strategy Report — GigBridge PK · Day 24</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #fafaf7;
+  --white: #ffffff;
+  --ink: #0e0e14;
+  --ink2: #3c3c50;
+  --ink3: #8888a8;
+  --rule: #e4e4ec;
+  --rule2: #c8c8d8;
+  --emerald: #059669;
+  --emerald-l: #d1fae5;
+  --violet: #7c3aed;
+  --violet-l: #ede9fe;
+  --amber: #d97706;
+  --amber-l: #fef3c7;
+  --rose: #e11d48;
+  --rose-l: #ffe4e8;
+  --sky: #0284c7;
+  --sky-l: #e0f2fe;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);font-size:13.5px;line-height:1.65;}
+
+/* ── COVER ─────────────────────────────── */
+.cover{
+  min-height:100vh;
+  background:var(--ink);
+  display:grid;
+  grid-template-rows:8px 1fr auto;
+  position:relative;
+  overflow:hidden;
+  page-break-after:always;
+}
+.cover-rainbow{background:linear-gradient(90deg,#059669,#7c3aed,#e11d48,#d97706);}
+.cover-inner{padding:70px 80px;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;}
+.cover::before{
+  content:'';position:absolute;
+  right:-120px;top:-120px;
+  width:520px;height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,.18) 0%,transparent 70%);
+}
+.cover::after{
+  content:'';position:absolute;
+  left:-80px;bottom:-80px;
+  width:380px;height:380px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(5,150,105,.12) 0%,transparent 70%);
+}
+.cover-series{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:48px;
+  display:flex;align-items:center;gap:12px;
+}
+.cover-series::before{content:'';display:block;width:28px;height:2px;background:var(--emerald);}
+.cover-day{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--emerald);background:rgba(5,150,105,.12);
+  border:1px solid rgba(5,150,105,.25);border-radius:5px;
+  padding:5px 12px;display:inline-block;margin-bottom:20px;
+}
+.cover h1{
+  font-family:'Syne',sans-serif;font-size:64px;font-weight:800;
+  color:#fff;line-height:1.0;margin-bottom:6px;
+}
+.cover h1 span{color:#a78bfa;}
+.cover-sub{font-size:17px;color:rgba(255,255,255,.45);font-weight:300;max-width:460px;margin-top:16px;line-height:1.75;}
+
+.cover-verdict{
+  display:inline-flex;align-items:center;gap:14px;
+  background:rgba(5,150,105,.12);border:1px solid rgba(5,150,105,.28);
+  border-radius:10px;padding:16px 26px;margin-top:32px;
+}
+.cv-dot{width:10px;height:10px;border-radius:50%;background:var(--emerald);}
+.cv-text{font-family:'Syne',sans-serif;font-size:20px;color:#6ee7b7;font-weight:700;}
+.cv-sub{font-size:12px;color:rgba(255,255,255,.3);margin-top:2px;}
+
+.cover-scores{display:flex;gap:10px;margin-top:32px;flex-wrap:wrap;}
+.cs-pill{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:9px;padding:14px 18px;text-align:center;min-width:110px;
+}
+.cs-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#a78bfa;line-height:1;}
+.cs-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:5px;}
+
+.cover-meta{
+  padding:26px 80px;border-top:1px solid rgba(255,255,255,.07);
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:2;
+}
+.cover-meta-left{font-size:12px;color:rgba(255,255,255,.25);line-height:1.9;}
+.cover-meta-left strong{color:rgba(255,255,255,.5);}
+.cover-meta-right{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:rgba(255,255,255,.1);}
+
+/* ── TOC ─────────────────────────────────── */
+.toc-page{
+  background:var(--white);padding:64px 80px;
+  border-bottom:1px solid var(--rule);
+  page-break-after:always;
+}
+.toc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ink3);margin-bottom:28px;}
+.toc-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--ink);margin-bottom:40px;}
+.toc-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 40px;}
+.toc-item{
+  display:flex;align-items:baseline;gap:0;
+  padding:11px 0;border-bottom:1px solid var(--rule);
+}
+.toc-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--violet);font-weight:600;width:28px;flex-shrink:0;}
+.toc-name{font-size:13.5px;color:var(--ink2);font-weight:500;flex:1;}
+.toc-dots{flex:1;border-bottom:1px dotted var(--rule2);margin:0 10px;position:relative;top:-3px;}
+.toc-pg{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);}
+
+/* ── BODY ─────────────────────────────────── */
+.body-wrap{max-width:980px;margin:0 auto;padding:56px 40px 80px;}
+
+/* Section structure */
+.sec{margin-bottom:52px;}
+.sec-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;padding-bottom:13px;border-bottom:2px solid var(--rule);}
+.sec-badge{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;font-weight:600;padding:4px 11px;border-radius:5px;
+}
+.badge-violet{background:var(--violet-l);color:var(--violet);}
+.badge-emerald{background:var(--emerald-l);color:var(--emerald);}
+.badge-amber{background:var(--amber-l);color:var(--amber);}
+.badge-rose{background:var(--rose-l);color:var(--rose);}
+.badge-sky{background:var(--sky-l);color:var(--sky);}
+.sec-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--ink);}
+
+/* Cards */
+.card{background:var(--white);border:1px solid var(--rule);border-radius:12px;padding:22px;}
+.card-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:13px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;}
+
+/* Exec summary */
+.exec-grid{display:grid;grid-template-columns:5fr 3fr;gap:16px;}
+.exec-text p{color:var(--ink2);line-height:1.8;margin-bottom:10px;font-size:13.5px;}
+.snap-tbl{width:100%;border-collapse:collapse;}
+.snap-tbl td{padding:9px 0;border-bottom:1px solid var(--rule);font-size:12.5px;vertical-align:top;}
+.snap-tbl tr:last-child td{border-bottom:none;}
+.snap-tbl td:first-child{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);font-weight:600;width:38%;padding-right:10px;}
+.snap-tbl td:last-child{font-weight:600;color:var(--ink);}
+
+/* Bullets summary */
+.bullet-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+.b-item{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);}
+.b-item::before{content:'→';color:var(--violet);font-weight:700;flex-shrink:0;font-size:12px;margin-top:1px;}
+
+/* Reality check */
+.rc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.rc-card{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:18px;}
+.rc-icon{font-size:22px;margin-bottom:8px;}
+.rc-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);font-weight:600;margin-bottom:8px;}
+.rc-text{font-size:13px;color:var(--ink2);line-height:1.7;}
+
+/* BMC */
+.bmc{width:100%;border-collapse:collapse;font-size:12.5px;}
+.bmc th{background:var(--ink);color:rgba(255,255,255,.85);padding:10px 13px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.bmc th:first-child{border-radius:8px 0 0 0;}
+.bmc th:last-child{border-radius:0 8px 0 0;}
+.bmc td{padding:12px 13px;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--ink2);}
+.bmc tr:last-child td{border-bottom:none;}
+.bmc tr:nth-child(even) td{background:#f8f8fc;}
+.bmc td:first-child{font-weight:600;color:var(--ink);font-size:12px;}
+
+/* Revenue streams */
+.rev-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.rev-card{background:var(--white);border:1px solid var(--rule);border-radius:11px;overflow:hidden;}
+.rev-head{padding:14px 16px;border-bottom:1px solid var(--rule);}
+.rev-head.primary{background:var(--violet);color:white;}
+.rev-head.secondary{background:var(--emerald-l);}
+.rev-head.tertiary{background:var(--amber-l);}
+.rev-name{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;color:inherit;opacity:.7;}
+.rev-head.primary .rev-name{color:rgba(255,255,255,.7);}
+.rev-amount{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-top:5px;}
+.rev-head.primary .rev-amount{color:white;}
+.rev-body{padding:14px 16px;}
+.rev-row{font-size:12.5px;color:var(--ink2);padding:5px 0;border-bottom:1px solid var(--rule);display:flex;gap:8px;}
+.rev-row:last-child{border-bottom:none;}
+.rev-row::before{content:'◆';font-size:8px;color:var(--violet);flex-shrink:0;margin-top:3px;}
+
+/* GTM */
+.gtm-flow{display:flex;gap:0;margin-bottom:14px;}
+.gtm-step{
+  flex:1;padding:18px 14px;text-align:center;position:relative;
+}
+.gtm-step::after{content:'›';position:absolute;right:-9px;top:50%;transform:translateY(-50%);font-size:18px;color:rgba(255,255,255,.3);z-index:2;}
+.gtm-step:last-child::after{display:none;}
+.gtm-step:nth-child(1){background:#f5f3ff;border-radius:10px 0 0 10px;}
+.gtm-step:nth-child(2){background:#ddd6fe;}
+.gtm-step:nth-child(3){background:#c4b5fd;}
+.gtm-step:nth-child(4){background:#8b5cf6;}
+.gtm-step:nth-child(5){background:#6d28d9;border-radius:0 10px 10px 0;}
+.gtm-step:nth-child(1) .gtm-lbl{color:#4c1d95;}
+.gtm-step:nth-child(2) .gtm-lbl{color:#4c1d95;}
+.gtm-step:nth-child(3) .gtm-lbl{color:#3b0764;}
+.gtm-step:nth-child(4) .gtm-lbl,.gtm-step:nth-child(5) .gtm-lbl{color:white;}
+.gtm-icon{font-size:22px;margin-bottom:7px;}
+.gtm-lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.gtm-desc{font-size:11.5px;color:rgba(0,0,0,.45);margin-top:5px;}
+.gtm-step:nth-child(4) .gtm-desc,.gtm-step:nth-child(5) .gtm-desc{color:rgba(255,255,255,.6);}
+
+/* Acquisition */
+.acq-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.acq-tbl th{background:var(--violet);color:white;padding:10px 14px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;}
+.acq-tbl th:first-child{border-radius:8px 0 0 0;}
+.acq-tbl th:last-child{border-radius:0 8px 0 0;}
+.acq-tbl td{padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--ink2);}
+.acq-tbl tr:last-child td{border-bottom:none;}
+.acq-tbl tr:nth-child(even) td{background:#fafaf8;}
+
+/* First 100 */
+.f100{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px;}
+.f100-card{
+  background:var(--white);border:1px solid var(--rule);border-radius:10px;
+  padding:16px 14px;text-align:center;
+}
+.f100-range{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--violet);}
+.f100-name{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin:5px 0;}
+.f100-how{font-size:11.5px;color:var(--ink2);}
+
+/* Moat */
+.moat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.moat-item{
+  background:var(--white);border:1px solid var(--rule);
+  border-left:4px solid var(--violet);
+  border-radius:0 10px 10px 0;padding:16px 18px;
+}
+.moat-title{font-weight:700;color:var(--ink);margin-bottom:5px;font-size:14px;}
+.moat-desc{font-size:12.5px;color:var(--ink2);}
+.moat-strength{
+  display:inline-block;margin-top:7px;font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:1px;padding:2px 9px;border-radius:99px;
+  font-weight:600;text-transform:uppercase;
+}
+.str-strong{background:var(--emerald-l);color:#065f46;}
+.str-medium{background:var(--amber-l);color:#92400e;}
+.str-growing{background:var(--violet-l);color:#4c1d95;}
+
+/* Reverse SWOT */
+.rswot{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rs-card{background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden;}
+.rs-head{padding:11px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.rs-s{background:var(--emerald-l);color:#065f46;}
+.rs-w{background:var(--rose-l);color:#9f1239;}
+.rs-o{background:var(--sky-l);color:#0c4a6e;}
+.rs-t{background:var(--amber-l);color:#92400e;}
+.rs-body{padding:13px 16px;}
+.rs-row{font-size:12.5px;color:var(--ink2);padding:5px 0;border-bottom:1px solid var(--rule);display:flex;gap:9px;}
+.rs-row:last-child{border-bottom:none;}
+.rs-row::before{content:'·';color:var(--ink3);font-size:16px;flex-shrink:0;margin-top:-2px;}
+
+/* Pitch */
+.pitch-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pitch-card{background:var(--white);border:1px solid var(--rule);border-radius:12px;padding:24px;}
+.pitch-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;}
+.one-liner{font-size:18px;font-weight:700;color:var(--ink);line-height:1.5;}
+.one-liner span{color:var(--violet);}
+.pitch-text{font-size:13.5px;color:var(--ink2);line-height:1.8;}
+
+/* Score cards */
+.score-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px;}
+.score-card{background:var(--white);border:1px solid var(--rule);border-radius:11px;padding:18px;text-align:center;}
+.score-ring{
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 10px;
+  font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+  border:5px solid var(--rule);
+}
+.ring-v{border-color:var(--violet);color:var(--violet);}
+.ring-e{border-color:var(--emerald);color:var(--emerald);}
+.ring-a{border-color:var(--amber);color:var(--amber);}
+.score-slbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);}
+.score-reason{font-size:11.5px;color:var(--ink3);margin-top:5px;}
+
+/* Action sheet */
+.action-list-wrap{}
+.act-item{display:flex;gap:15px;padding:14px 0;border-bottom:1px solid var(--rule);align-items:flex-start;}
+.act-item:last-child{border-bottom:none;}
+.act-n{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--rule2);line-height:1;flex-shrink:0;width:28px;}
+.act-title{font-weight:700;font-size:13.5px;color:var(--ink);margin-bottom:3px;}
+.act-desc{font-size:12.5px;color:var(--ink3);}
+.act-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;padding:2px 9px;border-radius:99px;margin-top:5px;letter-spacing:.8px;}
+.tag-now{background:#fee2e2;color:#991b1b;}
+.tag-w1{background:var(--emerald-l);color:#065f46;}
+.tag-w2{background:var(--violet-l);color:#4c1d95;}
+.tag-w3{background:var(--amber-l);color:#92400e;}
+
+/* Final verdict */
+.final-verdict{
+  background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%);
+  border-radius:16px;padding:44px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.final-verdict::before{
+  content:'🟢';position:absolute;font-size:220px;opacity:.04;
+  right:-20px;top:-50px;line-height:1;
+}
+.fv-ew{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:#a5b4fc;text-transform:uppercase;margin-bottom:12px;}
+.fv-headline{font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:white;line-height:1;margin-bottom:6px;}
+.fv-emoji{font-size:40px;}
+.fv-body{font-size:15px;color:rgba(255,255,255,.55);max-width:560px;margin:16px auto 0;line-height:1.8;}
+.fv-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px;}
+.fv-tag{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:10px 18px;font-size:12.5px;color:rgba(255,255,255,.7);}
+
+/* Sustainability */
+.sustain-card{
+  background:var(--emerald-l);border:1px solid #a7f3d0;
+  border-radius:12px;padding:24px;margin-top:16px;
+}
+.sustain-card p{font-size:14px;color:#065f46;line-height:1.8;}
+
+/* Pills */
+.pill{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:99px;}
+.pill-g{background:var(--emerald-l);color:#065f46;}
+.pill-a{background:var(--amber-l);color:#92400e;}
+.pill-r{background:var(--rose-l);color:#9f1239;}
+.pill-v{background:var(--violet-l);color:#4c1d95;}
+
+/* Footer */
+.pg-footer{margin-top:60px;padding-top:22px;border-top:2px solid var(--rule);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink3);}
+.pg-footer-brand{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--ink);}
+
+/* Page breaks */
+.pb{page-break-before:always;padding-top:0;}
+
+@media print{body{background:white;}#dashboard-section{page-break-before:always;}}
+</style>
+</head>
+<body>
+
+<!-- ══════════ COVER ══════════ -->
+<div class="cover">
+  <div class="cover-rainbow"></div>
+  <div class="cover-inner">
+    <div class="cover-series">GigBridge PK · Startup Series</div>
+    <div class="cover-day">⚡ ABTalks AI Challenge · Day 24 / 60</div>
+    <h1>Business<br><span>Strategy</span><br>Report</h1>
+    <p class="cover-sub">Can GigBridge PK become a sustainable business? Revenue, distribution, GTM, moat, and investor readiness — all scored.</p>
+    <div class="cover-verdict">
+      <div class="cv-dot"></div>
+      <div>
+        <div class="cv-text">🟢 INVESTABLE</div>
+        <div class="cv-sub">Strong fundamentals · Clear path to revenue · Proceed to build</div>
+      </div>
+    </div>
+    <div class="cover-scores">
+      <div class="cs-pill"><div class="cs-num">78</div><div class="cs-lbl">Viability</div></div>
+      <div class="cs-pill"><div class="cs-num">82</div><div class="cs-lbl">Revenue</div></div>
+      <div class="cs-pill"><div class="cs-num">75</div><div class="cs-lbl">GTM</div></div>
+      <div class="cs-pill"><div class="cs-num">70</div><div class="cs-lbl">Competitive</div></div>
+      <div class="cs-pill"><div class="cs-num">68</div><div class="cs-lbl">Investor</div></div>
+    </div>
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-left">
+      <div><strong>Startup:</strong> GigBridge PK — Student Micro-Gig Marketplace</div>
+      <div><strong>Market:</strong> Pakistan · KPK First, then Punjab</div>
+      <div><strong>Stage:</strong> Pre-Product · Idea Validation</div>
+      <div><strong>Date:</strong> June 2026 · ABTalks Day 24/60</div>
+    </div>
+    <div class="cover-meta-right">GigBridge</div>
+  </div>
+</div>
+
+<!-- ══════════ TOC ══════════ -->
+<div class="toc-page">
+  <div class="toc-eyebrow">Table of Contents</div>
+  <div class="toc-title">What's Inside</div>
+  <ul class="toc-list">
+    <li class="toc-item"><span class="toc-num">01</span><span class="toc-name">Startup Summary</span><span class="toc-dots"></span><span class="toc-pg">§1</span></li>
+    <li class="toc-item"><span class="toc-num">02</span><span class="toc-name">Executive Summary</span><span class="toc-dots"></span><span class="toc-pg">§2</span></li>
+    <li class="toc-item"><span class="toc-num">03</span><span class="toc-name">Business Reality Check</span><span class="toc-dots"></span><span class="toc-pg">§3</span></li>
+    <li class="toc-item"><span class="toc-num">04</span><span class="toc-name">Business Model Canvas</span><span class="toc-dots"></span><span class="toc-pg">§4</span></li>
+    <li class="toc-item"><span class="toc-num">05</span><span class="toc-name">Revenue & Pricing Strategy</span><span class="toc-dots"></span><span class="toc-pg">§5</span></li>
+    <li class="toc-item"><span class="toc-num">06</span><span class="toc-name">Go-To-Market Strategy</span><span class="toc-dots"></span><span class="toc-pg">§6</span></li>
+    <li class="toc-item"><span class="toc-num">07</span><span class="toc-name">Customer Acquisition</span><span class="toc-dots"></span><span class="toc-pg">§7</span></li>
+    <li class="toc-item"><span class="toc-num">08</span><span class="toc-name">First 100 Users Plan</span><span class="toc-dots"></span><span class="toc-pg">§8</span></li>
+    <li class="toc-item"><span class="toc-num">09</span><span class="toc-name">Competitive Position & Moat</span><span class="toc-dots"></span><span class="toc-pg">§9</span></li>
+    <li class="toc-item"><span class="toc-num">10</span><span class="toc-name">Reverse SWOT Analysis</span><span class="toc-dots"></span><span class="toc-pg">§10</span></li>
+    <li class="toc-item"><span class="toc-num">11</span><span class="toc-name">Investor One-Liner & Pitch</span><span class="toc-dots"></span><span class="toc-pg">§11</span></li>
+    <li class="toc-item"><span class="toc-num">12</span><span class="toc-name">Investment Scorecard</span><span class="toc-dots"></span><span class="toc-pg">§12</span></li>
+    <li class="toc-item"><span class="toc-num">13</span><span class="toc-name">Visual Dashboard</span><span class="toc-dots"></span><span class="toc-pg">§13</span></li>
+    <li class="toc-item"><span class="toc-num">14</span><span class="toc-name">Founder Action Sheet</span><span class="toc-dots"></span><span class="toc-pg">§14</span></li>
+    <li class="toc-item"><span class="toc-num">15</span><span class="toc-name">Final Verdict & Sustainability</span><span class="toc-dots"></span><span class="toc-pg">§15</span></li>
+  </ul>
+</div>
+
+<!-- ══════════ BODY ══════════ -->
+<div class="body-wrap">
+
+  <!-- §1 STARTUP SUMMARY -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-violet">§1</span><h2 class="sec-title">Startup Summary</h2></div>
+    <div class="card">
+      <div class="card-lbl">10 Key Facts Extracted from Day 22–23 Blueprint</div>
+      <div class="bullet-grid">
+        <div class="b-item">Pakistan's 1.2M CS/IT students can't land first freelance gigs due to the zero-review catch-22 on global platforms</div>
+        <div class="b-item">Local SMBs want affordable Urdu-speaking digital help but distrust unaccountable international freelancers</div>
+        <div class="b-item">Revenue model: 10–12% commission on completed gig transactions — no upfront fees for students</div>
+        <div class="b-item">Primary channel: University WhatsApp groups, TikTok, LinkedIn — zero paid acquisition at launch</div>
+        <div class="b-item">MVP: student profile + gig listing + JazzCash/EasyPaisa escrow + review system + messaging</div>
+        <div class="b-item">Target TAM $2.8B (South Asia freelance), SAM $240M Pakistan, SOM $18M in 3 years</div>
+        <div class="b-item">Founder is the exact customer — a CS student in KPK who freelances; the highest form of founder-market fit</div>
+        <div class="b-item">Pricing: PKR 500–50,000 gig range; platform earns blended ~11% commission per transaction</div>
+        <div class="b-item">Key assumption to validate: will local SMBs pay PKR 500–10,000 for student-delivered digital services?</div>
+        <div class="b-item">30-day goal: 50 signups · 10 completed paid gigs · 4.0★ avg rating · PKR 50K GMV</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §2 EXEC SUMMARY -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-violet">§2</span><h2 class="sec-title">Executive Summary</h2></div>
+    <div class="exec-grid">
+      <div class="card">
+        <div class="card-lbl">Assessment</div>
+        <div class="exec-text">
+          <p>GigBridge PK targets a structurally broken market: Pakistan produces over a million tech graduates annually who can't access their first client because global platforms require reviews to get reviews. Simultaneously, millions of Pakistani small businesses can't afford USD-priced global freelancers and have no trusted local alternative.</p>
+          <p>The business model is clean: take a commission on every completed transaction. No SaaS subscription to sell, no hardware to ship, no inventory to manage. Revenue scales directly with platform GMV. This is the same model that made Fiverr a $1B company — applied to an underserved, high-growth emerging market with local payment rails as the key differentiator.</p>
+          <p>The founder advantage is exceptional. Being a CS student in Swabi, KPK, means the founder has direct access to the first 50 sellers, speaks the language of the customer literally and figuratively, and understands the exact friction points. The biggest execution risk is the cold-start two-sided marketplace problem — but the 30-day manual onboarding strategy addresses this directly before any technology scales.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-lbl">At a Glance</div>
+        <table class="snap-tbl">
+          <tr><td>Model</td><td>Two-sided marketplace</td></tr>
+          <tr><td>Revenue</td><td>10–12% GMV commission</td></tr>
+          <tr><td>Year 1 GMV Target</td><td>PKR 5M (~$18K USD)</td></tr>
+          <tr><td>Year 3 Revenue Est.</td><td>~$2M USD (SOM capture)</td></tr>
+          <tr><td>CAC (target)</td><td>&lt; PKR 200 per student</td></tr>
+          <tr><td>LTV (target)</td><td>PKR 3,000+ per student</td></tr>
+          <tr><td>LTV:CAC</td><td>15:1 (strong if achieved)</td></tr>
+          <tr><td>Break-even GMV</td><td>~PKR 2M/month</td></tr>
+          <tr><td>Verdict</td><td>🟢 Investable</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- §3 REALITY CHECK -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-rose">§3</span><h2 class="sec-title">Business Reality Check</h2></div>
+    <div class="rc-grid">
+      <div class="rc-card">
+        <div class="rc-icon">💰</div>
+        <div class="rc-title">Who Pays?</div>
+        <div class="rc-text"><strong>Buyers (SMBs) pay for gig services.</strong> The platform clips 10–12% from each completed transaction. Students keep 88–90%. Buyers never pay a platform fee — making their cost identical to hiring directly, but with escrow protection and reviews.</div>
+      </div>
+      <div class="rc-card">
+        <div class="rc-icon">🧠</div>
+        <div class="rc-title">Why Do They Pay?</div>
+        <div class="rc-text">Buyers pay for <strong>trust + affordability + local access</strong>. Students pay indirectly through commission for <strong>first-client access + escrow protection + review credibility</strong>. The core value exchange is security for both sides — which no WhatsApp deal or OLX post provides.</div>
+      </div>
+      <div class="rc-card">
+        <div class="rc-icon">📣</div>
+        <div class="rc-title">How Will They Discover It?</div>
+        <div class="rc-text">Students via <strong>university WhatsApp groups, TikTok earner videos, and LinkedIn success posts</strong>. Buyers via <strong>Facebook business groups, word of mouth from student sellers, and targeted local Facebook ads</strong> (PKR 500/day budget is sufficient to test).</div>
+      </div>
+      <div class="rc-card">
+        <div class="rc-icon">⚡</div>
+        <div class="rc-title">Biggest Growth Risks</div>
+        <div class="rc-text">
+          <strong>1. Cold start</strong> — two-sided marketplace with no buyers and no sellers.<br>
+          <strong>2. Quality perception</strong> — one bad student delivery damages buyer trust irreparably at small scale.<br>
+          <strong>3. Direct relationships</strong> — buyers and sellers bypass the platform after meeting.
+        </div>
+      </div>
+      <div class="rc-card">
+        <div class="rc-icon">💸</div>
+        <div class="rc-title">Biggest Monetization Risks</div>
+        <div class="rc-text">
+          <strong>1. Low GMV per gig</strong> — if average gig is PKR 800, platform earns only PKR 80. Needs high volume.<br>
+          <strong>2. Commission resistance</strong> — students may resent the cut once aware of alternatives.<br>
+          <strong>3. Payment leakage</strong> — escrow bypassed for WhatsApp cash payments.
+        </div>
+      </div>
+      <div class="rc-card">
+        <div class="rc-icon">🔍</div>
+        <div class="rc-title">Weak Assumptions to Validate</div>
+        <div class="rc-text">
+          <strong>→</strong> Will local SMBs pay PKR 1,000+ for student services?<br>
+          <strong>→</strong> Will students accept 10–12% commission on small gigs?<br>
+          <strong>→</strong> Is JazzCash the right payment rail or do buyers prefer bank transfer?<br>
+          <strong>→</strong> Will universities endorse platform activity?
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §4 BMC -->
+  <div class="sec pb">
+    <div class="sec-header"><span class="sec-badge badge-violet">§4</span><h2 class="sec-title">Business Model Canvas</h2></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="bmc">
+        <thead>
+          <tr><th>Block</th><th>GigBridge PK Position</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Key Partners</td><td>Universities (KPK, Punjab) · Safepay / Paymob (payments) · JazzCash / EasyPaisa · University CS departments · Tech communities (Google DSC, GDSC Pakistan)</td></tr>
+          <tr><td>Key Activities</td><td>Manual student onboarding &amp; vetting · Gig quality oversight · Payment escrow management · Community building &amp; content creation · Dispute resolution</td></tr>
+          <tr><td>Key Resources</td><td>Founder's university network · No-code MVP platform · Local payment integration · Brand credibility (LinkedIn + TikTok) · Student mentor network</td></tr>
+          <tr><td>Value Proposition (Seller)</td><td>First client guarantee · Local PKR payment withdrawal · Escrow protection · Review credibility to go global · Mentorship on first 3 gigs</td></tr>
+          <tr><td>Value Proposition (Buyer)</td><td>Affordable Urdu-speaking talent · Verified student quality · Escrow-protected micro-gigs · Fast turnaround &lt; 48h · No USD/bank account needed</td></tr>
+          <tr><td>Customer Relationships</td><td>High-touch manual support at MVP stage · WhatsApp community group per city · Weekly earner spotlights on social · University partnership announcements</td></tr>
+          <tr><td>Channels</td><td>University WhatsApp groups · TikTok &amp; Instagram Reels · LinkedIn posts (founder's network) · Facebook local business groups · Word of mouth from sellers</td></tr>
+          <tr><td>Customer Segments</td><td><strong>Sellers:</strong> CS/IT students aged 18–25, KPK &amp; Punjab, smartphone-first, motivated to earn<br><strong>Buyers:</strong> Local SMBs, solopreneurs, small retailers needing affordable digital services</td></tr>
+          <tr><td>Cost Structure</td><td>No-code platform subscription (~$50/mo) · Payment gateway fees (~1.5–2.5%) · Founder's time (sweat equity) · Content creation · Light server costs · Community moderation</td></tr>
+          <tr><td>Revenue Streams</td><td><strong>Primary:</strong> 10–12% commission on completed gigs (GMV-based)<br><strong>Secondary:</strong> Featured listing fee (PKR 200/week) for premium visibility<br><strong>Future:</strong> Pro seller subscription (PKR 500/mo for analytics + priority matching)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- §5 REVENUE -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-emerald">§5</span><h2 class="sec-title">Revenue &amp; Pricing Strategy</h2></div>
+    <div class="rev-wrap">
+      <div class="rev-card">
+        <div class="rev-head primary">
+          <div class="rev-name">Primary Revenue</div>
+          <div class="rev-amount">10–12% GMV</div>
+        </div>
+        <div class="rev-body">
+          <div class="rev-row">Commission on every completed gig</div>
+          <div class="rev-row">Deducted automatically from seller payout</div>
+          <div class="rev-row">Buyers never see the fee — frictionless</div>
+          <div class="rev-row">Year 1 target: PKR 500K+ commission</div>
+          <div class="rev-row">Scales linearly with GMV growth</div>
+        </div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-head secondary">
+          <div class="rev-name">Secondary Revenue</div>
+          <div class="rev-amount">Featured Listings</div>
+        </div>
+        <div class="rev-body">
+          <div class="rev-row">PKR 200/week for top-slot visibility</div>
+          <div class="rev-row">First 6 months: free for all beta sellers</div>
+          <div class="rev-row">Activate once 100+ active sellers onboard</div>
+          <div class="rev-row">Estimated 20% seller adoption at launch</div>
+          <div class="rev-row">Low-friction upsell for established sellers</div>
+        </div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-head tertiary">
+          <div class="rev-name">Future Revenue (v2)</div>
+          <div class="rev-amount">Pro Subscription</div>
+        </div>
+        <div class="rev-body">
+          <div class="rev-row">PKR 500/mo for verified seller badge</div>
+          <div class="rev-row">Priority matching + analytics dashboard</div>
+          <div class="rev-row">University leaderboard rank boost</div>
+          <div class="rev-row">Only launch when 500+ active sellers</div>
+          <div class="rev-row">Target: 15% take-rate among top sellers</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <div class="card-lbl">Revenue Projections (Conservative)</div>
+      <table class="bmc" style="margin-top:0;">
+        <thead><tr><th>Period</th><th>Active Sellers</th><th>Avg Gigs/Seller/Mo</th><th>Avg Gig Value (PKR)</th><th>Monthly GMV</th><th>Platform Revenue (11%)</th></tr></thead>
+        <tbody>
+          <tr><td>Month 1 (MVP)</td><td>30</td><td>0.5</td><td>PKR 1,500</td><td>PKR 22,500</td><td>PKR 2,475</td></tr>
+          <tr><td>Month 3</td><td>100</td><td>1.5</td><td>PKR 2,000</td><td>PKR 300,000</td><td>PKR 33,000</td></tr>
+          <tr><td>Month 6</td><td>300</td><td>2</td><td>PKR 2,500</td><td>PKR 1,500,000</td><td>PKR 165,000</td></tr>
+          <tr><td>Month 12</td><td>800</td><td>3</td><td>PKR 3,000</td><td>PKR 7,200,000</td><td>PKR 792,000</td></tr>
+          <tr><td>Year 3</td><td>5,000</td><td>4</td><td>PKR 4,000</td><td>PKR 80,000,000</td><td>~PKR 8.8M (~$31K/mo)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- §6 GTM -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-violet">§6</span><h2 class="sec-title">Go-To-Market Strategy</h2></div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-lbl" style="margin-bottom:14px;">GTM Flow — 5 Stages</div>
+      <div class="gtm-flow">
+        <div class="gtm-step"><div class="gtm-icon">🎯</div><div class="gtm-lbl">Seed</div><div class="gtm-desc">30 hand-curated beta students, Swabi/Peshawar</div></div>
+        <div class="gtm-step"><div class="gtm-icon">📣</div><div class="gtm-lbl">Spark</div><div class="gtm-desc">First earner story → TikTok + LinkedIn viral moment</div></div>
+        <div class="gtm-step"><div class="gtm-icon">🔗</div><div class="gtm-lbl">Anchor</div><div class="gtm-desc">2 university CS dept partnerships for credibility</div></div>
+        <div class="gtm-step"><div class="gtm-icon">🌊</div><div class="gtm-lbl">Wave</div><div class="gtm-desc">Referral program drives organic university spread</div></div>
+        <div class="gtm-step"><div class="gtm-icon">🏙️</div><div class="gtm-lbl">Expand</div><div class="gtm-desc">City-by-city rollout: Peshawar → Islamabad → Lahore</div></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-lbl">Phase 1: Local Domination (Months 1–3)</div>
+        <ul style="list-style:none;padding:0;">
+          <li style="padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--violet);font-weight:700;">→</span>Own Swabi University of Swabi + UET Peshawar first</li>
+          <li style="padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--violet);font-weight:700;">→</span>One viral TikTok of student earning PKR 10K in first week</li>
+          <li style="padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--violet);font-weight:700;">→</span>Partner with 3 local SMBs as anchor buyers — offer first gig free</li>
+          <li style="padding:6px 0;font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--violet);font-weight:700;">→</span>Zero paid ads — 100% organic community growth</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-lbl">Phase 2: Province Scale (Months 4–9)</div>
+        <ul style="list-style:none;padding:0;">
+          <li style="padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--emerald);font-weight:700;">→</span>Expand to 5 KPK universities via CS department partnerships</li>
+          <li style="padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--emerald);font-weight:700;">→</span>Referral: "Refer a friend, earn PKR 200 after their first gig"</li>
+          <li style="padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--emerald);font-weight:700;">→</span>Facebook group outreach to Peshawar, Swabi, Mardan SMBs</li>
+          <li style="padding:6px 0;font-size:13px;color:var(--ink2);display:flex;gap:8px;"><span style="color:var(--emerald);font-weight:700;">→</span>Begin light paid testing (PKR 500/day Facebook ads)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- §7 ACQUISITION -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-emerald">§7</span><h2 class="sec-title">Customer Acquisition Strategy</h2></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="acq-tbl">
+        <thead><tr><th>Channel</th><th>Target Segment</th><th>Tactic</th><th>Est. CAC</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>University WhatsApp Groups</td><td>Student sellers</td><td>Founder posts directly; shares first earner story; pins waitlist link</td><td>PKR 0</td><td><span class="pill pill-g">P1 — Now</span></td></tr>
+          <tr><td>TikTok / Instagram Reels</td><td>Student sellers</td><td>Weekly "student earns PKR X" short videos; authentic, phone-filmed</td><td>PKR 0–50</td><td><span class="pill pill-g">P1 — Now</span></td></tr>
+          <tr><td>LinkedIn (Founder's Page)</td><td>Students + SMBs</td><td>Weekly build-in-public posts; GigBridge student spotlights</td><td>PKR 0</td><td><span class="pill pill-g">P1 — Now</span></td></tr>
+          <tr><td>University CS Dept. Partnership</td><td>Student sellers (bulk)</td><td>Pitch as practical experience platform; CS dept shares with students</td><td>PKR 0</td><td><span class="pill pill-v">P2 — Week 3</span></td></tr>
+          <tr><td>Facebook Local Groups</td><td>SMB buyers</td><td>Post in "Peshawar Business Owners" groups; offer free trial gig</td><td>PKR 50–200</td><td><span class="pill pill-v">P2 — Week 2</span></td></tr>
+          <tr><td>Referral Program</td><td>Both sides</td><td>PKR 200 credit for each referred user who completes first gig</td><td>PKR 200</td><td><span class="pill pill-a">P3 — Month 2</span></td></tr>
+          <tr><td>Facebook Paid Ads</td><td>SMB buyers</td><td>Targeted ads to local business owners, PKR 500/day test budget</td><td>PKR 400–800</td><td><span class="pill pill-a">P3 — Month 3</span></td></tr>
+          <tr><td>Google DSC / GDSC Events</td><td>Student sellers</td><td>Sponsor / present at university tech events; live demo + signup</td><td>PKR 100</td><td><span class="pill pill-a">P3 — Month 2</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- §8 FIRST 100 USERS -->
+  <div class="sec pb">
+    <div class="sec-header"><span class="sec-badge badge-emerald">§8</span><h2 class="sec-title">First 100 Users Plan</h2></div>
+    <div class="f100">
+      <div class="f100-card"><div class="f100-range">1–10</div><div class="f100-name">Personal Network</div><div class="f100-how">CS classmates from Swabi University. Hand-onboarded, mentored for first gig.</div></div>
+      <div class="f100-card"><div class="f100-range">11–30</div><div class="f100-name">Uni Outreach</div><div class="f100-how">Post in UET Peshawar, Swabi Uni WhatsApp groups. Target: 2 posts, 20 signups.</div></div>
+      <div class="f100-card"><div class="f100-range">31–55</div><div class="f100-name">TikTok Spark</div><div class="f100-how">Post first earner story video. Aim for 5K views = ~25 signups organically.</div></div>
+      <div class="f100-card"><div class="f100-range">56–80</div><div class="f100-name">LinkedIn Series</div><div class="f100-how">Weekly "Day X of building GigBridge" posts. Founder's 300+ connections convert.</div></div>
+      <div class="f100-card"><div class="f100-range">81–100</div><div class="f100-name">Referrals</div><div class="f100-how">Beta users refer 1 friend each. 20% activation rate = 20 new users from 100.</div></div>
+    </div>
+    <div class="card" style="background:var(--violet-l);border-color:#c4b5fd;">
+      <div style="font-size:13px;color:#4c1d95;"><strong>Key Principle:</strong> Do not rely on SEO, paid ads, or app stores for the first 100 users. Every user should come through a direct, personal channel where the founder has a name and a relationship. Conversion rate from personal outreach is 10× higher than cold channels at this stage.</div>
+    </div>
+  </div>
+
+  <!-- §9 MOAT -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-violet">§9</span><h2 class="sec-title">Competitive Position &amp; Moat</h2></div>
+    <div class="moat-grid">
+      <div class="moat-item"><div class="moat-title">🏠 Hyperlocal Distribution Moat</div><div class="moat-desc">University by university, city by city rollout builds a network Fiverr and Upwork structurally cannot replicate at local scale. By the time they notice, GigBridge owns the Pashto-speaking student freelance market.</div><span class="moat-strength str-strong">Strong</span></div>
+      <div class="moat-item"><div class="moat-title">💳 Local Payment Rail Advantage</div><div class="moat-desc">JazzCash + EasyPaisa integration is a real technical and regulatory moat. Global platforms have not and likely will not build this for a small market. First mover with working escrow = trust locked in.</div><span class="moat-strength str-strong">Strong</span></div>
+      <div class="moat-item"><div class="moat-title">🌐 Language & Cultural Fit</div><div class="moat-desc">Urdu-first interface, Pashto-speaking support, and culturally attuned onboarding creates a sense of belonging global platforms cannot fake. Cultural proximity is a durable moat in emerging markets.</div><span class="moat-strength str-medium">Medium</span></div>
+      <div class="moat-item"><div class="moat-title">⭐ Review Network Effects</div><div class="moat-desc">Every review a student earns on GigBridge is a locked-in asset. Students with 20+ local reviews won't abandon the platform — their reputation lives here. Review networks compound over time.</div><span class="moat-strength str-growing">Growing</span></div>
+      <div class="moat-item"><div class="moat-title">🎓 University Partnership Pipeline</div><div class="moat-desc">Once 3+ universities officially endorse GigBridge as a practical experience platform, each new intake of CS students becomes a built-in supply funnel. No competitor can replicate without the same 2-year relationship-building.</div><span class="moat-strength str-growing">Growing</span></div>
+      <div class="moat-item"><div class="moat-title">👩‍💻 Founder-as-Customer Insight</div><div class="moat-desc">The founder IS the customer — a CS student in KPK who understands every friction point. This insight advantage enables faster product decisions than any VC-backed competitor parachuting in from Karachi or Lahore.</div><span class="moat-strength str-strong">Strong</span></div>
+    </div>
+  </div>
+
+  <!-- §10 REVERSE SWOT -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-rose">§10</span><h2 class="sec-title">Reverse SWOT Analysis</h2></div>
+    <div class="rswot">
+      <div class="rs-card">
+        <div class="rs-head rs-s">✅ Strengths → How to exploit them</div>
+        <div class="rs-body">
+          <div class="rs-row">Founder = customer → use personal story as primary marketing asset</div>
+          <div class="rs-row">Zero-cost acquisition channels → grow to 500 users before spending a single rupee</div>
+          <div class="rs-row">Local payment moat → feature JazzCash prominently in all buyer communications</div>
+          <div class="rs-row">University proximity → turn Swabi into GigBridge's flagship "case study city"</div>
+          <div class="rs-row">Low operational cost → extend runway while validating before raising capital</div>
+        </div>
+      </div>
+      <div class="rs-card">
+        <div class="rs-head rs-w">⚠️ Weaknesses → How to neutralize them</div>
+        <div class="rs-body">
+          <div class="rs-row">No brand recognition → fix with weekly LinkedIn build-in-public posts starting today</div>
+          <div class="rs-row">Solo founder → recruit 1 co-founder or 2 volunteer moderators from CS class</div>
+          <div class="rs-row">No existing buyer base → solve by offering first 3 gigs to buyers completely free</div>
+          <div class="rs-row">Tech limited by no-code → acceptable for MVP; prioritize hiring technical co-founder at 500 users</div>
+          <div class="rs-row">Limited time (student + intern) → use a Notion kanban with 2-hour daily blocks</div>
+        </div>
+      </div>
+      <div class="rs-card">
+        <div class="rs-head rs-o">🚀 Opportunities → How to capture them</div>
+        <div class="rs-body">
+          <div class="rs-row">Pakistan's $3.5B freelance economy growing 25% YoY → ride the macro wave</div>
+          <div class="rs-row">NAVTTC &amp; IGNITE digital skills programs → apply for govt partnership grant</div>
+          <div class="rs-row">Diaspora demand for local-language work → open diaspora buyer channel at month 6</div>
+          <div class="rs-row">University credit programs for freelance work → pilot with 1 dept by month 3</div>
+          <div class="rs-row">No funded direct competitor exists in Pakistan yet → 12-month first-mover window</div>
+        </div>
+      </div>
+      <div class="rs-card">
+        <div class="rs-head rs-t">🔴 Threats → How to defend against them</div>
+        <div class="rs-body">
+          <div class="rs-row">Fiverr Pakistan push → out-localize: Urdu UI, local payments, university tie-ins they can't match</div>
+          <div class="rs-row">Rozee.pk or Bykea launching a gig feature → move fast, lock in university partnerships first</div>
+          <div class="rs-row">Off-platform transactions after first meeting → build repeat-client discount + loyalty program</div>
+          <div class="rs-row">Economic downturn reducing SMB spending → focus on services that save money, not spend it</div>
+          <div class="rs-row">Power/internet outages affecting delivery → build async delivery model with clear SLAs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §11 PITCH -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-amber">§11</span><h2 class="sec-title">Investor One-Liner &amp; Founder Pitch</h2></div>
+    <div class="pitch-wrap">
+      <div class="pitch-card">
+        <div class="pitch-label">Investor One-Liner</div>
+        <div class="one-liner">GigBridge PK is <span>Fiverr for Pakistan's 1.2M tech students</span> — with local payments, Urdu support, and a mentored first-gig guarantee that unlocks the market global platforms have left behind.</div>
+      </div>
+      <div class="pitch-card">
+        <div class="pitch-label">30-Second Founder Pitch</div>
+        <div class="pitch-text">Pakistan produces over a million CS graduates a year who can't get their first client because Fiverr requires reviews, Payoneer requires a bank account, and the whole platform is in English. Meanwhile, millions of local businesses can't afford $50/hour global freelancers for a PKR 1,500 social media post. I'm building GigBridge — a micro-gig marketplace with JazzCash escrow, student-verified profiles, and Urdu-first onboarding. I'm a CS student in KPK, I'm the customer, and I've already got 50 students ready to sign up on day one. We're launching in 30 days. Join us.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §12 SCORECARD -->
+  <div class="sec pb">
+    <div class="sec-header"><span class="sec-badge badge-amber">§12</span><h2 class="sec-title">Investment Scorecard</h2></div>
+    <div class="score-strip">
+      <div class="score-card">
+        <div class="score-ring ring-e">78</div>
+        <div class="score-slbl">Business Viability</div>
+        <div class="score-reason">Proven marketplace model. Pakistan market is real. Commission revenue scales with GMV. Low fixed costs.</div>
+      </div>
+      <div class="score-card">
+        <div class="score-ring ring-e">82</div>
+        <div class="score-slbl">Revenue Potential</div>
+        <div class="score-reason">$18M SOM achievable in 3 years. Multiple revenue streams. High LTV:CAC ratio if organic channels hold.</div>
+      </div>
+      <div class="score-card">
+        <div class="score-ring ring-v">75</div>
+        <div class="score-slbl">GTM Strength</div>
+        <div class="score-reason">Zero-cost channels are strong. City-by-city rollout is smart. Buyer acquisition strategy needs more proof.</div>
+      </div>
+      <div class="score-card">
+        <div class="score-ring ring-a">70</div>
+        <div class="score-slbl">Competitive Strength</div>
+        <div class="score-reason">No direct funded competitor. Moats are real but early. Needs 6–12 months of execution to be defensible.</div>
+      </div>
+      <div class="score-card">
+        <div class="score-ring ring-a">68</div>
+        <div class="score-slbl">Investor Readiness</div>
+        <div class="score-reason">Story is compelling. Needs 30-day traction data (GMV, NPS, repeat buyers) before seed round conversation.</div>
+      </div>
+    </div>
+    <div class="card" style="background:var(--amber-l);border-color:#fcd34d;">
+      <div style="font-size:13px;color:#92400e;"><strong>Overall Investment Score: 74.6 / 100</strong> — Not ready to raise today. Ready to validate. After 30 days of traction data showing even PKR 50K GMV + 10 completed gigs, this becomes a fundable narrative for Pakistan's angel investor ecosystem (i-Invest, Lakson Investments, Plan9 accelerator).</div>
+    </div>
+  </div>
+
+  <!-- §13 VISUAL DASHBOARD -->
+  <div class="sec pb" id="dashboard-section">
+    <div class="sec-header"><span class="sec-badge badge-violet">§13</span><h2 class="sec-title">Visual Dashboard</h2></div>
+    <div style="background:var(--ink);border-radius:16px;padding:32px;overflow:hidden;">
+      <svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
+        <defs>
+          <linearGradient id="gv" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c3aed"/>
+            <stop offset="100%" stop-color="#a78bfa"/>
+          </linearGradient>
+          <linearGradient id="ge" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#059669"/>
+            <stop offset="100%" stop-color="#34d399"/>
+          </linearGradient>
+          <linearGradient id="ga" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#d97706"/>
+            <stop offset="100%" stop-color="#fbbf24"/>
+          </linearGradient>
+          <linearGradient id="gr" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#e11d48"/>
+            <stop offset="100%" stop-color="#fb7185"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background -->
+        <rect width="900" height="620" fill="#0e0e14" rx="12"/>
+
+        <!-- Title bar -->
+        <rect x="0" y="0" width="900" height="50" fill="#1a1a26" rx="12"/>
+        <rect x="0" y="38" width="900" height="12" fill="#1a1a26"/>
+        <text x="24" y="31" font-family="'JetBrains Mono',monospace" font-size="11" fill="#7c3aed" letter-spacing="2" font-weight="600">GIGBRIDGE PK</text>
+        <text x="180" y="31" font-family="'JetBrains Mono',monospace" font-size="11" fill="rgba(255,255,255,0.3)" letter-spacing="1">Business Strategy Dashboard · Day 24</text>
+        <text x="750" y="31" font-family="'JetBrains Mono',monospace" font-size="11" fill="#059669" letter-spacing="1">🟢 INVESTABLE</text>
+
+        <!-- ── ROW 1: SCORES ── -->
+        <!-- Score cards -->
+        <g transform="translate(24,66)">
+          <!-- Score bg cards -->
+          <rect x="0" y="0" width="156" height="72" rx="8" fill="#1a1a26"/>
+          <rect x="168" y="0" width="156" height="72" rx="8" fill="#1a1a26"/>
+          <rect x="336" y="0" width="156" height="72" rx="8" fill="#1a1a26"/>
+          <rect x="504" y="0" width="156" height="72" rx="8" fill="#1a1a26"/>
+          <rect x="672" y="0" width="204" height="72" rx="8" fill="#1a1a26"/>
+
+          <!-- Score values -->
+          <text x="78" y="36" font-family="'Syne',sans-serif" font-size="26" fill="#059669" font-weight="800" text-anchor="middle">78</text>
+          <text x="78" y="55" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.3)" text-anchor="middle" letter-spacing="1">VIABILITY</text>
+
+          <text x="246" y="36" font-family="'Syne',sans-serif" font-size="26" fill="#059669" font-weight="800" text-anchor="middle">82</text>
+          <text x="246" y="55" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.3)" text-anchor="middle" letter-spacing="1">REVENUE</text>
+
+          <text x="414" y="36" font-family="'Syne',sans-serif" font-size="26" fill="#a78bfa" font-weight="800" text-anchor="middle">75</text>
+          <text x="414" y="55" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.3)" text-anchor="middle" letter-spacing="1">GTM</text>
+
+          <text x="582" y="36" font-family="'Syne',sans-serif" font-size="26" fill="#fbbf24" font-weight="800" text-anchor="middle">70</text>
+          <text x="582" y="55" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.3)" text-anchor="middle" letter-spacing="1">COMPETITIVE</text>
+
+          <text x="774" y="36" font-family="'Syne',sans-serif" font-size="26" fill="#fbbf24" font-weight="800" text-anchor="middle">68</text>
+          <text x="774" y="55" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.3)" text-anchor="middle" letter-spacing="1">INVESTOR READY</text>
+        </g>
+
+        <!-- ── ROW 2: REVENUE + MOAT ── -->
+        <!-- Revenue streams block -->
+        <rect x="24" y="158" width="280" height="190" rx="8" fill="#1a1a26"/>
+        <text x="38" y="180" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.35)" letter-spacing="2">REVENUE STREAMS</text>
+        <!-- Primary -->
+        <rect x="38" y="190" width="252" height="48" rx="6" fill="url(#gv)" opacity="0.9"/>
+        <text x="54" y="211" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)" font-weight="600">Primary · 10–12% GMV Commission</text>
+        <text x="54" y="228" font-family="'Syne',sans-serif" font-size="16" fill="white" font-weight="800">PKR 33K/mo @ Month 3</text>
+        <!-- Secondary -->
+        <rect x="38" y="246" width="120" height="42" rx="6" fill="#1e3a2e"/>
+        <text x="50" y="263" font-family="'Inter',sans-serif" font-size="10" fill="#34d399" font-weight="600">Featured Listings</text>
+        <text x="50" y="279" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">PKR 200/wk</text>
+        <!-- Tertiary -->
+        <rect x="168" y="246" width="122" height="42" rx="6" fill="#2d2010"/>
+        <text x="180" y="263" font-family="'Inter',sans-serif" font-size="10" fill="#fbbf24" font-weight="600">Pro Subscription</text>
+        <text x="180" y="279" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">PKR 500/mo</text>
+        <!-- Take rate note -->
+        <text x="38" y="330" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.45)">Blended take rate: ~11%</text>
+        <text x="38" y="345" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.45)">Year 3 target: ~$31K/mo</text>
+
+        <!-- Competitive Moat block -->
+        <rect x="316" y="158" width="280" height="190" rx="8" fill="#1a1a26"/>
+        <text x="330" y="180" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.35)" letter-spacing="2">COMPETITIVE MOAT</text>
+        <!-- Moat bars -->
+        <g transform="translate(330, 190)">
+          <text x="0" y="14" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.6)">Local Payments</text>
+          <rect x="130" y="4" width="140" height="10" rx="5" fill="#222233"/>
+          <rect x="130" y="4" width="126" height="10" rx="5" fill="url(#ge)"/>
+          <text x="278" y="14" font-family="'JetBrains Mono',monospace" font-size="10" fill="#34d399">90%</text>
+
+          <text x="0" y="38" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.6)">Founder-Market Fit</text>
+          <rect x="130" y="28" width="140" height="10" rx="5" fill="#222233"/>
+          <rect x="130" y="28" width="133" height="10" rx="5" fill="url(#ge)"/>
+          <text x="278" y="38" font-family="'JetBrains Mono',monospace" font-size="10" fill="#34d399">95%</text>
+
+          <text x="0" y="62" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.6)">Hyperlocal Network</text>
+          <rect x="130" y="52" width="140" height="10" rx="5" fill="#222233"/>
+          <rect x="130" y="52" width="112" height="10" rx="5" fill="url(#gv)"/>
+          <text x="278" y="62" font-family="'JetBrains Mono',monospace" font-size="10" fill="#a78bfa">80%</text>
+
+          <text x="0" y="86" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.6)">University Pipeline</text>
+          <rect x="130" y="76" width="140" height="10" rx="5" fill="#222233"/>
+          <rect x="130" y="76" width="98" height="10" rx="5" fill="url(#gv)"/>
+          <text x="278" y="86" font-family="'JetBrains Mono',monospace" font-size="10" fill="#a78bfa">70%</text>
+
+          <text x="0" y="110" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.6)">Review Network FX</text>
+          <rect x="130" y="100" width="140" height="10" rx="5" fill="#222233"/>
+          <rect x="130" y="100" width="84" height="10" rx="5" fill="url(#ga)"/>
+          <text x="278" y="110" font-family="'JetBrains Mono',monospace" font-size="10" fill="#fbbf24">60%</text>
+
+          <text x="0" y="134" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.6)">Language &amp; Culture</text>
+          <rect x="130" y="124" width="140" height="10" rx="5" fill="#222233"/>
+          <rect x="130" y="124" width="98" height="10" rx="5" fill="url(#ga)"/>
+          <text x="278" y="134" font-family="'JetBrains Mono',monospace" font-size="10" fill="#fbbf24">70%</text>
+        </g>
+
+        <!-- First 100 Users block -->
+        <rect x="608" y="158" width="268" height="190" rx="8" fill="#1a1a26"/>
+        <text x="622" y="180" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.35)" letter-spacing="2">FIRST 100 USERS FUNNEL</text>
+        <!-- Funnel bars -->
+        <g transform="translate(622,190)">
+          <rect x="0" y="0" width="240" height="24" rx="4" fill="#2d1f4e"/>
+          <rect x="0" y="0" width="240" height="24" rx="4" fill="url(#gv)" opacity="0.8"/>
+          <text x="8" y="16" font-family="'Inter',sans-serif" font-size="11" fill="white" font-weight="600">1–10: Personal network (hand-picked)</text>
+
+          <rect x="0" y="32" width="196" height="24" rx="4" fill="url(#gv)" opacity="0.65"/>
+          <text x="8" y="48" font-family="'Inter',sans-serif" font-size="11" fill="white" font-weight="600">11–30: Uni WhatsApp groups</text>
+
+          <rect x="0" y="64" width="160" height="24" rx="4" fill="url(#gv)" opacity="0.5"/>
+          <text x="8" y="80" font-family="'Inter',sans-serif" font-size="11" fill="white" font-weight="600">31–55: TikTok earner video</text>
+
+          <rect x="0" y="96" width="130" height="24" rx="4" fill="url(#gv)" opacity="0.38"/>
+          <text x="8" y="112" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.9)" font-weight="600">56–80: LinkedIn build-in-public</text>
+
+          <rect x="0" y="128" width="100" height="24" rx="4" fill="url(#gv)" opacity="0.25"/>
+          <text x="8" y="144" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.8)" font-weight="600">81–100: Referral program</text>
+        </g>
+
+        <!-- ── ROW 3: GTM + RISKS + VERDICT ── -->
+        <!-- GTM Flow -->
+        <rect x="24" y="362" width="440" height="120" rx="8" fill="#1a1a26"/>
+        <text x="38" y="384" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.35)" letter-spacing="2">GO-TO-MARKET FLOW</text>
+        <g transform="translate(38, 395)">
+          <!-- 5 steps with arrows -->
+          <rect x="0" y="0" width="72" height="50" rx="6" fill="#2d1f4e"/>
+          <text x="36" y="22" font-family="'Inter',sans-serif" font-size="16" text-anchor="middle">🎯</text>
+          <text x="36" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa" text-anchor="middle" letter-spacing="1">SEED</text>
+          <text x="36" y="50" font-family="'Inter',sans-serif" font-size="9" fill="rgba(255,255,255,0.35)" text-anchor="middle">30 students</text>
+          <text x="80" y="28" font-size="16" fill="rgba(255,255,255,0.2)" text-anchor="middle">›</text>
+
+          <rect x="88" y="0" width="72" height="50" rx="6" fill="#332150"/>
+          <text x="124" y="22" font-family="'Inter',sans-serif" font-size="16" text-anchor="middle">📣</text>
+          <text x="124" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa" text-anchor="middle" letter-spacing="1">SPARK</text>
+          <text x="124" y="50" font-family="'Inter',sans-serif" font-size="9" fill="rgba(255,255,255,0.35)" text-anchor="middle">TikTok viral</text>
+          <text x="168" y="28" font-size="16" fill="rgba(255,255,255,0.2)" text-anchor="middle">›</text>
+
+          <rect x="176" y="0" width="72" height="50" rx="6" fill="#3d2860"/>
+          <text x="212" y="22" font-family="'Inter',sans-serif" font-size="16" text-anchor="middle">🔗</text>
+          <text x="212" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa" text-anchor="middle" letter-spacing="1">ANCHOR</text>
+          <text x="212" y="50" font-family="'Inter',sans-serif" font-size="9" fill="rgba(255,255,255,0.35)" text-anchor="middle">Uni partner</text>
+          <text x="256" y="28" font-size="16" fill="rgba(255,255,255,0.2)" text-anchor="middle">›</text>
+
+          <rect x="264" y="0" width="72" height="50" rx="6" fill="#4c3270"/>
+          <text x="300" y="22" font-family="'Inter',sans-serif" font-size="16" text-anchor="middle">🌊</text>
+          <text x="300" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#c4b5fd" text-anchor="middle" letter-spacing="1">WAVE</text>
+          <text x="300" y="50" font-family="'Inter',sans-serif" font-size="9" fill="rgba(255,255,255,0.35)" text-anchor="middle">Referrals</text>
+          <text x="344" y="28" font-size="16" fill="rgba(255,255,255,0.2)" text-anchor="middle">›</text>
+
+          <rect x="352" y="0" width="72" height="50" rx="6" fill="#5c3c8a"/>
+          <text x="388" y="22" font-family="'Inter',sans-serif" font-size="16" text-anchor="middle">🏙️</text>
+          <text x="388" y="38" font-family="'JetBrains Mono',monospace" font-size="8" fill="#e9d5ff" text-anchor="middle" letter-spacing="1">EXPAND</text>
+          <text x="388" y="50" font-family="'Inter',sans-serif" font-size="9" fill="rgba(255,255,255,0.35)" text-anchor="middle">City rollout</text>
+        </g>
+
+        <!-- Key Risks -->
+        <rect x="476" y="362" width="200" height="120" rx="8" fill="#1a1a26"/>
+        <text x="490" y="384" font-family="'JetBrains Mono',monospace" font-size="9" fill="rgba(255,255,255,0.35)" letter-spacing="2">KEY RISKS</text>
+        <g transform="translate(490,394)">
+          <rect x="0" y="0" width="8" height="8" rx="2" fill="#e11d48"/>
+          <text x="14" y="9" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">Cold start · no supply/demand</text>
+          <rect x="0" y="18" width="8" height="8" rx="2" fill="#e11d48"/>
+          <text x="14" y="27" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">Payment integration failure</text>
+          <rect x="0" y="36" width="8" height="8" rx="2" fill="#d97706"/>
+          <text x="14" y="45" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">Quality complaints (student)</text>
+          <rect x="0" y="54" width="8" height="8" rx="2" fill="#d97706"/>
+          <text x="14" y="63" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">Off-platform transactions</text>
+          <rect x="0" y="72" width="8" height="8" rx="2" fill="#fbbf24"/>
+          <text x="14" y="81" font-family="'Inter',sans-serif" font-size="11" fill="rgba(255,255,255,0.7)">Founder bandwidth limits</text>
+        </g>
+
+        <!-- Final Verdict card -->
+        <rect x="688" y="362" width="188" height="120" rx="8" fill="#0d3d2d"/>
+        <rect x="688" y="362" width="188" height="4" rx="0" fill="url(#ge)"/>
+        <rect x="688" y="366" width="188" height="116" rx="8" fill="#0d3d2d"/>
+        <text x="782" y="398" font-family="'Inter',sans-serif" font-size="32" text-anchor="middle">🟢</text>
+        <text x="782" y="422" font-family="'Syne',sans-serif" font-size="20" fill="white" font-weight="800" text-anchor="middle">INVESTABLE</text>
+        <text x="782" y="440" font-family="'JetBrains Mono',monospace" font-size="9" fill="#6ee7b7" text-anchor="middle" letter-spacing="1.5">Score: 74.6 / 100</text>
+        <text x="782" y="458" font-family="'Inter',sans-serif" font-size="10" fill="rgba(255,255,255,0.45)" text-anchor="middle">30-day traction needed</text>
+        <text x="782" y="472" font-family="'Inter',sans-serif" font-size="10" fill="rgba(255,255,255,0.45)" text-anchor="middle">before seed raise</text>
+
+        <!-- Bottom bar -->
+        <rect x="0" y="560" width="900" height="60" fill="#1a1a26" rx="0"/>
+        <rect x="0" y="560" width="900" height="12" fill="#1a1a26"/>
+        <rect x="0" y="600" width="900" height="20" fill="#1a1a26" rx="12"/>
+        <text x="24" y="587" font-family="'JetBrains Mono',monospace" font-size="10" fill="rgba(255,255,255,0.2)" letter-spacing="1">GIGBRIDGE PK · BUSINESS STRATEGY REPORT · ABTALK AI CHALLENGE DAY 24/60 · #ABTALKSОНAI</text>
+        <text x="756" y="587" font-family="'JetBrains Mono',monospace" font-size="10" fill="#7c3aed" letter-spacing="1">habiarif-dev.github.io</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- §14 FOUNDER ACTION SHEET -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-emerald">§14</span><h2 class="sec-title">Founder Action Sheet — Top 10 Next Actions</h2></div>
+    <div class="card">
+      <ul class="action-list-wrap">
+        <li class="act-item">
+          <div class="act-n">1</div>
+          <div><div class="act-title">Do 20 customer discovery interviews today — 10 students, 10 SMBs</div><div class="act-desc">Ask: current pain, willingness to pay, what they've tried before. Record with permission. This is your most valuable hour of the week.</div><span class="act-tag tag-now">Do Today</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">2</div>
+          <div><div class="act-title">Build and publish your waitlist landing page</div><div class="act-desc">One clear headline: "Earn from your CS skills while you study." One email field. Share in 5+ university WhatsApp groups. Goal: 50 signups in 72 hours.</div><span class="act-tag tag-now">Do Today</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">3</div>
+          <div><div class="act-title">Test Safepay or Paymob sandbox for JazzCash escrow</div><div class="act-desc">This is your single biggest technical unknown. Verify it works before committing to any no-code platform or payment architecture.</div><span class="act-tag tag-w1">Week 1</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">4</div>
+          <div><div class="act-title">Define exactly 3 launch gig categories — no more</div><div class="act-desc">Web Dev · Graphic Design · Social Media. Narrow focus = better quality control, cleaner buyer UX, and easier reputation management at MVP stage.</div><span class="act-tag tag-w1">Week 1</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">5</div>
+          <div><div class="act-title">Recruit and personally vet 30 beta student sellers</div><div class="act-desc">From your own university and UET Peshawar network. Only accept students who can show ONE portfolio sample. Quality over quantity at this stage.</div><span class="act-tag tag-w1">Week 1</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">6</div>
+          <div><div class="act-title">Build MVP using Glide (launch in week 2)</div><div class="act-desc">Student profile + gig listing + WhatsApp messaging + manual JazzCash escrow (transfer to platform account, release on delivery). Ship ugly, ship fast.</div><span class="act-tag tag-w1">Week 1–2</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">7</div>
+          <div><div class="act-title">Secure 3 anchor buyers before launch — offer first gig free</div><div class="act-desc">Approach 3 local Peshawar/Swabi businesses directly. Offer one free micro-task from a vetted student. No financial risk for them, massive validation for you.</div><span class="act-tag tag-w1">Week 1</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">8</div>
+          <div><div class="act-title">Personally oversee every gig in the first 30 days</div><div class="act-desc">Be the QA layer manually. Review every deliverable before it goes to the buyer. One bad review at 10 total reviews is catastrophic. One bad review at 200 is manageable.</div><span class="act-tag tag-w1">Weeks 1–4</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">9</div>
+          <div><div class="act-title">Start weekly LinkedIn build-in-public series today</div><div class="act-desc">"Building GigBridge PK: Day X" — 200-word honest update every Monday. This compounds into your distribution moat. Your first 50 users will come from this.</div><span class="act-tag tag-now">Start Today</span></div>
+        </li>
+        <li class="act-item">
+          <div class="act-n">10</div>
+          <div><div class="act-title">Set a go/no-go decision date for Day 60 (end of ABTalks challenge)</div><div class="act-desc">By Day 60: if you have 50+ signups, 10+ paid gigs, PKR 50K+ GMV → proceed to seed. If not → pivot to university B2B model. Commit to the decision criteria now.</div><span class="act-tag tag-w2">Set Now</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- §15 FINAL VERDICT + SUSTAINABILITY -->
+  <div class="sec">
+    <div class="sec-header"><span class="sec-badge badge-emerald">§15</span><h2 class="sec-title">Final Verdict &amp; Sustainability</h2></div>
+    <div class="final-verdict">
+      <div class="fv-ew">AI Co-Founder · YC Advisor · Business Consultant · Final Assessment</div>
+      <div class="fv-emoji">🟢</div>
+      <div class="fv-headline">Investable</div>
+      <div class="fv-body">GigBridge PK has the right problem, the right founder, the right market timing, and a clear path to first revenue. The commission model is proven, the moats are real, and the 30-day plan is executable. Stop reading reports. Start building.</div>
+      <div class="fv-tags">
+        <div class="fv-tag">✓ Real, painful problem</div>
+        <div class="fv-tag">✓ Founder = customer</div>
+        <div class="fv-tag">✓ Proven revenue model</div>
+        <div class="fv-tag">✓ Zero-cost GTM channels</div>
+        <div class="fv-tag">✓ Defensible local moats</div>
+        <div class="fv-tag">✓ Clear 30-day milestones</div>
+      </div>
+    </div>
+    <div class="sustain-card">
+      <p><strong>Sustainability Verdict:</strong> GigBridge PK is structurally sustainable — commission revenue scales linearly with GMV, fixed costs are near-zero at MVP stage, and the two-sided network grows stronger with every completed review. The biggest sustainability risk is off-platform leakage; solving this with a strong loyalty/repeat-client system before Month 6 is the difference between a $1M and $10M outcome. If the founder ships the MVP in 30 days, secures 10 paid gigs, and builds even one university partnership, this business has the fundamentals to sustain itself through to a seed round and beyond.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="pg-footer">
+    <div>
+      <div class="pg-footer-brand">GigBridge PK — Business Strategy Report</div>
+      <div style="margin-top:4px;">Prepared by AI Co-Founder System · ABTalks 60-Day AI Challenge · Day 24/60</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="color:var(--violet);font-weight:700;">#ABTalksOnAI · #60DaysOfAI · #BuildInPublic</div>
+      <div style="margin-top:4px;">habiarif-dev.github.io · linkedin.com/in/habiba-arif-4251a6315</div>
+    </div>
+  </div>
+
+</div><!-- /body-wrap -->
+</body>
+</html>

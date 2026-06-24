@@ -1,0 +1,1 @@
+Day 25/60 🦈 Built a full AI Shark Tank Simulator — pitch your startup to 4 AI judges (VC, Founder, Customer, Angel), answer their live questions, get scored across 5 dimensions, and receive an actual invest/reject/acquire decision with valuation. Confetti included. One HTML file, zero backend. #60DaysOfAI #AISharkTank #ClaudeAI #BuildInPublic

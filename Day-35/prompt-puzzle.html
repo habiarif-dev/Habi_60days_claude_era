@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧩 Prompt Puzzle — Master AI Prompting Through Play</title>
+<style>
+  :root{
+    --bg-deep:#141024;
+    --bg-panel:#1d1836;
+    --bg-panel-2:#241f47;
+    --violet:#8b6bf7;
+    --violet-2:#6a4bd6;
+    --mint:#5eead4;
+    --amber:#fbbf6b;
+    --coral:#ff8a8a;
+    --ink:#f4f2ff;
+    --ink-dim:#b9b3d9;
+    --line: rgba(255,255,255,0.08);
+    --good:#5eead4;
+    --bad:#ff8a8a;
+    --font-display:'Fredoka', 'Baloo 2', 'Segoe UI Rounded', sans-serif;
+    --font-body:'Nunito', 'Segoe UI', sans-serif;
+    --font-mono:'JetBrains Mono', 'Consolas', monospace;
+    --radius: 20px;
+  }
+  @font-face{font-family:'Fredoka';src:local('Arial');}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 800px at 10% -10%, #2a2154 0%, transparent 55%),
+                radial-gradient(1000px 700px at 100% 0%, #1d3b3a 0%, transparent 50%),
+                var(--bg-deep);
+    color:var(--ink);
+    font-family:var(--font-body);
+    min-height:100vh;
+    padding:24px 16px 80px;
+  }
+  ::selection{background:var(--violet); color:#fff;}
+  a{color:inherit;}
+
+  .wrap{max-width:980px;margin:0 auto;}
+
+  /* Header */
+  .hero{
+    text-align:center;
+    padding:28px 20px 34px;
+    position:relative;
+  }
+  .hero h1{
+    font-family:var(--font-display), sans-serif;
+    font-weight:800;
+    font-size:clamp(28px, 5vw, 44px);
+    margin:0 0 8px;
+    letter-spacing:0.3px;
+    background:linear-gradient(90deg, var(--violet) 10%, var(--mint) 60%, var(--amber) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero p{color:var(--ink-dim); margin:0; font-size:15px;}
+  .puzzle-float{
+    position:absolute; font-size:26px; opacity:0.5; animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-10px) rotate(8deg);}}
+
+  /* Cards / panels */
+  .panel{
+    background:linear-gradient(180deg, var(--bg-panel), var(--bg-panel-2));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
+    margin-bottom:20px;
+  }
+
+  /* Onboarding */
+  #onboarding .q{margin-bottom:22px;}
+  #onboarding label.qlabel{
+    display:block; font-family:var(--font-display); font-weight:600;
+    font-size:17px; margin-bottom:12px; color:var(--ink);
+  }
+  .opt-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px;}
+  .opt-btn{
+    background:var(--bg-panel); border:2px solid var(--line); color:var(--ink);
+    padding:14px 12px; border-radius:14px; cursor:pointer; font-family:var(--font-body);
+    font-weight:700; font-size:14px; transition:all .18s ease; text-align:left;
+  }
+  .opt-btn:hover{border-color:var(--violet); transform:translateY(-2px); background:var(--bg-panel-2);}
+  .opt-btn.selected{border-color:var(--mint); background:rgba(94,234,212,0.12); color:var(--mint);}
+  .cta-row{display:flex; justify-content:flex-end; margin-top:18px;}
+  .btn-primary{
+    background:linear-gradient(90deg, var(--violet), var(--violet-2));
+    color:#fff; border:none; padding:13px 26px; border-radius:14px;
+    font-family:var(--font-display); font-weight:700; font-size:15px; cursor:pointer;
+    box-shadow:0 10px 24px -10px rgba(139,107,247,0.7); transition:transform .15s ease;
+  }
+  .btn-primary:disabled{opacity:0.4; cursor:not-allowed; box-shadow:none;}
+  .btn-primary:not(:disabled):hover{transform:translateY(-2px);}
+  .btn-ghost{
+    background:transparent; border:1px solid var(--line); color:var(--ink-dim);
+    padding:10px 18px; border-radius:12px; font-family:var(--font-body); font-weight:700;
+    cursor:pointer; font-size:13px;
+  }
+  .btn-ghost:hover{border-color:var(--violet); color:var(--ink);}
+
+  /* Top bar / score */
+  #topbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .stat-pill{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:100px;
+    padding:8px 14px; font-size:12.5px; font-weight:700; color:var(--ink-dim);
+    display:flex; align-items:center; gap:6px;
+  }
+  .stat-pill b{color:var(--mint); font-family:var(--font-mono);}
+  #progressbar-wrap{background:var(--bg-panel); border-radius:100px; height:10px; overflow:hidden; flex:1; min-width:160px; border:1px solid var(--line);}
+  #progressbar{height:100%; width:0%; background:linear-gradient(90deg, var(--mint), var(--violet)); transition:width .4s ease;}
+
+  /* Challenge area */
+  .challenge-tag{
+    display:inline-block; font-family:var(--font-mono); font-size:11px; letter-spacing:0.5px;
+    color:var(--bg-deep); background:var(--amber); padding:4px 10px; border-radius:8px;
+    margin-bottom:10px; font-weight:700; text-transform:uppercase;
+  }
+  .scenario-title{font-family:var(--font-display); font-size:20px; font-weight:700; margin:0 0 4px;}
+  .scenario-desc{color:var(--ink-dim); font-size:14px; margin:0 0 18px;}
+  .desired-box{
+    background:rgba(94,234,212,0.06); border:1px dashed rgba(94,234,212,0.4);
+    border-radius:14px; padding:14px 16px; font-size:13.5px; margin-bottom:20px; color:var(--ink);
+  }
+  .desired-box b{color:var(--mint); display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; font-family:var(--font-mono);}
+
+  /* Drag drop blocks */
+  #blocks-pool, #build-target{
+    min-height:70px; border-radius:14px; padding:12px; display:flex; flex-wrap:wrap; gap:10px;
+  }
+  #blocks-pool{background:rgba(255,255,255,0.02); border:1px solid var(--line);}
+  #build-target{background:rgba(139,107,247,0.06); border:2px dashed rgba(139,107,247,0.5); margin-top:14px;}
+  #build-target.drag-over{border-color:var(--mint); background:rgba(94,234,212,0.08);}
+  .block{
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:12px;
+    padding:10px 14px; font-size:13.5px; cursor:grab; user-select:none;
+    transition:transform .15s ease, box-shadow .15s ease; font-family:var(--font-body); font-weight:600;
+    box-shadow:0 4px 10px -6px rgba(0,0,0,0.5);
+  }
+  .block:active{cursor:grabbing;}
+  .block:hover{transform:translateY(-2px); border-color:var(--violet);}
+  .block.correct{border-color:var(--good); background:rgba(94,234,212,0.12);}
+  .block.wrong{border-color:var(--bad); background:rgba(255,138,138,0.12); animation:shake .3s;}
+  .block.distractor-tag::after{content:" ⚠"; opacity:0.5;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+  .label-row{display:flex; justify-content:space-between; align-items:center; margin-top:16px;}
+  .label-row span{font-family:var(--font-mono); font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px;}
+
+  /* Clean prompt challenge */
+  .prompt-line{
+    display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px;
+    background:var(--bg-panel-2); border:1px solid var(--line); margin-bottom:8px; font-size:13.5px;
+    cursor:pointer; transition:all .15s ease;
+  }
+  .prompt-line:hover{border-color:var(--violet);}
+  .prompt-line.removed{opacity:0.35; text-decoration:line-through;}
+  .prompt-line .tick{width:20px; height:20px; border-radius:6px; border:2px solid var(--ink-dim); flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-size:12px;}
+  .prompt-line.removed .tick{background:var(--bad); border-color:var(--bad); color:#fff;}
+
+  /* Choose best */
+  .choice-card{
+    background:var(--bg-panel-2); border:2px solid var(--line); border-radius:14px; padding:16px;
+    margin-bottom:12px; cursor:pointer; transition:all .15s ease;
+  }
+  .choice-card:hover{border-color:var(--violet); transform:translateY(-2px);}
+  .choice-card.chosen-correct{border-color:var(--good); background:rgba(94,234,212,0.1);}
+  .choice-card.chosen-wrong{border-color:var(--bad); background:rgba(255,138,138,0.1);}
+  .choice-tag{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; margin-bottom:6px; display:block;}
+  .choice-text{font-size:13.5px; line-height:1.5; font-family:var(--font-mono);}
+
+  .hint-box{
+    background:rgba(251,191,107,0.08); border:1px solid rgba(251,191,107,0.4);
+    border-radius:12px; padding:12px 14px; font-size:13px; margin-top:14px; color:var(--amber);
+    display:none;
+  }
+  .hint-box.show{display:block;}
+
+  .feedback-box{
+    margin-top:16px; padding:14px 16px; border-radius:14px; font-size:14px; display:none;
+  }
+  .feedback-box.show{display:block;}
+  .feedback-box.good{background:rgba(94,234,212,0.1); border:1px solid var(--good); color:var(--mint);}
+  .feedback-box.bad{background:rgba(255,138,138,0.1); border:1px solid var(--bad); color:var(--coral);}
+  .principle{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim); margin-top:8px; display:block;}
+
+  .controls-row{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;}
+
+  /* Floating notification */
+  #notify-layer{position:fixed; top:20px; right:20px; z-index:999; display:flex; flex-direction:column; gap:10px;}
+  .notify{
+    background:var(--bg-panel-2); border:1px solid var(--violet); border-radius:14px; padding:12px 18px;
+    font-size:13.5px; font-weight:700; box-shadow:0 10px 30px -10px rgba(0,0,0,0.7);
+    animation:slidein .3s ease, fadeout .4s ease 2.6s forwards;
+  }
+  @keyframes slidein{from{transform:translateX(40px); opacity:0;} to{transform:translateX(0); opacity:1;}}
+  @keyframes fadeout{to{opacity:0; transform:translateY(-10px);}}
+
+  /* Report */
+  #report h2{font-family:var(--font-display); font-size:26px; margin:0 0 4px;}
+  .rank-badge{
+    display:inline-block; font-family:var(--font-display); font-weight:800; font-size:15px;
+    padding:6px 16px; border-radius:100px; background:linear-gradient(90deg, var(--violet), var(--mint));
+    color:var(--bg-deep); margin-bottom:18px;
+  }
+  .metric-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin:18px 0;}
+  .metric-card{background:var(--bg-panel-2); border:1px solid var(--line); border-radius:14px; padding:14px; text-align:center;}
+  .metric-card .num{font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--mint);}
+  .metric-card .lbl{font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;}
+  #dna-bar{display:flex; height:26px; border-radius:100px; overflow:hidden; margin:14px 0 4px; border:1px solid var(--line);}
+  #dna-bar div{height:100%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#0d0b1a;}
+  .dna-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-dim); margin-bottom:16px;}
+  .dna-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .dna-dot{width:10px; height:10px; border-radius:3px; display:inline-block;}
+  .final-prompt{
+    background:rgba(139,107,247,0.08); border:1px solid rgba(139,107,247,0.4); border-radius:14px;
+    padding:16px; font-family:var(--font-mono); font-size:12.5px; line-height:1.6; white-space:pre-wrap;
+  }
+  .milestone{background:rgba(251,191,107,0.08); border:1px solid rgba(251,191,107,0.4); border-radius:14px; padding:14px 16px; font-size:13.5px; margin-top:14px;}
+
+  .footer-note{text-align:center; color:var(--ink-dim); font-size:12px; margin-top:30px;}
+  .score-pop{
+    position:fixed; font-family:var(--font-display); font-weight:800; font-size:22px; color:var(--mint);
+    pointer-events:none; z-index:1000; animation:scorepop 1s ease forwards;
+  }
+  @keyframes scorepop{0%{opacity:1; transform:translateY(0) scale(1);}100%{opacity:0; transform:translateY(-60px) scale(1.3);}}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div id="notify-layer"></div>
+
+<div class="wrap">
+  <div class="hero">
+    <span class="puzzle-float" style="left:6%; top:10px;">🧩</span>
+    <span class="puzzle-float" style="right:8%; top:30px; animation-delay:2s;">✨</span>
+    <span class="puzzle-float" style="left:14%; bottom:0; animation-delay:4s;">💡</span>
+    <h1>🧩 Prompt Puzzle</h1>
+    <p>Master AI Prompting Through Play</p>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="panel" id="onboarding">
+    <div class="q">
+      <label class="qlabel">1. Which domain would you like to practice prompting for?</label>
+      <div class="opt-grid" id="domain-options"></div>
+    </div>
+    <div class="q">
+      <label class="qlabel">2. Choose your difficulty.</label>
+      <div class="opt-grid" id="difficulty-options"></div>
+    </div>
+    <div class="cta-row">
+      <button class="btn-primary" id="start-btn" disabled>Start the Puzzle →</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" style="display:none;">
+    <div id="topbar">
+      <div class="stat-pill">🎯 Accuracy <b id="stat-accuracy">100%</b></div>
+      <div class="stat-pill">⏱ Time <b id="stat-time">0s</b></div>
+      <div class="stat-pill">🧠 Score <b id="stat-score">0</b></div>
+      <div id="progressbar-wrap"><div id="progressbar"></div></div>
+      <div class="stat-pill">Scenario <b id="stat-scenario">1/6</b></div>
+    </div>
+    <div class="panel" id="challenge-panel"></div>
+  </div>
+
+  <!-- REPORT -->
+  <div id="report-view" style="display:none;">
+    <div class="panel" id="report"></div>
+  </div>
+
+  <div class="footer-note">Everything runs 100% offline in this single HTML file · No data leaves your browser 💜</div>
+</div>
+
+<script>
+(function(){
+
+/* ---------------------------------------------------------
+   DATA: Domains + Scenario Bank (Web Development & AI focus)
+--------------------------------------------------------- */
+const DOMAINS = [
+  {id:'webdev-ai', label:'🌐 Web Development & AI'},
+  {id:'marketing', label:'📈 Marketing & Copywriting'},
+  {id:'data', label:'📊 Data Analysis'},
+  {id:'creative', label:'✍️ Creative Writing'}
+];
+const DIFFICULTIES = [
+  {id:'beginner', label:'🌱 Beginner'},
+  {id:'intermediate', label:'🔥 Intermediate'},
+  {id:'advanced', label:'🚀 Advanced'}
+];
+
+// Full scenario bank built for Web Development & AI, Beginner level.
+// (Other domains reuse a lighter generic set so the app never breaks if picked.)
+const SCENARIO_BANK = {
+  'webdev-ai': {
+    beginner: [
+      {
+        title:"Responsive Navbar",
+        desired:"A clean, mobile-friendly navigation bar with logo, 4 links, and a hamburger menu on small screens.",
+        correctBlocks:[
+          "Act as a frontend developer.",
+          "Build a responsive navbar with a logo on the left and 4 nav links on the right.",
+          "On screens under 768px, collapse the links into a hamburger menu.",
+          "Use semantic HTML and clean CSS (flexbox)."
+        ],
+        distractorBlocks:[
+          "Make it look futuristic and edgy.",
+          "Add a 3D rotating logo animation.",
+          "Include a backend database schema."
+        ],
+        weak:"make a navbar",
+        optimized:"Act as a frontend developer. Build a responsive navbar with a logo on the left and 4 nav links on the right. On screens under 768px, collapse the links into a hamburger menu. Use semantic HTML and clean CSS (flexbox).",
+        overEngineered:"Act as a world-class senior staff frontend architect with 20 years of experience at FAANG companies. Build an extremely sophisticated, enterprise-grade, infinitely scalable navigation system supporting 47 breakpoints, RTL languages, dark mode, 12 animation states, A/B testing hooks, analytics events, and WCAG AAAA compliance, documented in a 10-page spec.",
+        weakOutput:"Here's a basic navbar with 4 links in a row. (No mobile behavior, no structure.)",
+        optimizedOutput:"A semantic <nav> with a logo, 4 links, and a working hamburger toggle that collapses cleanly under 768px — ready to use.",
+        principle:"Specify the goal, the layout, and the breakpoint behavior — vague requests get vague layouts."
+      },
+      {
+        title:"AI Chatbot Widget",
+        desired:"A floating chat widget UI (no real AI backend needed) with a toggle button, message list, and input box.",
+        correctBlocks:[
+          "Act as a UI developer.",
+          "Create a floating chat widget fixed to the bottom-right corner.",
+          "Include a toggle button, a scrollable message list, and a text input with a send button.",
+          "Style it with rounded corners and a soft shadow for a friendly feel."
+        ],
+        distractorBlocks:[
+          "Connect it to a live GPT-4 API with function calling.",
+          "Add voice recognition and text-to-speech.",
+          "Support 15 languages automatically."
+        ],
+        weak:"make a chatbot ui",
+        optimized:"Act as a UI developer. Create a floating chat widget fixed to the bottom-right corner. Include a toggle button, a scrollable message list, and a text input with a send button. Style it with rounded corners and a soft shadow for a friendly feel.",
+        overEngineered:"Act as a principal AI systems engineer. Build a fully autonomous multi-agent chatbot platform with RAG, vector databases, streaming tokens, function calling, memory persistence, and enterprise SSO, all inside one prompt with no scope boundaries.",
+        weakOutput:"A plain chat box with no positioning or interaction states.",
+        optimizedOutput:"A polished floating widget: toggle button bottom-right, scrollable messages, working input + send — visually friendly and ready to wire up to any backend.",
+        principle:"Describe the exact UI pieces you need (toggle, list, input) so the AI doesn't guess the structure."
+      },
+      {
+        title:"Landing Page Hero Section",
+        desired:"A hero section for a productivity app with a headline, subtext, and one call-to-action button.",
+        correctBlocks:[
+          "Act as a landing page designer.",
+          "Write a hero section headline and one supporting subtext line for a productivity app.",
+          "Include one primary call-to-action button labeled clearly.",
+          "Keep the tone friendly and confident."
+        ],
+        distractorBlocks:[
+          "Add a pricing table with 6 tiers.",
+          "Include a full blog with 20 articles.",
+          "Make the button open a payment gateway."
+        ],
+        weak:"write hero text for my app",
+        optimized:"Act as a landing page designer. Write a hero section headline and one supporting subtext line for a productivity app. Include one primary call-to-action button labeled clearly. Keep the tone friendly and confident.",
+        overEngineered:"Act as a Cannes Lions award-winning creative director. Craft a hero section headline system with 5 alternate variants, emotional psychology breakdown, A/B test hypotheses, SEO keyword density targets, and a full brand voice guideline document.",
+        weakOutput:"A generic headline like 'Welcome to our app' with no direction.",
+        optimizedOutput:"A punchy headline, one clear subtext line, and a single well-labeled CTA button — exactly scoped to the ask.",
+        principle:"One clear ask (headline + subtext + one CTA) beats an open-ended request every time."
+      },
+      {
+        title:"Form Validation Script",
+        desired:"A JavaScript snippet that validates a sign-up form: checks required fields and valid email format before submit.",
+        correctBlocks:[
+          "Act as a JavaScript developer.",
+          "Write a form validation script for a sign-up form with name, email, and password fields.",
+          "Check that all fields are filled and the email matches a valid format.",
+          "Prevent submission and show an inline error message if validation fails."
+        ],
+        distractorBlocks:[
+          "Add server-side encryption for passwords.",
+          "Integrate with a payment processor.",
+          "Build a full user authentication backend."
+        ],
+        weak:"validate my form",
+        optimized:"Act as a JavaScript developer. Write a form validation script for a sign-up form with name, email, and password fields. Check that all fields are filled and the email matches a valid format. Prevent submission and show an inline error message if validation fails.",
+        overEngineered:"Act as a senior security engineer. Build a comprehensive validation, sanitization, encryption, rate-limiting, CAPTCHA, and fraud-detection pipeline covering OWASP top 10 vulnerabilities with unit tests and CI/CD integration.",
+        weakOutput:"A vague script that only checks if fields are empty, with no email format check or error messaging.",
+        optimizedOutput:"A clean JS function that checks required fields, validates email format, blocks submission, and shows a clear inline error — nothing more, nothing less.",
+        principle:"Name the exact fields and exact validation rules — 'validate my form' leaves the rules up to guesswork."
+      },
+      {
+        title:"AI Image Caption Generator (Prompt for an AI tool)",
+        desired:"A prompt that asks an AI model to generate short, friendly alt-text captions for uploaded product photos.",
+        correctBlocks:[
+          "Act as an accessibility-focused content assistant.",
+          "Generate a short alt-text caption (under 15 words) describing the uploaded product photo.",
+          "Focus on the product's key visual features, not marketing language.",
+          "Return only the caption text, nothing else."
+        ],
+        distractorBlocks:[
+          "Write a 500-word product description.",
+          "Include pricing and shipping details.",
+          "Generate a caption in 10 different languages."
+        ],
+        weak:"write a caption for this image",
+        optimized:"Act as an accessibility-focused content assistant. Generate a short alt-text caption (under 15 words) describing the uploaded product photo. Focus on the product's key visual features, not marketing language. Return only the caption text, nothing else.",
+        overEngineered:"Act as a multimodal AI vision specialist with expertise in accessibility law, SEO, and cross-cultural linguistics. Analyze the image at the pixel level, generate captions optimized for 12 languages, screen readers, and search engines, and output a structured JSON report with confidence scores.",
+        weakOutput:"A vague, overly long caption full of marketing fluff instead of a plain accessible description.",
+        optimizedOutput:"A concise 10-word alt-text caption describing exactly what's in the photo — ready to drop into an <img alt> tag.",
+        principle:"Set a length limit and a purpose (accessibility, not marketing) to get a usable, on-target output."
+      },
+      {
+        title:"CSS Grid Photo Gallery",
+        desired:"A responsive photo gallery grid that shows 3 columns on desktop and 1 column on mobile.",
+        correctBlocks:[
+          "Act as a frontend developer.",
+          "Build a photo gallery using CSS Grid with 3 columns on desktop.",
+          "Switch to a single column layout on screens under 600px.",
+          "Add a small hover zoom effect on each photo."
+        ],
+        distractorBlocks:[
+          "Add an AI-powered photo tagging system.",
+          "Include a full e-commerce checkout flow.",
+          "Support drag-and-drop photo reordering with a database."
+        ],
+        weak:"make a photo gallery",
+        optimized:"Act as a frontend developer. Build a photo gallery using CSS Grid with 3 columns on desktop. Switch to a single column layout on screens under 600px. Add a small hover zoom effect on each photo.",
+        overEngineered:"Act as a distinguished visual engineer. Create an infinitely scalable, AI-curated, machine-learning-powered gallery with lazy loading, WebP conversion pipelines, CDN integration, EXIF metadata extraction, and a custom masonry algorithm written from scratch.",
+        weakOutput:"A basic list of images with no grid structure or responsiveness.",
+        optimizedOutput:"A tidy 3-column CSS Grid gallery that collapses to 1 column on mobile, with a subtle hover zoom — exactly as scoped.",
+        principle:"State the exact column counts and breakpoint so layout behavior isn't left to chance."
+      }
+    ]
+  },
+  // lightweight generic fallback set reused for any other domain/difficulty pick
+  generic: [
+    {
+      title:"General Task Prompt",
+      desired:"A clear, well-scoped output tailored to the chosen domain.",
+      correctBlocks:[
+        "Act as an expert in the chosen field.",
+        "State the specific task clearly.",
+        "Give the exact format or constraints wanted.",
+        "Specify the tone or audience."
+      ],
+      distractorBlocks:[
+        "Add unrelated extra requests.",
+        "Ask for excessive unnecessary detail.",
+        "Include vague filler language."
+      ],
+      weak:"help me with this",
+      optimized:"Act as an expert in the chosen field. State the specific task clearly, give the exact format wanted, and specify the tone or audience.",
+      overEngineered:"Act as the greatest expert of all time across every field simultaneously, and produce an exhaustive, unbounded, maximal response covering every possible angle without limits.",
+      weakOutput:"A vague, generic response missing key details.",
+      optimizedOutput:"A precise, well-scoped response matching exactly what was asked.",
+      principle:"Clear role + clear task + clear format = reliable output."
+    }
+  ]
+};
+
+/* ---------------------------------------------------------
+   STATE
+--------------------------------------------------------- */
+let state = {
+  domain:null, difficulty:null,
+  scenarios:[], currentIndex:0,
+  score:0, moves:0, wrongPlacements:0, hintsUsed:0,
+  correctChallenges:0, totalChallenges:0,
+  startTime:null, timerInterval:null,
+  challengeOrder:['build','clean','choose'],
+  perScenarioData:[]
+};
+
+/* ---------------------------------------------------------
+   ONBOARDING RENDER
+--------------------------------------------------------- */
+const domainWrap = document.getElementById('domain-options');
+const diffWrap = document.getElementById('difficulty-options');
+const startBtn = document.getElementById('start-btn');
+
+DOMAINS.forEach(d=>{
+  const b = document.createElement('button');
+  b.className='opt-btn'; b.textContent=d.label; b.dataset.id=d.id;
+  b.onclick=()=>{
+    [...domainWrap.children].forEach(c=>c.classList.remove('selected'));
+    b.classList.add('selected');
+    state.domain = d.id;
+    checkReady();
+  };
+  domainWrap.appendChild(b);
+});
+DIFFICULTIES.forEach(d=>{
+  const b = document.createElement('button');
+  b.className='opt-btn'; b.textContent=d.label; b.dataset.id=d.id;
+  b.onclick=()=>{
+    [...diffWrap.children].forEach(c=>c.classList.remove('selected'));
+    b.classList.add('selected');
+    state.difficulty = d.id;
+    checkReady();
+  };
+  diffWrap.appendChild(b);
+});
+function checkReady(){ startBtn.disabled = !(state.domain && state.difficulty); }
+startBtn.onclick = () => { beginGame(); };
+
+/* ---------------------------------------------------------
+   NOTIFY + SCORE POP
+--------------------------------------------------------- */
+function notify(msg){
+  const layer = document.getElementById('notify-layer');
+  const n = document.createElement('div');
+  n.className='notify'; n.textContent = msg;
+  layer.appendChild(n);
+  setTimeout(()=>n.remove(), 3000);
+}
+function scorePop(amount, x, y){
+  const el = document.createElement('div');
+  el.className='score-pop';
+  el.textContent = (amount>=0?'+':'') + amount;
+  el.style.left = x+'px'; el.style.top = y+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+
+/* ---------------------------------------------------------
+   GAME START
+--------------------------------------------------------- */
+function beginGame(){
+  const bank = SCENARIO_BANK[state.domain] && SCENARIO_BANK[state.domain][state.difficulty]
+    ? SCENARIO_BANK[state.domain][state.difficulty]
+    : SCENARIO_BANK.generic;
+  // shuffle & pick up to 6
+  const pool = shuffle([...bank]);
+  const count = Math.min(6, pool.length);
+  state.scenarios = pool.slice(0,count);
+  state.currentIndex = 0;
+  state.score = 0; state.moves=0; state.wrongPlacements=0; state.hintsUsed=0;
+  state.correctChallenges=0; state.totalChallenges = count;
+  state.perScenarioData = [];
+  state.startTime = Date.now();
+
+  document.getElementById('onboarding').style.display='none';
+  document.getElementById('game').style.display='block';
+  document.getElementById('report-view').style.display='none';
+
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(updateTimer, 1000);
+
+  loadScenario();
+}
+function updateTimer(){
+  const secs = Math.floor((Date.now()-state.startTime)/1000);
+  document.getElementById('stat-time').textContent = secs+'s';
+}
+function updateTopbar(){
+  const acc = state.totalChallenges? Math.round((state.correctChallenges/Math.max(1,state.currentIndex))*100) : 100;
+  document.getElementById('stat-accuracy').textContent = (state.currentIndex===0?100:Math.round((state.correctChallenges/state.currentIndex)*100)) + '%';
+  document.getElementById('stat-score').textContent = state.score;
+  document.getElementById('stat-scenario').textContent = (state.currentIndex+1) + '/' + state.scenarios.length;
+  document.getElementById('progressbar').style.width = Math.round((state.currentIndex/state.scenarios.length)*100)+'%';
+}
+
+/* ---------------------------------------------------------
+   SCENARIO / CHALLENGE LOADING
+--------------------------------------------------------- */
+function loadScenario(){
+  if(state.currentIndex >= state.scenarios.length){
+    finishGame();
+    return;
+  }
+  updateTopbar();
+  const scenario = state.scenarios[state.currentIndex];
+  const type = state.challengeOrder[state.currentIndex % state.challengeOrder.length];
+  renderChallenge(scenario, type);
+}
+
+function renderChallenge(scenario, type){
+  const panel = document.getElementById('challenge-panel');
+  panel.innerHTML = '';
+
+  const tagText = type==='build' ? 'Challenge · Build the Prompt'
+    : type==='clean' ? 'Challenge · Clean the Prompt'
+    : 'Challenge · Choose the Best Prompt';
+  const tag = document.createElement('div');
+  tag.className='challenge-tag'; tag.textContent = tagText;
+  panel.appendChild(tag);
+
+  const h = document.createElement('h3'); h.className='scenario-title'; h.textContent = scenario.title;
+  panel.appendChild(h);
+
+  const desiredBox = document.createElement('div'); desiredBox.className='desired-box';
+  desiredBox.innerHTML = '<b>Desired Output</b>' + escapeHtml(scenario.desired);
+  panel.appendChild(desiredBox);
+
+  if(type==='build') renderBuildChallenge(panel, scenario);
+  else if(type==='clean') renderCleanChallenge(panel, scenario);
+  else renderChooseChallenge(panel, scenario);
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+
+/* ---------- CHALLENGE 1: BUILD THE PROMPT (drag & drop) ---------- */
+function renderBuildChallenge(panel, scenario){
+  const desc = document.createElement('p'); desc.className='scenario-desc';
+  desc.textContent = 'Drag the correct blocks into the target area, in a sensible order. Watch out for distractor blocks!';
+  panel.appendChild(desc);
+
+  const allBlocks = shuffle([
+    ...scenario.correctBlocks.map(t=>({text:t, correct:true})),
+    ...scenario.distractorBlocks.map(t=>({text:t, correct:false}))
+  ]);
+
+  const pool = document.createElement('div'); pool.id='blocks-pool';
+  const target = document.createElement('div'); target.id='build-target';
+  target.innerHTML = '<span style="color:var(--ink-dim); font-size:12.5px; align-self:center;">Drop blocks here to build your prompt →</span>';
+
+  let placedCorrect = 0;
+  let localWrong = 0;
+
+  allBlocks.forEach((b,i)=>{
+    const el = document.createElement('div');
+    el.className='block'; el.draggable=true; el.textContent=b.text;
+    el.dataset.correct = b.correct;
+    el.dataset.id = 'b'+i;
+    el.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', el.dataset.id);
+    });
+    pool.appendChild(el);
+  });
+
+  target.addEventListener('dragover', e=>{ e.preventDefault(); target.classList.add('drag-over'); });
+  target.addEventListener('dragleave', ()=> target.classList.remove('drag-over'));
+  target.addEventListener('drop', e=>{
+    e.preventDefault();
+    target.classList.remove('drag-over');
+    const id = e.dataTransfer.getData('text/plain');
+    const el = pool.querySelector('[data-id="'+id+'"]');
+    if(!el) return;
+    state.moves++;
+    if(target.querySelector('span')) target.innerHTML='';
+    if(el.dataset.correct === 'true'){
+      el.classList.add('correct');
+      placedCorrect++;
+      scorePop(10, e.clientX, e.clientY);
+      state.score += 10;
+    } else {
+      el.classList.add('wrong');
+      localWrong++;
+      state.wrongPlacements++;
+      scorePop(-5, e.clientX, e.clientY);
+      state.score = Math.max(0, state.score - 5);
+    }
+    target.appendChild(el);
+    updateTopbar();
+    if(target.querySelectorAll('.block').length === allBlocks.length){
+      finishChallenge(scenario, placedCorrect === scenario.correctBlocks.length && localWrong===0);
+    }
+  });
+
+  panel.appendChild(pool);
+  panel.appendChild(target);
+
+  const hintBox = document.createElement('div'); hintBox.className='hint-box';
+  hintBox.textContent = '💡 Hint: Look for blocks that mention a role, a clear task, a constraint, and a format — skip anything vague or off-topic.';
+  panel.appendChild(hintBox);
+
+  const controls = document.createElement('div'); controls.className='controls-row';
+  const hintBtn = document.createElement('button'); hintBtn.className='btn-ghost'; hintBtn.textContent='💡 Show Hint';
+  hintBtn.onclick=()=>{ hintBox.classList.add('show'); state.hintsUsed++; hintBtn.disabled=true; };
+  controls.appendChild(hintBtn);
+  panel.appendChild(controls);
+
+  const feedback = document.createElement('div'); feedback.className='feedback-box'; feedback.id='feedback-box';
+  panel.appendChild(feedback);
+}
+
+/* ---------- CHALLENGE 2: CLEAN THE PROMPT ---------- */
+function renderCleanChallenge(panel, scenario){
+  const desc = document.createElement('p'); desc.className='scenario-desc';
+  desc.textContent = 'This over-engineered prompt has unnecessary lines. Click each line to remove the ones that add noise, not value.';
+  panel.appendChild(desc);
+
+  // Build lines: mix optimized parts (keep) + over-engineered fluff (remove)
+  const keepLines = scenario.optimized.split('. ').filter(Boolean).map(t=>t.trim().replace(/\.$/,'') + '.');
+  const fluffLines = [
+    "Act as the greatest expert of all time in this entire field across all of history.",
+    "Provide an exhaustive 10-page breakdown covering every conceivable edge case.",
+    "Include unrelated legal disclaimers and a lengthy company biography."
+  ];
+  const lines = shuffle([
+    ...keepLines.map(t=>({text:t, shouldRemove:false})),
+    ...fluffLines.map(t=>({text:t, shouldRemove:true}))
+  ]);
+
+  const container = document.createElement('div');
+  let removedCount = 0, wrongClicks = 0;
+
+  lines.forEach((l,i)=>{
+    const row = document.createElement('div');
+    row.className='prompt-line';
+    row.innerHTML = '<span class="tick"></span><span>'+escapeHtml(l.text)+'</span>';
+    row.dataset.shouldRemove = l.shouldRemove;
+    row.dataset.done = 'false';
+    row.onclick = (e)=>{
+      if(row.dataset.done==='true') return;
+      row.dataset.done='true';
+      state.moves++;
+      row.classList.add('removed');
+      row.querySelector('.tick').textContent='✕';
+      if(l.shouldRemove){
+        removedCount++;
+        state.score += 8;
+        scorePop(8, e.clientX, e.clientY);
+      } else {
+        wrongClicks++;
+        state.wrongPlacements++;
+        state.score = Math.max(0,state.score-8);
+        scorePop(-8, e.clientX, e.clientY);
+      }
+      updateTopbar();
+      const doneCount = container.querySelectorAll('[data-done="true"]').length;
+      if(doneCount === lines.length){
+        finishChallenge(scenario, removedCount===fluffLines.length && wrongClicks===0);
+      }
+    };
+    container.appendChild(row);
+  });
+  panel.appendChild(container);
+
+  const note = document.createElement('p'); note.className='scenario-desc';
+  note.style.marginTop='10px';
+  note.textContent = 'Tip: keep lines that define role, task, constraints, and format. Remove filler, exaggeration, and scope creep.';
+  panel.appendChild(note);
+
+  const controls = document.createElement('div'); controls.className='controls-row';
+  const hintBtn = document.createElement('button'); hintBtn.className='btn-ghost'; hintBtn.textContent='💡 Show Hint';
+  const hintBox = document.createElement('div'); hintBox.className='hint-box';
+  hintBox.textContent = '💡 Hint: Exactly '+fluffLines.length+' lines are pure noise in this prompt.';
+  hintBtn.onclick=()=>{ hintBox.classList.add('show'); state.hintsUsed++; hintBtn.disabled=true; };
+  controls.appendChild(hintBtn);
+  panel.appendChild(controls);
+  panel.appendChild(hintBox);
+
+  const feedback = document.createElement('div'); feedback.className='feedback-box'; feedback.id='feedback-box';
+  panel.appendChild(feedback);
+}
+
+/* ---------- CHALLENGE 3: CHOOSE THE BEST PROMPT ---------- */
+function renderChooseChallenge(panel, scenario){
+  const desc = document.createElement('p'); desc.className='scenario-desc';
+  desc.textContent = 'Three prompts, one goal. Which one will actually produce the desired output best?';
+  panel.appendChild(desc);
+
+  const options = shuffle([
+    {tag:'Weak Prompt', text:scenario.weak, isBest:false},
+    {tag:'Optimized Prompt', text:scenario.optimized, isBest:true},
+    {tag:'Over-Engineered Prompt', text:scenario.overEngineered, isBest:false}
+  ]);
+
+  const container = document.createElement('div');
+  let answered = false;
+
+  options.forEach(opt=>{
+    const card = document.createElement('div');
+    card.className='choice-card';
+    card.innerHTML = '<span class="choice-tag">'+opt.tag+'</span><div class="choice-text">'+escapeHtml(opt.text)+'</div>';
+    card.onclick = ()=>{
+      if(answered) return;
+      answered = true;
+      state.moves++;
+      [...container.children].forEach(c=>c.style.pointerEvents='none');
+      if(opt.isBest){
+        card.classList.add('chosen-correct');
+        state.score += 25;
+        notify('🎉 Great instinct! +25');
+      } else {
+        card.classList.add('chosen-wrong');
+        state.wrongPlacements++;
+        state.score = Math.max(0, state.score-10);
+        notify('Not quite — that prompt under- or over-shoots the goal.');
+        // reveal the correct one
+        [...container.children].forEach(c=>{
+          if(c.querySelector('.choice-tag').textContent==='Optimized Prompt') c.classList.add('chosen-correct');
+        });
+      }
+      updateTopbar();
+      finishChallenge(scenario, opt.isBest);
+    };
+    container.appendChild(card);
+  });
+  panel.appendChild(container);
+
+  const controls = document.createElement('div'); controls.className='controls-row';
+  const hintBtn = document.createElement('button'); hintBtn.className='btn-ghost'; hintBtn.textContent='💡 Show Hint';
+  const hintBox = document.createElement('div'); hintBox.className='hint-box';
+  hintBox.textContent = '💡 Hint: The best prompt is specific but not bloated — clear role, clear task, clear constraints, nothing extra.';
+  hintBtn.onclick=()=>{ hintBox.classList.add('show'); state.hintsUsed++; hintBtn.disabled=true; };
+  controls.appendChild(hintBtn);
+  panel.appendChild(controls);
+  panel.appendChild(hintBox);
+
+  const feedback = document.createElement('div'); feedback.className='feedback-box'; feedback.id='feedback-box';
+  panel.appendChild(feedback);
+}
+
+/* ---------------------------------------------------------
+   FINISH CHALLENGE -> show feedback + next button
+--------------------------------------------------------- */
+function finishChallenge(scenario, wasCorrect){
+  if(wasCorrect) state.correctChallenges++;
+  state.perScenarioData.push({title:scenario.title, correct:wasCorrect});
+
+  const feedback = document.getElementById('feedback-box');
+  feedback.classList.add('show');
+  feedback.classList.add(wasCorrect?'good':'bad');
+  feedback.innerHTML = (wasCorrect
+    ? '✅ Nicely done! Your prompt instincts are on point.'
+    : '⚠️ Close — here\'s the optimization principle at play:')
+    + '<span class="principle">📌 ' + escapeHtml(scenario.principle) + '</span>';
+
+  const controls = document.createElement('div'); controls.className='controls-row';
+  const nextBtn = document.createElement('button'); nextBtn.className='btn-primary';
+  nextBtn.textContent = (state.currentIndex+1 < state.scenarios.length) ? 'Next Scenario →' : 'See Prompt Performance Report →';
+  nextBtn.onclick = ()=>{
+    state.currentIndex++;
+    loadScenario();
+  };
+  controls.appendChild(nextBtn);
+  feedback.parentElement.appendChild(controls);
+  notify(wasCorrect ? '✨ Scenario complete!' : '📎 Scenario reviewed — keep going!');
+}
+
+/* ---------------------------------------------------------
+   FINISH GAME -> REPORT
+--------------------------------------------------------- */
+function finishGame(){
+  clearInterval(state.timerInterval);
+  const totalTime = Math.floor((Date.now()-state.startTime)/1000);
+  const accuracy = Math.round((state.correctChallenges/state.totalChallenges)*100);
+  const optimizationBonus = Math.max(0, 50 - state.hintsUsed*8 - state.wrongPlacements*4);
+  const finalScore = state.score + optimizationBonus;
+
+  let rating, rank;
+  if(accuracy>=90){rating='Prompt Virtuoso'; rank='S';}
+  else if(accuracy>=75){rating='Prompt Pro'; rank='A';}
+  else if(accuracy>=55){rating='Prompt Builder'; rank='B';}
+  else {rating='Prompt Apprentice'; rank='C';}
+
+  // Prompt DNA: rough composition based on behavior
+  const dna = [
+    {label:'Clarity', value: Math.min(100, 40 + accuracy*0.5), color:'#5eead4'},
+    {label:'Precision', value: Math.max(10, 100 - state.wrongPlacements*10), color:'#8b6bf7'},
+    {label:'Efficiency', value: Math.max(10, 100 - state.hintsUsed*15), color:'#fbbf6b'},
+    {label:'Speed', value: Math.max(10, 100 - Math.min(90, totalTime/2)), color:'#ff8a8a'}
+  ];
+  const dnaTotal = dna.reduce((s,d)=>s+d.value,0);
+
+  document.getElementById('game').style.display='none';
+  const reportView = document.getElementById('report-view');
+  reportView.style.display='block';
+  const report = document.getElementById('report');
+
+  const lastScenario = state.scenarios[state.scenarios.length-1];
+
+  report.innerHTML = `
+    <h2>🏆 Your Prompt Performance Report</h2>
+    <div class="rank-badge">Rank ${rank} · ${rating}</div>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="num">${finalScore}</div><div class="lbl">Prompt Score</div></div>
+      <div class="metric-card"><div class="num">${accuracy}%</div><div class="lbl">Accuracy</div></div>
+      <div class="metric-card"><div class="num">${totalTime}s</div><div class="lbl">Time</div></div>
+      <div class="metric-card"><div class="num">${state.moves}</div><div class="lbl">Moves</div></div>
+      <div class="metric-card"><div class="num">${state.wrongPlacements}</div><div class="lbl">Wrong Placements</div></div>
+      <div class="metric-card"><div class="num">${state.hintsUsed}</div><div class="lbl">Hints Used</div></div>
+      <div class="metric-card"><div class="num">+${optimizationBonus}</div><div class="lbl">Optimization Bonus</div></div>
+    </div>
+
+    <h3 style="font-family:var(--font-display); font-size:16px; margin-bottom:6px;">🧬 Prompt DNA</h3>
+    <div id="dna-bar">
+      ${dna.map(d=>`<div style="width:${(d.value/dnaTotal*100).toFixed(1)}%; background:${d.color};">${d.label}</div>`).join('')}
+    </div>
+    <div class="dna-legend">
+      ${dna.map(d=>`<span><span class="dna-dot" style="background:${d.color}"></span>${d.label}: ${Math.round(d.value)}</span>`).join('')}
+    </div>
+
+    <h3 style="font-family:var(--font-display); font-size:16px; margin:18px 0 6px;">💬 Personalized Feedback</h3>
+    <p style="color:var(--ink-dim); font-size:14px; line-height:1.6;">
+      ${feedbackMessage(accuracy, state.hintsUsed, state.wrongPlacements)}
+    </p>
+
+    <div class="milestone">🎯 Next Milestone: ${nextMilestone(rank)}</div>
+
+    <h3 style="font-family:var(--font-display); font-size:16px; margin:18px 0 6px;">✨ Final Optimized Prompt (Example)</h3>
+    <div class="final-prompt">${escapeHtml(lastScenario.optimized)}</div>
+
+    <div class="controls-row" style="margin-top:22px;">
+      <button class="btn-primary" id="replay-btn">🔁 Replay with New Scenarios</button>
+      <button class="btn-ghost" id="restart-btn">🎛️ Choose Different Domain/Difficulty</button>
+    </div>
+  `;
+
+  document.getElementById('replay-btn').onclick = ()=> beginGame();
+  document.getElementById('restart-btn').onclick = ()=>{
+    reportView.style.display='none';
+    document.getElementById('onboarding').style.display='block';
+  };
+
+  notify('🏁 Report ready — nice work!');
+}
+
+function feedbackMessage(accuracy, hints, wrong){
+  if(accuracy>=90) return "You're consistently identifying clear roles, tasks, and constraints — this is exactly how strong prompts get built in real projects. Try Advanced difficulty next for more nuance.";
+  if(accuracy>=75) return "Solid prompting instincts! You caught most of the noise and kept prompts scoped. Watch for over-engineered options that sound impressive but add no real value.";
+  if(accuracy>=55) return "You're building a good foundation. Focus on trimming vague or excessive requests — specificity beats length every time.";
+  return "Every prompt engineer starts here. Re-read the 'Prompt Principle' after each scenario — patterns will click faster than you think.";
+}
+function nextMilestone(rank){
+  if(rank==='S') return 'Try Advanced difficulty in a new domain to test your mastery under pressure.';
+  if(rank==='A') return 'Push for a perfect accuracy run with zero wrong placements.';
+  if(rank==='B') return 'Reduce hint usage by 50% on your next replay.';
+  return 'Complete a full run with under 3 wrong placements.';
+}
+
+/* ---------------------------------------------------------
+   UTILS
+--------------------------------------------------------- */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+})();
+</script>
+</body>
+</html>

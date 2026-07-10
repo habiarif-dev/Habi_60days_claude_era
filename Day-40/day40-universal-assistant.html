@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aria — Your Everyday Assistant</title>
+<style>
+  :root{
+    --ink:#1c2033;
+    --paper:#f7f6f3;
+    --panel:#ffffff;
+    --indigo:#4b4ded;
+    --indigo-dim:#e9e8ff;
+    --coral:#ff7a59;
+    --mint:#1fae7a;
+    --line:#e6e4de;
+    --muted:#6b6f85;
+    --radius:16px;
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  @font-face{
+    font-family:'Fraunces';
+    src:local('Georgia');
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--indigo-dim);}
+
+  .shell{
+    max-width:960px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+
+  /* Header */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding-bottom:22px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:22px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .mark{
+    width:42px;height:42px;
+    border-radius:50%;
+    position:relative;
+    background:conic-gradient(from 180deg, var(--indigo), var(--coral), var(--mint), var(--indigo));
+    flex:none;
+    animation:spin 14s linear infinite;
+  }
+  .mark::after{
+    content:'';
+    position:absolute;
+    inset:4px;
+    border-radius:50%;
+    background:var(--paper);
+  }
+  .mark::before{
+    content:'';
+    position:absolute;
+    top:50%;left:50%;
+    width:6px;height:6px;
+    margin:-3px 0 0 -3px;
+    border-radius:50%;
+    background:var(--coral);
+    box-shadow:0 0 0 3px rgba(255,122,89,.18);
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion:reduce){ .mark{animation:none;} }
+
+  .brand h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:22px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .brand p{
+    margin:2px 0 0;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+
+  .status{
+    font-size:12px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .status .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--mint);
+    box-shadow:0 0 0 3px rgba(31,174,122,.15);
+  }
+
+  /* Chat card */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 1px 2px rgba(20,20,30,.03), 0 10px 30px -18px rgba(20,20,30,.15);
+    overflow:hidden;
+  }
+
+  .messages{
+    padding:22px;
+    min-height:340px;
+    max-height:56vh;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .messages::-webkit-scrollbar{width:8px;}
+  .messages::-webkit-scrollbar-thumb{background:#e2e0d8;border-radius:8px;}
+
+  .empty{
+    margin:auto;
+    text-align:center;
+    color:var(--muted);
+    padding:30px 10px;
+    max-width:440px;
+  }
+  .empty h2{
+    font-family:var(--font-display);
+    font-size:19px;
+    color:var(--ink);
+    margin:0 0 8px;
+    font-weight:600;
+  }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-top:16px;
+  }
+  .chip{
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+    font-size:12.5px;
+    padding:7px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .chip:hover{border-color:var(--indigo); background:var(--indigo-dim); transform:translateY(-1px);}
+
+  .msg{
+    display:flex;
+    gap:10px;
+    max-width:88%;
+    animation:rise .28s ease both;
+  }
+  @keyframes rise{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .msg.user{align-self:flex-end; flex-direction:row-reverse;}
+  .avatar{
+    width:28px;height:28px;border-radius:50%;
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;
+    color:#fff;
+  }
+  .msg.assistant .avatar{background:var(--indigo);}
+  .msg.user .avatar{background:var(--coral);}
+  .bubble{
+    padding:11px 14px;
+    border-radius:14px;
+    font-size:14.5px;
+    line-height:1.55;
+    white-space:pre-wrap;
+  }
+  .msg.assistant .bubble{
+    background:#fbfaf7;
+    border:1px solid var(--line);
+    border-top-left-radius:4px;
+  }
+  .msg.user .bubble{
+    background:var(--indigo);
+    color:#fff;
+    border-top-right-radius:4px;
+  }
+  .bubble h3,.bubble h4{margin:.4em 0 .2em; font-family:var(--font-display);}
+  .bubble ul,.bubble ol{margin:.3em 0; padding-left:1.2em;}
+  .bubble code{background:rgba(0,0,0,.06); padding:1px 5px; border-radius:5px; font-size:.9em;}
+  .msg.user .bubble code{background:rgba(255,255,255,.18);}
+  .bubble pre{background:#1c2033; color:#f0efe9; padding:10px 12px; border-radius:8px; overflow-x:auto; font-size:12.5px;}
+  .bubble strong{font-weight:700;}
+
+  .file-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11.5px;
+    background:rgba(255,255,255,.2);
+    padding:4px 9px;
+    border-radius:999px;
+    margin-bottom:6px;
+  }
+  .msg.assistant .file-tag{background:var(--indigo-dim); color:var(--indigo);}
+
+  .typing{display:flex; gap:4px; padding:4px 2px;}
+  .typing span{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--muted);
+    animation:bounce 1.1s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){animation-delay:.15s;}
+  .typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0); opacity:.4;} 30%{transform:translateY(-4px); opacity:1;}}
+
+  .error-banner{
+    margin:0 22px 14px;
+    background:#fff3f0;
+    border:1px solid #ffd6ca;
+    color:#b6402a;
+    font-size:13px;
+    padding:9px 12px;
+    border-radius:10px;
+    display:none;
+  }
+
+  /* Input area */
+  .input-row{
+    border-top:1px solid var(--line);
+    padding:14px 16px;
+    display:flex;
+    gap:10px;
+    align-items:flex-end;
+    background:var(--panel);
+  }
+  .file-preview{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    padding:0 16px 10px;
+  }
+  .file-preview .item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--indigo-dim);
+    color:var(--indigo);
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:999px;
+  }
+  .file-preview .item button{
+    border:none;
+    background:none;
+    color:var(--indigo);
+    cursor:pointer;
+    font-size:13px;
+    line-height:1;
+    padding:0;
+  }
+
+  textarea{
+    flex:1;
+    resize:none;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px 14px;
+    font-family:var(--font-body);
+    font-size:14.5px;
+    line-height:1.4;
+    max-height:140px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  textarea:focus{outline:2px solid var(--indigo); outline-offset:1px;}
+
+  .icon-btn{
+    width:42px;height:42px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex:none;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .icon-btn:hover{background:var(--indigo-dim);}
+  .icon-btn:active{transform:scale(.95);}
+  .icon-btn:focus-visible, .chip:focus-visible, .send-btn:focus-visible{outline:2px solid var(--indigo); outline-offset:2px;}
+
+  .send-btn{
+    width:42px;height:42px;
+    border-radius:12px;
+    border:none;
+    background:var(--indigo);
+    color:#fff;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex:none;
+    transition:transform .1s ease, opacity .15s ease;
+  }
+  .send-btn:disabled{opacity:.4; cursor:not-allowed;}
+  .send-btn:not(:disabled):hover{transform:translateY(-1px);}
+
+  .footer-note{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:10px;
+  }
+
+  /* Docs panel */
+  .docs{
+    margin-top:20px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--panel);
+    overflow:hidden;
+  }
+  .docs summary{
+    cursor:pointer;
+    padding:16px 20px;
+    font-size:14px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    list-style:none;
+  }
+  .docs summary::-webkit-details-marker{display:none;}
+  .docs summary::after{
+    content:'+';
+    font-size:18px;
+    color:var(--muted);
+    transition:transform .2s ease;
+  }
+  .docs[open] summary::after{transform:rotate(45deg);}
+  .docs-body{
+    padding:0 20px 20px;
+    font-size:13.5px;
+    color:#33364a;
+    line-height:1.7;
+  }
+  .docs-body h4{
+    font-family:var(--font-display);
+    font-size:14.5px;
+    margin:16px 0 6px;
+  }
+  .docs-body h4:first-child{margin-top:0;}
+  .docs-body pre{
+    background:#1c2033;
+    color:#f0efe9;
+    padding:12px 14px;
+    border-radius:10px;
+    overflow-x:auto;
+    font-size:12px;
+    white-space:pre-wrap;
+  }
+  .docs-body p{margin:6px 0;}
+
+  input[type=file]{display:none;}
+
+  @media (max-width:560px){
+    .msg{max-width:96%;}
+    .messages{max-height:50vh;}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="brand">
+      <div class="mark"></div>
+      <div>
+        <h1>Aria</h1>
+        <p>A calm, capable assistant for anything you're working on</p>
+      </div>
+    </div>
+    <div class="status"><span class="dot"></span> Ready</div>
+  </header>
+
+  <div class="card">
+    <div class="error-banner" id="errorBanner"></div>
+    <div class="messages" id="messages">
+      <div class="empty" id="emptyState">
+        <h2>What can I help you figure out?</h2>
+        <p>Ask a question, paste some text, or attach a file — I'll keep track of the conversation as we go.</p>
+        <div class="chips">
+          <button class="chip" data-prompt="Explain quantum computing like I'm new to the topic">Explain something</button>
+          <button class="chip" data-prompt="Help me plan my week — I have a lot on my plate">Plan my week</button>
+          <button class="chip" data-prompt="Draft a polite email asking for a deadline extension">Draft an email</button>
+          <button class="chip" data-prompt="Give me a recommendation and walk me through the reasoning">Get a recommendation</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="file-preview" id="filePreview"></div>
+    <div class="input-row">
+      <button class="icon-btn" id="attachBtn" title="Attach a file or image" aria-label="Attach a file">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b4ded" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.19 9.19a1.5 1.5 0 0 1-2.12-2.12l8.49-8.49"/></svg>
+      </button>
+      <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.md,.csv" multiple>
+      <textarea id="userInput" rows="1" placeholder="Type your message…" aria-label="Message"></textarea>
+      <button class="send-btn" id="sendBtn" aria-label="Send message">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+  <p class="footer-note">Aria runs entirely in this page via the Claude API — no setup, no account, nothing to install.</p>
+
+  <details class="docs">
+    <summary>How this was built</summary>
+    <div class="docs-body">
+      <h4>The system prompt</h4>
+      <p>Aria's "brain" is a system prompt sent with every API call. It defines her as a warm, precise generalist assistant, asks her to match the user's format needs (quick answer vs. structured breakdown), to say plainly when she's unsure rather than guessing, and to handle three edge cases explicitly: irrelevant or empty input (ask a clarifying question instead of guessing), missing context (ask one focused follow-up), and abusive or harmful requests (decline briefly and redirect). Keeping scope broad but the *behavior* rules tight is what makes a general-purpose assistant feel reliable instead of generic.</p>
+
+      <h4>Why this UI</h4>
+      <p>A universal assistant has no single "shape" of output, so the interface leans on a flexible chat layout instead of a fixed dashboard — but with small, purposeful touches: quick-start chips for the blank-page moment, a file-attach affordance since inputs can be text or documents, and light markdown rendering so structured answers (lists, headers, code) still look considered rather than dumping raw text.</p>
+
+      <h4>Extending it</h4>
+      <p>Ideas for growing this: add persistent memory by writing conversation summaries to <code>window.storage</code> between sessions; add tools (web search, calculator) by defining them in the API request's <code>tools</code> array and handling <code>tool_use</code> blocks in the response; or turn this into a multi-step flow by having Aria ask a fixed sequence of clarifying questions before her first real answer, similar to an intake form.</p>
+
+      <h4>System prompt (as sent to the model)</h4>
+      <pre id="systemPromptDisplay"></pre>
+    </div>
+  </details>
+
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are Aria, a warm, precise, and broadly capable everyday assistant used by people worldwide for any task or question — explanations, planning, writing help, recommendations, quick answers, or working through a problem.
+
+TONE: Professional and polished, with genuine warmth — never stiff, never saccharine. Clear, confident sentences. No filler openers like "Great question!". Get to the point, then add useful depth.
+
+SCOPE: You can help with almost anything: explaining concepts, drafting text, planning, brainstorming, analysis, recommendations with reasoning, and general conversation. You are a generalist, not a specialist tool — don't assume a narrow domain.
+
+OUTPUT FORMAT: Match the shape of the answer to the question.
+- Quick factual questions get a direct, short answer first.
+- Requests for plans, comparisons, or breakdowns get light structure (short headers or bullet lists) — never over-format a simple answer.
+- Recommendations should always include brief reasoning, not just a verdict.
+- Keep responses as short as they can be while being complete. Avoid padding.
+
+EDGE CASES:
+- If the input is empty, gibberish, or unrelated to anything actionable, ask one short clarifying question instead of guessing at intent.
+- If you're missing a key piece of information needed to answer well, ask ONE focused follow-up question rather than listing several.
+- If a request is abusive, harmful, or asks you to violate safety guidelines, decline briefly and kindly, without lecturing, and offer to help with something else.
+- If a user uploads a file or image, acknowledge what you received in one short clause before addressing it.
+
+Never claim to have real-time data, browsing, or memory beyond this conversation unless told otherwise. Be honest about uncertainty.`;
+
+document.getElementById('systemPromptDisplay').textContent = SYSTEM_PROMPT;
+
+const messagesEl = document.getElementById('messages');
+const emptyState = document.getElementById('emptyState');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const attachBtn = document.getElementById('attachBtn');
+const fileInput = document.getElementById('fileInput');
+const filePreview = document.getElementById('filePreview');
+const errorBanner = document.getElementById('errorBanner');
+
+let history = [];       // {role, content: [...]}
+let pendingFiles = [];  // {name, media_type, data, kind}
+
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    userInput.value = chip.dataset.prompt;
+    autoGrow();
+    userInput.focus();
+  });
+});
+
+attachBtn.addEventListener('click', ()=>fileInput.click());
+fileInput.addEventListener('change', async (e)=>{
+  const files = Array.from(e.target.files);
+  for(const f of files){
+    if(f.size > 8 * 1024 * 1024){
+      showError(`"${f.name}" is too large (max 8MB).`);
+      continue;
+    }
+    const isImage = f.type.startsWith('image/');
+    const isPdf = f.type === 'application/pdf';
+    const b64 = await fileToBase64(f);
+    pendingFiles.push({
+      name: f.name,
+      media_type: f.type || 'text/plain',
+      data: b64,
+      kind: isImage ? 'image' : (isPdf ? 'document' : 'text')
+    });
+  }
+  renderFilePreview();
+  fileInput.value = '';
+});
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=>resolve(r.result.split(',')[1] || r.result);
+    r.onerror = reject;
+    if(file.type.startsWith('image/') || file.type === 'application/pdf'){
+      r.readAsDataURL(file);
+    } else {
+      r.readAsText(file);
+    }
+  });
+}
+
+function renderFilePreview(){
+  filePreview.innerHTML = '';
+  pendingFiles.forEach((f, i)=>{
+    const tag = document.createElement('div');
+    tag.className = 'item';
+    tag.innerHTML = `<span>${escapeHtml(f.name)}</span>`;
+    const btn = document.createElement('button');
+    btn.textContent = '✕';
+    btn.setAttribute('aria-label', `Remove ${f.name}`);
+    btn.onclick = ()=>{ pendingFiles.splice(i,1); renderFilePreview(); };
+    tag.appendChild(btn);
+    filePreview.appendChild(tag);
+  });
+}
+
+userInput.addEventListener('input', autoGrow);
+function autoGrow(){
+  userInput.style.height = 'auto';
+  userInput.style.height = Math.min(userInput.scrollHeight, 140) + 'px';
+}
+
+userInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+});
+sendBtn.addEventListener('click', send);
+
+function showError(msg){
+  errorBanner.textContent = msg;
+  errorBanner.style.display = 'block';
+  setTimeout(()=>{ errorBanner.style.display = 'none'; }, 6000);
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// very light markdown: **bold**, `code`, ```blocks```, headers, bullet lists
+function renderMarkdown(text){
+  let t = escapeHtml(text);
+  t = t.replace(/```([\s\S]*?)```/g, (m, code)=>`<pre>${code.trim()}</pre>`);
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/^### (.*)$/gm, '<h4>$1</h4>');
+  t = t.replace(/^## (.*)$/gm, '<h4>$1</h4>');
+  t = t.replace(/^- (.*)$/gm, '<li>$1</li>');
+  t = t.replace(/(<li>.*<\/li>\n?)+/g, m=>`<ul>${m.replace(/\n/g,'')}</ul>`);
+  t = t.replace(/\n{2,}/g, '</p><p>');
+  t = t.replace(/\n/g, '<br>');
+  return `<p>${t}</p>`;
+}
+
+function addMessage(role, text, files=[]){
+  emptyState.style.display = 'none';
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar';
+  avatar.textContent = role === 'user' ? 'You' : 'A';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  let fileTags = '';
+  files.forEach(f=>{ fileTags += `<span class="file-tag">📎 ${escapeHtml(f.name)}</span><br>`; });
+  bubble.innerHTML = fileTags + renderMarkdown(text);
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  messagesEl.appendChild(msg);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return bubble;
+}
+
+function addTyping(){
+  const msg = document.createElement('div');
+  msg.className = 'msg assistant';
+  msg.id = 'typingIndicator';
+  msg.innerHTML = `<div class="avatar">A</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  messagesEl.appendChild(msg);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+function removeTyping(){
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+async function send(){
+  const text = userInput.value.trim();
+  if(!text && pendingFiles.length === 0) return;
+
+  const filesToSend = [...pendingFiles];
+  addMessage('user', text || '(sent a file)', filesToSend);
+
+  const contentBlocks = [];
+  filesToSend.forEach(f=>{
+    if(f.kind === 'image'){
+      contentBlocks.push({ type:'image', source:{ type:'base64', media_type: f.media_type, data: f.data } });
+    } else if(f.kind === 'document'){
+      contentBlocks.push({ type:'document', source:{ type:'base64', media_type: f.media_type, data: f.data } });
+    } else {
+      contentBlocks.push({ type:'text', text: `[Attached file: ${f.name}]\n${f.data}` });
+    }
+  });
+  if(text) contentBlocks.push({ type:'text', text });
+
+  history.push({ role:'user', content: contentBlocks });
+  pendingFiles = [];
+  renderFilePreview();
+  userInput.value = '';
+  autoGrow();
+  sendBtn.disabled = true;
+
+  addTyping();
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: history
+      })
+    });
+
+    if(!response.ok){
+      throw new Error(`Request failed (${response.status})`);
+    }
+    const data = await response.json();
+    const textBlocks = (data.content || []).filter(b=>b.type === 'text').map(b=>b.text);
+    const replyText = textBlocks.join('\n\n') || "I didn't get a usable response — could you try rephrasing?";
+
+    removeTyping();
+    addMessage('assistant', replyText);
+    history.push({ role:'assistant', content: [{ type:'text', text: replyText }] });
+
+  } catch(err){
+    removeTyping();
+    showError("Something went wrong reaching Aria. Please try again in a moment.");
+    console.error(err);
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

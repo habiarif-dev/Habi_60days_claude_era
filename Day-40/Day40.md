@@ -1,0 +1,1 @@
+Day 40/60 🌍 Built Aria — a universal AI assistant that helps with anything: explanations, planning, drafting, decisions. One system prompt, one clean HTML file. #60DaysOfAI #BuildInPublic #ABTalksOnAI

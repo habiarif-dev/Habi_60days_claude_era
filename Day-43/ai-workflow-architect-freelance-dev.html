@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Architect · Freelance Dev Delivery Pipeline</title>
+<style>
+:root{
+  --bg:#0b0f14; --bg2:#121821; --bg3:#182130; --line:#233042;
+  --ink:#e7edf5; --ink-dim:#8fa1b8; --ink-faint:#5a6b81;
+  --run:#3ecf8e; --wait:#f5b942; --idle:#3a4a5f;
+  --accent:#4fc3ff; --accent-dim:#1f6a8c;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --radius:10px;
+}
+[data-theme="light"]{
+  --bg:#f3f6fa; --bg2:#ffffff; --bg3:#eef2f7; --line:#d7e0ea;
+  --ink:#101823; --ink-dim:#46566b; --ink-faint:#8291a3;
+  --idle:#c7d1dd;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--sans);
+  -webkit-font-smoothing:antialiased; line-height:1.5;
+}
+::selection{background:var(--accent-dim); color:#fff;}
+a{color:var(--accent);}
+button{font-family:var(--sans); cursor:pointer;}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(11,15,20,.86); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 20px;
+}
+[data-theme="light"] .topbar{background:rgba(255,255,255,.86);}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:13px; letter-spacing:.4px;}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--run); box-shadow:0 0 8px var(--run); animation:pulse 2.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.brand b{font-size:14px; color:var(--ink); font-weight:700;}
+.topbar-actions{display:flex; gap:8px;}
+.icon-btn{
+  background:var(--bg3); border:1px solid var(--line); color:var(--ink-dim);
+  border-radius:8px; padding:7px 12px; font-size:12px; font-family:var(--mono);
+  display:flex; align-items:center; gap:6px; transition:.15s;
+}
+.icon-btn:hover{color:var(--ink); border-color:var(--accent-dim);}
+
+/* ---------- hero ---------- */
+.hero{
+  padding:46px 20px 30px; max-width:1100px; margin:0 auto; text-align:center;
+}
+.eyebrow{
+  font-family:var(--mono); font-size:11.5px; color:var(--ink-faint);
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:14px;
+}
+.hero h1{
+  font-family:var(--mono); font-size:clamp(26px,4vw,42px); margin:0 0 12px;
+  font-weight:700; letter-spacing:-.5px;
+}
+.hero h1 span{color:var(--accent);}
+.hero p{color:var(--ink-dim); max-width:640px; margin:0 auto; font-size:15px;}
+.overall{max-width:520px; margin:26px auto 0;}
+.overall-track{height:8px; background:var(--bg3); border-radius:20px; overflow:hidden; border:1px solid var(--line);}
+.overall-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent-dim),var(--run)); transition:width .4s;}
+.overall-label{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-top:6px;}
+
+/* ---------- pipeline nav (signature element) ---------- */
+.pipeline-wrap{max-width:1180px; margin:0 auto; padding:10px 20px 6px; overflow-x:auto;}
+.pipeline{
+  display:flex; align-items:flex-start; gap:0; min-width:960px; padding:8px 0 16px;
+}
+.node{
+  flex:1; position:relative; display:flex; flex-direction:column; align-items:center;
+  cursor:pointer; padding:0 4px;
+}
+.node .line{
+  position:absolute; top:15px; left:-50%; width:100%; height:2px; background:var(--idle); z-index:0;
+}
+.node:first-child .line{display:none;}
+.node.done .line, .node.active .line{background:var(--run);}
+.node .ball{
+  width:30px; height:30px; border-radius:50%; background:var(--bg2); border:2px solid var(--idle);
+  z-index:1; display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:11px; color:var(--ink-faint);
+  transition:.15s;
+}
+.node.active .ball{border-color:var(--wait); color:var(--wait); box-shadow:0 0 0 4px rgba(245,185,66,.12);}
+.node.done .ball{border-color:var(--run); background:var(--run); color:#04150c;}
+.node.current .ball{border-color:var(--accent); box-shadow:0 0 0 5px rgba(79,195,255,.18); transform:scale(1.12);}
+.node .label{margin-top:8px; font-size:10.5px; font-family:var(--mono); color:var(--ink-faint); text-align:center; max-width:90px; line-height:1.25;}
+.node.current .label{color:var(--accent);}
+.node:hover .label{color:var(--ink);}
+.node .star{position:absolute; top:-14px; font-size:11px; color:var(--wait); opacity:0;}
+.node.bookmarked .star{opacity:1;}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:10px 20px 80px;}
+.stage-shell{
+  background:var(--bg2); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  margin-top:14px;
+}
+.stage-head{
+  padding:22px 26px; border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;
+}
+.stage-head h2{margin:0 0 6px; font-size:22px; font-family:var(--mono);}
+.stage-head .tag{font-family:var(--mono); font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:1.5px;}
+.stage-head p.desc{color:var(--ink-dim); margin:8px 0 0; max-width:640px; font-size:14px;}
+.stage-meta{display:flex; gap:10px; flex-wrap:wrap;}
+.chip{
+  font-family:var(--mono); font-size:11px; padding:5px 10px; border-radius:20px; border:1px solid var(--line);
+  color:var(--ink-dim); display:flex; align-items:center; gap:5px; background:var(--bg3);
+}
+.chip.time{color:var(--wait); border-color:rgba(245,185,66,.3);}
+.star-btn{background:none; border:1px solid var(--line); border-radius:8px; padding:6px 10px; color:var(--ink-faint); font-size:13px;}
+.star-btn.on{color:var(--wait); border-color:var(--wait);}
+
+.tabs{display:flex; gap:2px; overflow-x:auto; border-bottom:1px solid var(--line); background:var(--bg3); padding:0 10px;}
+.tab{
+  padding:11px 14px; font-family:var(--mono); font-size:11.5px; color:var(--ink-faint); white-space:nowrap;
+  border-bottom:2px solid transparent; background:none; border-top:none; border-left:none; border-right:none;
+}
+.tab.on{color:var(--accent); border-bottom-color:var(--accent);}
+.tab-panel{display:none; padding:24px 26px;}
+.tab-panel.on{display:block;}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;} .stage-meta{width:100%;}}
+
+h3.sec{font-family:var(--mono); font-size:12.5px; color:var(--accent); text-transform:uppercase; letter-spacing:1.2px; margin:0 0 12px;}
+ul.tasklist{list-style:none; margin:0; padding:0;}
+ul.tasklist li{
+  display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px dashed var(--line); font-size:14px;
+}
+ul.tasklist li:last-child{border-bottom:none;}
+ul.tasklist input{margin-top:3px; accent-color:var(--run);}
+ul.tasklist li.checked label{color:var(--ink-faint); text-decoration:line-through;}
+ul.plain{margin:0; padding-left:18px; font-size:14px; color:var(--ink-dim);}
+ul.plain li{margin-bottom:7px;}
+
+.tool-card{
+  background:var(--bg3); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:12px;
+}
+.tool-card .row{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+.tool-card b{font-family:var(--mono); font-size:14px;}
+.tool-card .badge{font-family:var(--mono); font-size:9.5px; padding:2px 8px; border-radius:20px; background:rgba(62,207,142,.13); color:var(--run); border:1px solid rgba(62,207,142,.3);}
+.tool-card .badge.alt{background:rgba(143,161,184,.1); color:var(--ink-faint); border-color:var(--line);}
+.tool-card p{margin:8px 0 0; font-size:13px; color:var(--ink-dim);}
+
+.prompt-box{
+  background:#050a10; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px;
+  font-family:var(--mono); font-size:12.5px; color:#c9e6ff; position:relative; white-space:pre-wrap;
+}
+[data-theme="light"] .prompt-box{background:#0c1520; color:#bfe4ff;}
+.prompt-box .copy{
+  position:absolute; top:8px; right:8px; background:var(--bg3); border:1px solid var(--line); color:var(--ink-dim);
+  font-size:10px; padding:4px 8px; border-radius:6px; font-family:var(--mono);
+}
+.prompt-box .copy:hover{color:var(--accent);}
+
+.callout{border-radius:10px; padding:13px 15px; font-size:13.5px; margin-bottom:10px; border:1px solid;}
+.callout.good{background:rgba(62,207,142,.06); border-color:rgba(62,207,142,.28); color:var(--ink);}
+.callout.bad{background:rgba(255,107,107,.06); border-color:rgba(255,107,107,.28); color:var(--ink);}
+.callout b{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px;}
+.callout.good b{color:var(--run);} .callout.bad b{color:#ff8a8a;}
+
+textarea.notes{
+  width:100%; min-height:110px; background:var(--bg3); border:1px solid var(--line); border-radius:10px;
+  color:var(--ink); padding:12px; font-family:var(--sans); font-size:13.5px; resize:vertical;
+}
+.savehint{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); margin-top:6px;}
+
+.stage-foot{display:flex; justify-content:space-between; padding:16px 26px; border-top:1px solid var(--line); background:var(--bg3);}
+.navbtn{background:var(--bg2); border:1px solid var(--line); color:var(--ink); padding:9px 16px; border-radius:8px; font-family:var(--mono); font-size:12px;}
+.navbtn:hover{border-color:var(--accent-dim);}
+.navbtn:disabled{opacity:.3; cursor:default;}
+
+/* decision tree */
+.tree{display:flex; flex-direction:column; gap:10px; align-items:flex-start;}
+.tree .q{font-family:var(--mono); font-size:13px; color:var(--ink-dim); margin-bottom:4px;}
+.tree .opts{display:flex; gap:10px; flex-wrap:wrap;}
+.tree button.opt{background:var(--bg3); border:1px solid var(--line); color:var(--ink); padding:8px 14px; border-radius:20px; font-size:12.5px;}
+.tree button.opt:hover{border-color:var(--accent);}
+.tree .result{margin-top:10px; padding:14px; border-radius:10px; background:rgba(79,195,255,.07); border:1px solid rgba(79,195,255,.3); font-size:13.5px;}
+
+/* comparison table */
+table.cmp{width:100%; border-collapse:collapse; font-size:13px;}
+table.cmp th, table.cmp td{border:1px solid var(--line); padding:9px 11px; text-align:left;}
+table.cmp th{background:var(--bg3); font-family:var(--mono); font-size:11px; color:var(--ink-faint); text-transform:uppercase;}
+
+/* footer sections */
+.section-block{margin-top:26px;}
+.section-block h2{font-family:var(--mono); font-size:19px; margin:0 0 14px; display:flex; align-items:center; gap:10px;}
+.section-block h2 .n{color:var(--accent);}
+.cards3{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;}
+.mini-card{background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:16px;}
+.mini-card b{font-family:var(--mono); font-size:13px; display:block; margin-bottom:6px; color:var(--accent);}
+.mini-card p, .mini-card ul{font-size:13px; color:var(--ink-dim); margin:0; padding-left:16px;}
+.kw{display:inline-block; background:var(--bg3); border:1px solid var(--line); border-radius:20px; padding:5px 12px; margin:4px 6px 0 0; font-family:var(--mono); font-size:11.5px; color:var(--ink-dim);}
+
+footer{text-align:center; padding:40px 20px; color:var(--ink-faint); font-family:var(--mono); font-size:11px;}
+
+@media print{
+  .topbar,.pipeline-wrap,.tabs,.stage-foot,.icon-btn,.star-btn{display:none !important;}
+  body{background:#fff; color:#000;}
+  .tab-panel{display:block !important;}
+  .stage-shell{border:1px solid #ccc; break-inside:avoid;}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span><b>AI Workflow Architect</b><span style="color:var(--ink-faint)">/ freelance-web-dev-delivery</span></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" onclick="toggleTheme()">◐ theme</button>
+    <button class="icon-btn" onclick="window.print()">⎙ print</button>
+    <button class="icon-btn" onclick="resetProgress()">↺ reset</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Freelancing → Web/App Development → Project Delivery Lifecycle</div>
+  <h1>Proposal to <span>Handoff.</span> One Pipeline.</h1>
+  <p>A complete, stage-by-stage workflow for delivering freelance web/app development projects — with the AI tools, prompts, and checkpoints for every step from first client reply to final invoice.</p>
+  <div class="overall">
+    <div class="overall-track"><div class="overall-fill" id="overallFill"></div></div>
+    <div class="overall-label" id="overallLabel">0 / 0 tasks complete</div>
+  </div>
+</div>
+
+<div class="pipeline-wrap">
+  <div class="pipeline" id="pipeline"></div>
+</div>
+
+<div class="wrap">
+  <div class="stage-shell" id="stageShell">
+    <div class="stage-head">
+      <div>
+        <div class="tag" id="stageTag"></div>
+        <h2 id="stageTitle"></h2>
+        <p class="desc" id="stageDesc"></p>
+      </div>
+      <div class="stage-meta">
+        <span class="chip time" id="stageTime"></span>
+        <button class="star-btn" id="starBtn" onclick="toggleBookmark()">☆ bookmark</button>
+      </div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <div class="stage-foot">
+      <button class="navbtn" id="prevBtn" onclick="go(-1)">← previous stage</button>
+      <button class="navbtn" id="nextBtn" onclick="go(1)">next stage →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SUMMARY SECTIONS ===================== -->
+  <div class="section-block">
+    <h2><span class="n">01</span> Workflow Summary</h2>
+    <p style="color:var(--ink-dim); font-size:14px; max-width:820px;">This pipeline takes a freelance web/app developer from an inbound lead to a signed-off, invoiced project across 10 stages: Discovery &amp; Proposal, Scoping &amp; Contract, Project Setup &amp; Planning, Design &amp; Prototyping, Development, Testing &amp; QA, Client Review &amp; Revisions, Deployment &amp; Launch, Handoff &amp; Documentation, and Post-Launch Support. Each stage compresses research, writing, and repetitive technical work with AI so more time goes to architecture decisions, client relationships, and code quality — the parts that are hard to automate.</p>
+  </div>
+
+  <div class="section-block">
+    <h2><span class="n">02</span> Recommended AI Stack</h2>
+    <table class="cmp">
+      <tr><th>Layer</th><th>Primary Tool</th><th>Used For</th></tr>
+      <tr><td>Reasoning / writing / planning</td><td>Claude (Sonnet/Opus)</td><td>Proposals, scoping docs, architecture reasoning, client emails, documentation</td></tr>
+      <tr><td>In-editor coding</td><td>Cursor / Claude Code</td><td>Building features, refactors, multi-file edits</td></tr>
+      <tr><td>Autocomplete</td><td>GitHub Copilot</td><td>Line-by-line completion inside existing IDEs</td></tr>
+      <tr><td>Design &amp; prototyping</td><td>Figma (AI features) / v0</td><td>Wireframes, UI generation, design-to-code</td></tr>
+      <tr><td>QA / test generation</td><td>Claude + Playwright MCP</td><td>Test case generation, edge-case discovery</td></tr>
+      <tr><td>Project &amp; client ops</td><td>Notion AI / ClickUp AI</td><td>Timelines, status updates, meeting notes</td></tr>
+    </table>
+  </div>
+
+  <div class="section-block">
+    <h2><span class="n">03</span> Learning Resources</h2>
+    <div class="cards3">
+      <div class="mini-card"><b>Freelancing Craft</b><ul><li>"The Freelancer's Bible" — practical business fundamentals</li><li>Indie Hackers freelance case studies</li><li>Bonsai / HelloBonsai freelance guides</li></ul></div>
+      <div class="mini-card"><b>Technical Delivery</b><ul><li>web.dev — performance &amp; best practices</li><li>Refactoring UI — practical design for developers</li><li>Official docs for your stack (Next.js, Laravel, etc.)</li></ul></div>
+      <div class="mini-card"><b>AI-Assisted Dev</b><ul><li>Anthropic's Claude Code documentation</li><li>Cursor docs &amp; changelog</li><li>Prompt engineering guides from Anthropic/OpenAI</li></ul></div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <h2><span class="n">04</span> Communities</h2>
+    <div class="cards3">
+      <div class="mini-card"><b>Client Acquisition</b><ul><li>r/freelance, r/webdev</li><li>Upwork/Contra community forums</li><li>Indie Hackers</li></ul></div>
+      <div class="mini-card"><b>Technical</b><ul><li>Dev.to, Hashnode</li><li>Stack Overflow</li><li>Framework-specific Discords</li></ul></div>
+      <div class="mini-card"><b>AI Tooling</b><ul><li>Anthropic Developer Discord</li><li>Cursor Community Forum</li><li>Latent Space (newsletter + Discord)</li></ul></div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <h2><span class="n">05</span> Search Keywords</h2>
+    <div>
+      <span class="kw">freelance web developer proposal template</span>
+      <span class="kw">client project scope document</span>
+      <span class="kw">software development contract freelance</span>
+      <span class="kw">AI code review checklist</span>
+      <span class="kw">Claude Code freelance workflow</span>
+      <span class="kw">website handoff checklist</span>
+      <span class="kw">freelance developer retainer pricing</span>
+      <span class="kw">QA testing checklist web app</span>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <h2><span class="n">06</span> Additional AI Prompts</h2>
+    <div class="prompt-box">Act as a senior technical project manager. Given this project brief: [paste brief], break it into a week-by-week delivery plan with milestones, dependencies, and buffer time for revisions.<button class="copy" onclick="copyPrompt(this)">copy</button></div>
+    <div class="prompt-box">Review this client email thread and draft a calm, professional response that resets scope expectations without sounding defensive: [paste thread]<button class="copy" onclick="copyPrompt(this)">copy</button></div>
+    <div class="prompt-box">Here is my final invoice and project summary draft: [paste]. Rewrite it to be concise, confident, and easy for a non-technical client to approve.<button class="copy" onclick="copyPrompt(this)">copy</button></div>
+  </div>
+
+  <div class="section-block">
+    <h2><span class="n">07</span> Future Automation Opportunities</h2>
+    <ul class="plain">
+      <li>Auto-generate a first-draft proposal directly from an inbound lead form using a Claude-powered intake agent.</li>
+      <li>Connect a Claude Code agent to your repo + issue tracker so QA bug reports auto-convert into scoped tickets with suggested fixes.</li>
+      <li>Use an AI meeting-notes tool to auto-log client calls into your project management tool with action items assigned.</li>
+      <li>Build a personal MCP server that pulls project status from GitHub + Notion so Claude can answer "what's blocking launch?" instantly.</li>
+      <li>Automate post-launch monitoring summaries (uptime, errors, performance) into a weekly AI-written client report.</li>
+    </ul>
+  </div>
+
+  <footer>AI Workflow Architect — generated with Claude · progress &amp; notes are saved locally in your browser only</footer>
+</div>
+
+<script>
+const STAGES = [
+{
+  key:"discovery", tag:"Stage 01 · Intake", title:"Discovery & Proposal", time:"2–4 hrs",
+  desc:"Turn an inbound lead into a proposal the client actually wants to sign.",
+  objectives:["Understand the client's real problem, not just their stated request","Qualify budget, timeline, and decision-maker","Produce a proposal that is specific, not generic"],
+  tasks:["Research the client's business, competitors, and current site/app","Run a discovery call and take structured notes","Draft a proposal with scope, timeline, and price tiers","Send proposal + schedule a follow-up"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Best for synthesizing messy discovery-call notes into a structured, client-ready proposal, and for asking clarifying questions you might miss.",alt:"ChatGPT, Notion AI"},
+  ],
+  prompts:["I had a discovery call with a potential client. Here are my raw notes: [paste notes]. Turn this into a structured proposal with: problem summary, proposed solution, 3 pricing tiers (basic/standard/premium), timeline, and next steps. Keep the tone confident but not salesy."],
+  best:["Ask about the business goal behind the request before proposing a solution","Always offer 2–3 pricing tiers instead of one number","Confirm who the actual decision-maker is before spending time on scope"],
+  mistakes:["Quoting a price before understanding scope","Copy-pasting a generic proposal template without client-specific detail","Skipping a discovery call and working only from a short message"],
+  outputs:["A written proposal (PDF or doc)","Discovery call notes","A tiered price range"]
+},
+{
+  key:"scoping", tag:"Stage 02 · Agreement", title:"Scoping & Contract", time:"1–3 hrs",
+  desc:"Lock scope, price, and terms in writing before any code is written.",
+  objectives:["Define exactly what is and isn't included","Protect against scope creep","Set clear payment milestones"],
+  tasks:["Write a detailed scope-of-work document","Draft or adapt a contract with payment terms","Define what counts as a 'revision' vs 'new scope'","Collect deposit before starting work"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Strong at drafting precise, unambiguous scope language and flagging vague clauses that could cause disputes later.",alt:"Bonsai, HelloSign templates"},
+  ],
+  prompts:["Draft a scope-of-work document for a freelance web development project. Project: [describe]. Include deliverables, exclusions, timeline, number of revision rounds included, and what counts as out-of-scope work requiring a change order."],
+  best:["Put revision limits in writing (e.g. 2 rounds included)","Break payment into deposit / milestone / final","Define 'done' for each deliverable explicitly"],
+  mistakes:["Leaving 'unlimited revisions' in a contract","Starting work before the deposit clears","Vague deliverable descriptions like 'a modern website'"],
+  outputs:["Signed contract","Scope-of-work document","Deposit invoice sent/paid"]
+},
+{
+  key:"setup", tag:"Stage 03 · Planning", title:"Project Setup & Planning", time:"2–5 hrs",
+  desc:"Set up the technical and organizational foundation before building.",
+  objectives:["Choose the right stack for the project's constraints","Break the project into a realistic task/timeline plan","Set up repo, environments, and client communication channel"],
+  tasks:["Initialize repo, CI, staging environment","Create a task breakdown with milestones","Set up project management board","Share a kickoff summary with the client"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Good for reasoning through architecture trade-offs and generating a realistic milestone plan from a scope document.",alt:"Linear AI, ClickUp AI"},
+    {name:"Claude Code",badge:"primary",why:"Can scaffold the initial repo structure, config, and boilerplate directly in the terminal.",alt:"create-next-app, framework CLIs"},
+  ],
+  prompts:["Given this scope document: [paste], propose a tech stack with justification, then break the project into milestones with estimated hours for each. Flag any part of the scope that seems technically risky."],
+  best:["Set up staging before writing features, not after","Pick boring, proven tech unless the client needs otherwise","Share the plan with the client so expectations are aligned"],
+  mistakes:["Choosing a trendy stack you haven't shipped with before","Skipping CI/staging setup to 'save time' early on","Planning tasks without buffer for review cycles"],
+  outputs:["Initialized repo with CI","Milestone plan shared with client","Project board set up"]
+},
+{
+  key:"design", tag:"Stage 04 · Design", title:"Design & Prototyping", time:"4–10 hrs",
+  desc:"Turn requirements into a clickable design the client approves before code starts.",
+  objectives:["Produce wireframes/UI that match brand and requirements","Get client sign-off on design before development","Keep design decisions documented"],
+  tasks:["Create wireframes for key screens/pages","Build a UI prototype or high-fidelity mock","Present design for client feedback","Finalize design system (colors, type, components)"],
+  tools:[
+    {name:"Figma (AI features)",badge:"primary",why:"Industry-standard for collaborative design review with clients; AI features speed up variation generation.",alt:"v0 by Vercel, Claude for HTML/CSS mockups"},
+    {name:"Claude",badge:"alt",why:"Useful for quickly generating a coded HTML/CSS prototype when a full design tool is overkill.",alt:"Figma"},
+  ],
+  prompts:["Generate a clean, single-page HTML/CSS prototype for a [type of site] landing page. Brand feel: [describe]. Include hero, 3 feature sections, and a footer, using only inline CSS so I can preview it instantly."],
+  best:["Present 2 design directions, not 5 — decision fatigue kills momentum","Get written sign-off before moving to development","Design mobile-first if the audience is mobile-heavy"],
+  mistakes:["Starting development before design approval","Over-designing beyond what the budget/scope covers","Ignoring accessibility (contrast, tap targets) at this stage"],
+  outputs:["Approved wireframes/mockups","A written design sign-off from the client","Component/style reference for developers"]
+},
+{
+  key:"dev", tag:"Stage 05 · Build", title:"Development", time:"varies by scope",
+  desc:"Build the actual product against the approved scope and design.",
+  objectives:["Ship features matching scope and design accurately","Maintain clean, maintainable code","Communicate progress without micromanagement"],
+  tasks:["Build features in scoped increments","Commit with clear messages, open PRs against milestones","Deploy to staging regularly for client visibility","Send periodic progress updates"],
+  tools:[
+    {name:"Claude Code",badge:"primary",why:"Handles multi-file features, refactors, and codebase-aware changes directly from natural language, well-suited to solo freelance development speed.",alt:"Cursor"},
+    {name:"GitHub Copilot",badge:"alt",why:"Fast inline autocomplete for repetitive code inside an existing IDE workflow.",alt:"Claude Code, Cursor"},
+  ],
+  prompts:["Implement [feature] in this codebase following the existing patterns in [file/folder]. Include basic error handling and keep the diff minimal. Explain any assumptions you made."],
+  best:["Deploy to staging after every milestone, not just at the end","Keep commits scoped to one feature/fix each","Ask AI to explain unfamiliar generated code before merging it"],
+  mistakes:["Letting AI-generated code go unreviewed into production","Building silently for weeks with no client-visible progress","Scope-creeping features the client didn't ask for"],
+  outputs:["Feature-complete build on staging","Clean commit history","Progress updates sent to client"]
+},
+{
+  key:"qa", tag:"Stage 06 · Quality", title:"Testing & QA", time:"3–8 hrs",
+  desc:"Catch bugs and edge cases before the client does.",
+  objectives:["Verify functionality against the original scope","Test across devices/browsers","Check performance and basic security hygiene"],
+  tasks:["Write/execute a test checklist against scope","Cross-browser and mobile testing","Run performance and accessibility checks","Fix and re-test bugs found"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Good at generating thorough test-case checklists and spotting edge cases a solo developer might miss from the scope doc.",alt:"manual QA, Playwright"},
+    {name:"Playwright / Lighthouse",badge:"alt",why:"Automated cross-browser and performance testing tools that pair well with an AI-generated test plan.",alt:"Cypress"},
+  ],
+  prompts:["Based on this feature list: [paste], generate a QA checklist covering functional tests, edge cases, mobile responsiveness, and common failure states I should manually verify before launch."],
+  best:["Test on a real mobile device, not just devtools emulation","Check empty states and error states, not just the happy path","Re-test after every bug fix, not just once at the end"],
+  mistakes:["Only testing the happy path","Skipping performance checks until after complaints","Treating QA as an afterthought instead of a dedicated stage"],
+  outputs:["Completed QA checklist","Bug list with fixes verified","Performance/accessibility report"]
+},
+{
+  key:"review", tag:"Stage 07 · Feedback", title:"Client Review & Revisions", time:"2–6 hrs",
+  desc:"Get client feedback, resolve it efficiently, and stay inside contracted revision rounds.",
+  objectives:["Present the build clearly with guided walkthrough","Collect specific, actionable feedback","Resolve revisions within contracted scope"],
+  tasks:["Send staging link with a guided walkthrough note","Collect and triage feedback into a list","Implement in-scope revisions","Flag and quote any out-of-scope requests"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Useful for triaging unstructured client feedback (emails, voice notes, screenshots) into a clean, prioritized action list.",alt:"Notion AI"},
+  ],
+  prompts:["Here is unstructured client feedback from an email and a call: [paste]. Sort it into: (1) in-scope fixes, (2) new feature requests requiring a change order, (3) unclear items I need to clarify. Draft a short reply to the client summarizing this."],
+  best:["Batch revision rounds instead of reacting to every message instantly","Put 'this is round 2 of 2' reminders in writing, politely","Confirm each fix is resolved with the client before final sign-off"],
+  mistakes:["Absorbing unlimited 'small' extra requests for free","Making changes based on vague feedback without clarifying first","Not tracking which revision round you're currently in"],
+  outputs:["Prioritized revision list","Updated build on staging","Client sign-off on final revision round"]
+},
+{
+  key:"deploy", tag:"Stage 08 · Launch", title:"Deployment & Launch", time:"2–5 hrs",
+  desc:"Move the approved build to production safely.",
+  objectives:["Deploy to production with zero-downtime where possible","Verify DNS, SSL, and environment configs","Confirm everything works identically to staging"],
+  tasks:["Set up production environment and domain/DNS","Deploy and run a post-deploy smoke test","Set up monitoring/analytics","Announce launch to client"],
+  tools:[
+    {name:"Claude Code",badge:"primary",why:"Can write and troubleshoot deployment configs, CI/CD pipelines, and environment variable setups quickly.",alt:"Vercel/Netlify built-in tooling"},
+  ],
+  prompts:["Here's my deployment error log: [paste]. Diagnose the likely cause and suggest a fix, considering this is a [platform] deployment of a [stack] app."],
+  best:["Always run a smoke test immediately after deploy","Keep a rollback plan ready before deploying","Set up basic uptime monitoring on day one"],
+  mistakes:["Deploying directly to production without a staging-identical check","Forgetting to set production environment variables/secrets","Launching without analytics or error monitoring in place"],
+  outputs:["Live production site/app","Passed smoke test","Monitoring/analytics active"]
+},
+{
+  key:"handoff", tag:"Stage 09 · Transfer", title:"Handoff & Documentation", time:"2–4 hrs",
+  desc:"Give the client everything they need to own and maintain the product.",
+  objectives:["Document how the system works and how to maintain it","Transfer access and ownership cleanly","Close out the project financially"],
+  tasks:["Write documentation (setup, admin usage, key decisions)","Transfer domain, hosting, and repo access","Record a short walkthrough video","Send final invoice"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Strong at generating clear, non-technical documentation from technical implementation details, tailored to a client's skill level.",alt:"Notion, GitBook"},
+  ],
+  prompts:["Here is a technical summary of what I built: [paste]. Write client-facing documentation explaining how to use the admin panel, update content, and who to contact for issues. Assume the reader is non-technical."],
+  best:["Record a short screen-recorded walkthrough, not just text docs","Confirm the client actually has access before calling it done","Send the final invoice with the handoff, not weeks later"],
+  mistakes:["Writing documentation only for a technical audience","Forgetting to transfer domain/DNS ownership","Leaving admin credentials only in your own password manager"],
+  outputs:["Documentation doc/site","Access fully transferred","Final invoice sent and paid"]
+},
+{
+  key:"support", tag:"Stage 10 · Retention", title:"Post-Launch Support & Upsell", time:"ongoing",
+  desc:"Turn a finished project into a maintained relationship and future revenue.",
+  objectives:["Monitor stability after launch","Offer an appropriate maintenance/retainer option","Ask for referrals and testimonials"],
+  tasks:["Monitor for post-launch bugs in the first 1-2 weeks","Send a check-in message after launch","Propose a maintenance retainer if appropriate","Request a testimonial or referral"],
+  tools:[
+    {name:"Claude",badge:"primary",why:"Good for drafting a low-pressure retainer pitch and testimonial request that doesn't feel like a sales email.",alt:"CRM email templates"},
+  ],
+  prompts:["Draft a friendly, low-pressure email to a client two weeks after launch, checking how things are going, offering an optional monthly maintenance retainer, and asking if they'd be open to a short testimonial."],
+  best:["Check in proactively before the client has to chase you about a bug","Offer a retainer as a clear option, not a hard sell","Ask for a testimonial while the win is still fresh"],
+  mistakes:["Going silent after final payment","Only reaching out to clients when trying to sell something","Not defining what's included in ongoing support vs billable"],
+  outputs:["Post-launch check-in sent","Retainer proposal (if applicable)","Testimonial or referral requested"]
+}
+];
+
+const TABS = ["overview","tools","prompts","practices","tree","notes"];
+const TAB_LABELS = {overview:"Overview",tools:"AI Tools",prompts:"Prompts",practices:"Best & Worst",tree:"Decision Tree",notes:"Notes"};
+
+let current = 0;
+let activeTab = "overview";
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v===null? d : JSON.parse(v);}catch(e){return d;} },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+function toggleTheme(){
+  const b = document.body;
+  const cur = b.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  b.setAttribute('data-theme', next);
+  store.set('theme', next);
+}
+(function initTheme(){
+  const t = store.get('theme','dark');
+  document.body.setAttribute('data-theme', t);
+})();
+
+function taskKey(si,ti){ return 'task_'+STAGES[si].key+'_'+ti; }
+function bookmarkKey(si){ return 'bm_'+STAGES[si].key; }
+function noteKey(si){ return 'note_'+STAGES[si].key; }
+
+function stageProgress(si){
+  const s = STAGES[si];
+  let done=0;
+  s.tasks.forEach((t,ti)=>{ if(store.get(taskKey(si,ti),false)) done++; });
+  return {done, total:s.tasks.length};
+}
+function stageStatus(si){
+  const p = stageProgress(si);
+  if(p.done===0) return 'idle';
+  if(p.done===p.total) return 'done';
+  return 'active';
+}
+
+function renderPipeline(){
+  const el = document.getElementById('pipeline');
+  el.innerHTML = '';
+  STAGES.forEach((s,i)=>{
+    const status = stageStatus(i);
+    const node = document.createElement('div');
+    node.className = 'node'+(status==='done'?' done':status==='active'?' active':'')+(i===current?' current':'')+(store.get(bookmarkKey(i),false)?' bookmarked':'');
+    node.onclick = ()=>{ current=i; activeTab='overview'; renderAll(); };
+    node.innerHTML = `<span class="line"></span><span class="star">★</span><div class="ball">${status==='done'?'✓':(i+1)}</div><div class="label">${s.title}</div>`;
+    el.appendChild(node);
+  });
+}
+
+function renderOverall(){
+  let done=0, total=0;
+  STAGES.forEach((s,i)=>{ const p=stageProgress(i); done+=p.done; total+=p.total; });
+  const pct = total? Math.round(done/total*100):0;
+  document.getElementById('overallFill').style.width = pct+'%';
+  document.getElementById('overallLabel').textContent = `${done} / ${total} tasks complete (${pct}%)`;
+}
+
+function toggleBookmark(){
+  const k = bookmarkKey(current);
+  store.set(k, !store.get(k,false));
+  renderPipeline();
+  renderStageHead();
+}
+
+function renderStageHead(){
+  const s = STAGES[current];
+  document.getElementById('stageTag').textContent = s.tag;
+  document.getElementById('stageTitle').textContent = s.title;
+  document.getElementById('stageDesc').textContent = s.desc;
+  document.getElementById('stageTime').textContent = '⏱ '+s.time;
+  const on = store.get(bookmarkKey(current), false);
+  const btn = document.getElementById('starBtn');
+  btn.textContent = (on? '★ bookmarked':'☆ bookmark');
+  btn.className = 'star-btn'+(on?' on':'');
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===STAGES.length-1;
+  document.getElementById('nextBtn').textContent = current===STAGES.length-1 ? 'final stage' : 'next stage →';
+}
+
+function renderTabs(){
+  const el = document.getElementById('tabs');
+  el.innerHTML = '';
+  TABS.forEach(t=>{
+    const b = document.createElement('button');
+    b.className = 'tab'+(t===activeTab?' on':'');
+    b.textContent = TAB_LABELS[t];
+    b.onclick = ()=>{ activeTab=t; renderTabs(); renderPanels(); };
+    el.appendChild(b);
+  });
+}
+
+function renderPanels(){
+  const s = STAGES[current];
+  const host = document.getElementById('panels');
+  host.innerHTML = '';
+
+  // overview
+  const overview = document.createElement('div');
+  overview.className = 'tab-panel'+(activeTab==='overview'?' on':'');
+  overview.innerHTML = `
+    <div class="grid2">
+      <div>
+        <h3 class="sec">Objectives</h3>
+        <ul class="plain">${s.objectives.map(o=>`<li>${o}</li>`).join('')}</ul>
+        <h3 class="sec" style="margin-top:22px;">Expected Outputs</h3>
+        <ul class="plain">${s.outputs.map(o=>`<li>${o}</li>`).join('')}</ul>
+      </div>
+      <div>
+        <h3 class="sec">Tasks</h3>
+        <ul class="tasklist" id="taskList"></ul>
+      </div>
+    </div>`;
+  host.appendChild(overview);
+  const tl = overview.querySelector('#taskList');
+  s.tasks.forEach((t,ti)=>{
+    const li = document.createElement('li');
+    const checked = store.get(taskKey(current,ti), false);
+    if(checked) li.className='checked';
+    li.innerHTML = `<input type="checkbox" id="t${current}_${ti}" ${checked?'checked':''}><label for="t${current}_${ti}">${t}</label>`;
+    li.querySelector('input').onchange = (e)=>{
+      store.set(taskKey(current,ti), e.target.checked);
+      renderAll();
+    };
+    tl.appendChild(li);
+  });
+
+  // tools
+  const tools = document.createElement('div');
+  tools.className = 'tab-panel'+(activeTab==='tools'?' on':'');
+  tools.innerHTML = `<h3 class="sec">Best AI Tools For This Stage</h3>` + s.tools.map(tc=>`
+    <div class="tool-card">
+      <div class="row"><b>${tc.name}</b><span class="badge">recommended</span></div>
+      <p>${tc.why}</p>
+      <div class="row" style="margin-top:8px;"><span style="font-size:12px;color:var(--ink-faint);font-family:var(--mono);">alternatives:</span><span class="badge alt">${tc.alt}</span></div>
+    </div>`).join('');
+  host.appendChild(tools);
+
+  // prompts
+  const prompts = document.createElement('div');
+  prompts.className = 'tab-panel'+(activeTab==='prompts'?' on':'');
+  prompts.innerHTML = `<h3 class="sec">Prompt Examples</h3>` + s.prompts.map(p=>`
+    <div class="prompt-box">${p}<button class="copy" onclick="copyPrompt(this)">copy</button></div>`).join('');
+  host.appendChild(prompts);
+
+  // practices
+  const practices = document.createElement('div');
+  practices.className = 'tab-panel'+(activeTab==='practices'?' on':'');
+  practices.innerHTML = `
+    <div class="grid2">
+      <div><h3 class="sec">Best Practices</h3>${s.best.map(b=>`<div class="callout good"><b>Do</b>${b}</div>`).join('')}</div>
+      <div><h3 class="sec">Common Mistakes</h3>${s.mistakes.map(m=>`<div class="callout bad"><b>Avoid</b>${m}</div>`).join('')}</div>
+    </div>`;
+  host.appendChild(practices);
+
+  // decision tree
+  const tree = document.createElement('div');
+  tree.className = 'tab-panel'+(activeTab==='tree'?' on':'');
+  tree.innerHTML = `<h3 class="sec">Which AI Tool Should I Reach For?</h3><div class="tree" id="treeHost"></div>`;
+  host.appendChild(tree);
+  renderTree(tree.querySelector('#treeHost'));
+
+  // notes
+  const notes = document.createElement('div');
+  notes.className = 'tab-panel'+(activeTab==='notes'?' on':'');
+  notes.innerHTML = `<h3 class="sec">Your Notes — ${s.title}</h3><textarea class="notes" id="noteArea" placeholder="Jot decisions, client quirks, or reminders for this stage...">${store.get(noteKey(current),'')}</textarea><div class="savehint">saved automatically to this browser</div>`;
+  host.appendChild(notes);
+  notes.querySelector('#noteArea').oninput = (e)=> store.set(noteKey(current), e.target.value);
+}
+
+function renderTree(host){
+  const stepsByStage = {
+    discovery: [
+      {q:"Is the client's request already well-defined?", opts:[
+        {label:"Yes, very clear", next:"clear"},
+        {label:"No, vague or messy", next:"vague"}]},
+    ]
+  };
+  // generic tree logic, works for any stage
+  let state = 0;
+  const flow = [
+    {q:"What do you need help with right now?", opts:[
+      {label:"Writing / client communication", go:"writing"},
+      {label:"Technical / code work", go:"code"},
+      {label:"Planning / structuring work", go:"plan"},
+    ]},
+  ];
+  function render(){
+    host.innerHTML = '';
+    const step = flow[0];
+    const qEl = document.createElement('div');
+    qEl.className='q'; qEl.textContent = step.q;
+    host.appendChild(qEl);
+    const optsEl = document.createElement('div'); optsEl.className='opts';
+    step.opts.forEach(o=>{
+      const b = document.createElement('button');
+      b.className='opt'; b.textContent=o.label;
+      b.onclick = ()=> showResult(o.go);
+      optsEl.appendChild(b);
+    });
+    host.appendChild(optsEl);
+    const res = document.createElement('div'); res.id='treeResult';
+    host.appendChild(res);
+  }
+  function showResult(go){
+    const map = {
+      writing: "Use <b>Claude</b> — paste your raw notes, thread, or draft and ask it to restructure, tighten, or adjust tone for the client.",
+      code: "Use <b>Claude Code</b> (multi-file, reasoning-heavy changes) or <b>GitHub Copilot</b> (fast inline completion inside an existing file).",
+      plan: "Use <b>Claude</b> to turn scope/requirements into a milestone plan, then track it in Notion or ClickUp."
+    };
+    document.getElementById('treeResult').innerHTML = `<div class="result">${map[go]}</div>`;
+  }
+  render();
+}
+
+function copyPrompt(btn){
+  const box = btn.parentElement;
+  const text = box.textContent.replace('copy','').trim();
+  navigator.clipboard && navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='copied ✓'; setTimeout(()=>btn.textContent='copy',1400);
+  }).catch(()=>{ btn.textContent='select & copy'; });
+}
+
+function go(dir){
+  const n = current+dir;
+  if(n<0 || n>=STAGES.length) return;
+  current = n; activeTab='overview';
+  renderAll();
+  document.getElementById('stageShell').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetProgress(){
+  if(!confirm('Reset all progress, bookmarks and notes on this device?')) return;
+  Object.keys(localStorage).forEach(k=>{
+    if(k.startsWith('task_')||k.startsWith('bm_')||k.startsWith('note_')) localStorage.removeItem(k);
+  });
+  renderAll();
+}
+
+function renderAll(){
+  renderPipeline();
+  renderOverall();
+  renderStageHead();
+  renderTabs();
+  renderPanels();
+}
+
+renderAll();
+</script>
+</body>
+</html>

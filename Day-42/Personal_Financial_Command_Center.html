@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Financial Command Center</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#1a1d29; --sub:#6b7280; --border:#e5e7eb;
+  --primary:#6366f1; --primary2:#8b5cf6; --green:#10b981; --red:#ef4444; --amber:#f59e0b;
+  --shadow:0 4px 20px rgba(20,20,40,.06);
+  --radius:16px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117; --card:#1a1d29; --text:#f3f4f6; --sub:#9ca3af; --border:#2a2e3d;
+  --shadow:0 4px 20px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--text);
+  transition:background .3s,color .3s;
+  padding-bottom:60px;
+}
+a{color:inherit}
+.container{max-width:1200px;margin:0 auto;padding:0 20px;}
+
+/* HEADER */
+header{
+  position:sticky; top:0; z-index:100;
+  background:var(--card); border-bottom:1px solid var(--border);
+  backdrop-filter:blur(10px);
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;max-width:1200px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.header-actions{display:flex;gap:10px;align-items:center;}
+.btn{
+  border:none;padding:10px 16px;border-radius:10px;font-weight:600;font-size:.85rem;
+  cursor:pointer;transition:transform .15s,box-shadow .15s; display:flex;align-items:center;gap:6px;
+}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;}
+.btn-ghost{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(99,102,241,.25);}
+
+/* HERO / OVERVIEW */
+.hero{padding:28px 0 8px;}
+.greeting{font-size:1.6rem;font-weight:800;margin-bottom:4px;}
+.subgreeting{color:var(--sub);font-size:.95rem;margin-bottom:20px;}
+
+.grid{display:grid;gap:18px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-2{grid-template-columns:2fr 1fr;}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);} .grid-2{grid-template-columns:1fr;}}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px; box-shadow:var(--shadow); animation:fadeUp .5s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.stat-label{color:var(--sub);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+.stat-value{font-size:1.7rem;font-weight:800;}
+.stat-trend{font-size:.8rem;margin-top:6px;font-weight:600;}
+.trend-up{color:var(--green);} .trend-down{color:var(--red);}
+
+/* SECTION */
+.section{margin-top:34px;}
+.section-title{font-size:1.25rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.section-sub{color:var(--sub);font-size:.87rem;margin-bottom:16px;}
+
+/* HEALTH SCORE */
+.score-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.score-ring{position:relative;width:150px;height:150px;flex-shrink:0;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring circle{fill:none;stroke-width:14;}
+.score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num .n{font-size:2.1rem;font-weight:800;}
+.score-num .l{font-size:.7rem;color:var(--sub);}
+.score-breakdown{flex:1;min-width:220px;}
+.score-row{display:flex;justify-content:space-between;font-size:.85rem;padding:7px 0;border-bottom:1px dashed var(--border);}
+.badge{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
+.badge-good{background:rgba(16,185,129,.15);color:var(--green);}
+.badge-warn{background:rgba(245,158,11,.15);color:var(--amber);}
+.badge-bad{background:rgba(239,68,68,.15);color:var(--red);}
+
+/* FORM ELEMENTS */
+label{font-size:.8rem;font-weight:600;color:var(--sub);display:block;margin-bottom:5px;}
+input,select{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);font-size:.9rem;margin-bottom:12px;
+}
+input:focus,select:focus{outline:2px solid var(--primary);}
+.row{display:flex;gap:10px;}
+.row>*{flex:1;}
+
+/* TABLE LIST */
+.list-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.list-item:last-child{border-bottom:none;}
+.li-left{display:flex;align-items:center;gap:12px;}
+.li-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;background:var(--bg);}
+.li-name{font-weight:600;font-size:.9rem;}
+.li-sub{font-size:.75rem;color:var(--sub);}
+.li-amt{font-weight:700;}
+.del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;margin-left:10px;opacity:.6;}
+.del-btn:hover{opacity:1;}
+
+/* PROGRESS */
+.progress-bar{height:10px;border-radius:10px;background:var(--bg);overflow:hidden;margin:8px 0;}
+.progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:width .6s ease;}
+
+/* CHART CANVAS */
+canvas{max-width:100%;}
+
+/* GOALS */
+.goal-card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+.goal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+
+/* TIPS/CHECKLIST */
+.tip{display:flex;gap:10px;padding:10px 0;align-items:flex-start;}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:.9rem;}
+.check-item input{width:auto;margin:0;}
+
+/* AI BOX */
+.ai-box{
+  background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.08));
+  border:1px solid rgba(99,102,241,.25);border-radius:14px;padding:16px;margin-bottom:12px;
+}
+.ai-box .tag{font-size:.7rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.05em;}
+
+footer{text-align:center;color:var(--sub);font-size:.8rem;padding:40px 0 10px;}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.tab-btn{padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:.82rem;font-weight:600;color:var(--sub);}
+.tab-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;border:none;}
+
+@media print{
+  header,.no-print{display:none !important;}
+  body{background:#fff;color:#000;}
+  .card{box-shadow:none;border:1px solid #ccc;}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<header>
+  <div class="header-inner">
+    <div class="logo"><div class="logo-icon">💰</div> Command Center</div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-ghost" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <div class="greeting">Hey there 👋 Let's grow that goal fund.</div>
+    <div class="subgreeting">Your student finance dashboard — allowance-powered, goal-focused.</div>
+  </div>
+
+  <!-- OVERVIEW STATS -->
+  <div class="grid grid-4" id="statsGrid"></div>
+
+  <!-- HEALTH SCORE -->
+  <div class="section">
+    <div class="section-title">🩺 Financial Health Score</div>
+    <div class="section-sub">A snapshot of how balanced your money habits are right now.</div>
+    <div class="card score-wrap">
+      <div class="score-ring">
+        <svg width="150" height="150">
+          <circle cx="75" cy="75" r="60" stroke="var(--border)"></circle>
+          <circle cx="75" cy="75" r="60" id="scoreArc" stroke="var(--primary)" stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round"></circle>
+        </svg>
+        <div class="score-num"><div class="n" id="scoreNum">0</div><div class="l">/ 100</div></div>
+      </div>
+      <div class="score-breakdown" id="scoreBreakdown"></div>
+    </div>
+  </div>
+
+  <!-- INCOME & EXPENSES -->
+  <div class="section">
+    <div class="section-title">💵 Income & Expenses</div>
+    <div class="section-sub">Log your allowance and spending to see where money goes.</div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchIETab('expense')" id="tabExpense">Add Expense</button>
+          <button class="tab-btn" onclick="switchIETab('income')" id="tabIncome">Add Income</button>
+        </div>
+        <div id="ieForm">
+          <label>Description</label>
+          <input type="text" id="ieDesc" placeholder="e.g. Canteen lunch">
+          <div class="row">
+            <div><label>Amount ($)</label><input type="number" id="ieAmount" placeholder="0"></div>
+            <div><label>Category</label>
+              <select id="ieCategory">
+                <option>Food</option><option>Transport</option><option>Entertainment</option>
+                <option>Shopping</option><option>Books/Supplies</option><option>Subscriptions</option>
+                <option>Allowance</option><option>Stipend</option><option>Gift</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="addEntry()">+ Add Entry</button>
+        </div>
+        <div style="margin-top:18px;max-height:260px;overflow:auto" id="entryList"></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:1rem;">Spending by Category</div>
+        <canvas id="pieChart" width="280" height="280"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASH FLOW -->
+  <div class="section">
+    <div class="section-title">📈 Cash Flow (Last 7 Entries Trend)</div>
+    <div class="card"><canvas id="lineChart" height="90"></canvas></div>
+  </div>
+
+  <!-- BUDGET -->
+  <div class="section">
+    <div class="section-title">🎯 Monthly Budget</div>
+    <div class="section-sub">Set a monthly allowance budget and track how much is left.</div>
+    <div class="card">
+      <div class="row" style="align-items:flex-end">
+        <div><label>Monthly Budget ($)</label><input type="number" id="budgetInput" placeholder="e.g. 300"></div>
+        <button class="btn btn-primary" onclick="setBudget()">Save Budget</button>
+      </div>
+      <div id="budgetStatus" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- SAVINGS GOALS -->
+  <div class="section">
+    <div class="section-title">🏆 Savings Goals</div>
+    <div class="section-sub">Track progress toward that laptop, trip, or big purchase.</div>
+    <div class="card">
+      <div class="row" style="align-items:flex-end">
+        <div><label>Goal Name</label><input type="text" id="goalName" placeholder="e.g. New Laptop"></div>
+        <div><label>Target ($)</label><input type="number" id="goalTarget" placeholder="800"></div>
+        <div><label>Saved So Far ($)</label><input type="number" id="goalSaved" placeholder="150"></div>
+        <button class="btn btn-primary" onclick="addGoal()">+ Add Goal</button>
+      </div>
+      <div id="goalList" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <!-- WHAT-IF SIMULATOR -->
+  <div class="section">
+    <div class="section-title">🔮 What-If Savings Simulator</div>
+    <div class="section-sub">See how small weekly savings change your goal timeline.</div>
+    <div class="card grid grid-2">
+      <div>
+        <label>Save this much per week ($)</label>
+        <input type="number" id="simWeekly" placeholder="20" oninput="runSimulation()">
+        <label>Pick a goal to simulate</label>
+        <select id="simGoalSelect" onchange="runSimulation()"></select>
+        <div id="simResult" style="margin-top:12px;font-size:.9rem;"></div>
+      </div>
+      <div><canvas id="simChart" height="180"></canvas></div>
+    </div>
+  </div>
+
+  <!-- AI RECOMMENDATIONS -->
+  <div class="section">
+    <div class="section-title">🤖 AI-Generated Recommendations</div>
+    <div class="section-sub">Personalized nudges based on your current data.</div>
+    <div class="card" id="aiRecs"></div>
+  </div>
+
+  <!-- TIPS & CHECKLIST -->
+  <div class="section">
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="section-title" style="font-size:1.05rem;">💡 Student Money Tips</div>
+        <div class="tip">🍱 Batch-cook or use meal plans to cut daily food spend.</div>
+        <div class="tip">🎟️ Always ask about student discounts before buying.</div>
+        <div class="tip">📅 Review subscriptions monthly — cancel what you don't use.</div>
+        <div class="tip">🐷 Automate a fixed % of allowance straight into your goal fund.</div>
+        <div class="tip">📊 Track every expense for one week to spot leaks.</div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="font-size:1.05rem;">✅ Financial Health Checklist</div>
+        <div id="checklist"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="section">
+    <div class="section-title">📚 Resources & AI Prompts to Explore</div>
+    <div class="card">
+      <div class="ai-box"><div class="tag">Try in Claude</div>"Analyze my last month of spending and suggest 3 cuts I won't miss."</div>
+      <div class="ai-box"><div class="tag">Try in Claude</div>"Design a 30-day no-spend challenge for a student saving for a laptop."</div>
+      <div class="ai-box"><div class="tag">Try in Claude</div>"Explain compound interest to me like I'm saving for a trip in 6 months."</div>
+    </div>
+  </div>
+
+  <footer>Personal Financial Command Center · Your data stays only in this browser (local storage) · Built for students, by design.</footer>
+</div>
+
+<script>
+/* ---------- STATE ---------- */
+let data = JSON.parse(localStorage.getItem('pfcc_data') || 'null') || {
+  entries: [], budget: 0, goals: [], theme:'light'
+};
+let ieMode = 'expense';
+
+function save(){ localStorage.setItem('pfcc_data', JSON.stringify(data)); render(); }
+
+/* ---------- THEME ---------- */
+function toggleTheme(){
+  data.theme = data.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(); save();
+}
+function applyTheme(){
+  document.body.setAttribute('data-theme', data.theme);
+  document.getElementById('themeBtn').textContent = data.theme==='dark' ? '☀️ Light' : '🌙 Dark';
+}
+
+/* ---------- ENTRIES ---------- */
+function switchIETab(mode){
+  ieMode = mode;
+  document.getElementById('tabExpense').classList.toggle('active', mode==='expense');
+  document.getElementById('tabIncome').classList.toggle('active', mode==='income');
+}
+function addEntry(){
+  const desc = document.getElementById('ieDesc').value.trim() || (ieMode==='income'?'Income':'Expense');
+  const amount = parseFloat(document.getElementById('ieAmount').value);
+  const category = document.getElementById('ieCategory').value;
+  if(!amount || amount<=0){ alert('Enter a valid amount'); return; }
+  data.entries.push({id:Date.now(), desc, amount, category, type:ieMode, date:new Date().toISOString()});
+  document.getElementById('ieDesc').value=''; document.getElementById('ieAmount').value='';
+  save();
+}
+function deleteEntry(id){ data.entries = data.entries.filter(e=>e.id!==id); save(); }
+
+/* ---------- BUDGET ---------- */
+function setBudget(){
+  const v = parseFloat(document.getElementById('budgetInput').value);
+  if(v>=0){ data.budget = v; save(); }
+}
+
+/* ---------- GOALS ---------- */
+function addGoal(){
+  const name = document.getElementById('goalName').value.trim();
+  const target = parseFloat(document.getElementById('goalTarget').value);
+  const savedAmt = parseFloat(document.getElementById('goalSaved').value) || 0;
+  if(!name || !target){ alert('Enter goal name and target'); return; }
+  data.goals.push({id:Date.now(), name, target, saved: savedAmt});
+  document.getElementById('goalName').value=''; document.getElementById('goalTarget').value=''; document.getElementById('goalSaved').value='';
+  save();
+}
+function deleteGoal(id){ data.goals = data.goals.filter(g=>g.id!==id); save(); }
+function bumpGoal(id, amt){
+  const g = data.goals.find(g=>g.id===id);
+  if(g){ g.saved = Math.max(0, g.saved+amt); save(); }
+}
+
+/* ---------- COMPUTED ---------- */
+function totals(){
+  const income = data.entries.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0);
+  const expense = data.entries.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
+  return {income, expense, balance: income-expense};
+}
+
+/* ---------- RENDER: STATS ---------- */
+function renderStats(){
+  const t = totals();
+  const spentPct = data.budget>0 ? Math.min(100, Math.round((t.expense/data.budget)*100)) : 0;
+  const cards = [
+    {label:'Total Income', value:`$${t.income.toFixed(2)}`, trend:'From allowance & stipends', cls:'trend-up'},
+    {label:'Total Expenses', value:`$${t.expense.toFixed(2)}`, trend:`${data.entries.filter(e=>e.type==='expense').length} transactions`, cls:'trend-down'},
+    {label:'Balance', value:`$${t.balance.toFixed(2)}`, trend: t.balance>=0?'Healthy 👍':'Overspent ⚠️', cls: t.balance>=0?'trend-up':'trend-down'},
+    {label:'Budget Used', value: data.budget>0 ? `${spentPct}%` : 'Not set', trend: data.budget>0?`of $${data.budget}`:'Set a budget below', cls: spentPct>90?'trend-down':'trend-up'}
+  ];
+  document.getElementById('statsGrid').innerHTML = cards.map(c=>`
+    <div class="card"><div class="stat-label">${c.label}</div><div class="stat-value">${c.value}</div><div class="stat-trend ${c.cls}">${c.trend}</div></div>
+  `).join('');
+}
+
+/* ---------- RENDER: ENTRY LIST ---------- */
+const catIcons = {Food:'🍔',Transport:'🚌',Entertainment:'🎮',Shopping:'🛍️',
+  'Books/Supplies':'📚',Subscriptions:'📱',Allowance:'💵',Stipend:'💼',Gift:'🎁',Other:'📦'};
+function renderEntries(){
+  const list = [...data.entries].reverse();
+  document.getElementById('entryList').innerHTML = list.length ? list.map(e=>`
+    <div class="list-item">
+      <div class="li-left">
+        <div class="li-icon">${catIcons[e.category]||'💳'}</div>
+        <div><div class="li-name">${e.desc}</div><div class="li-sub">${e.category} · ${new Date(e.date).toLocaleDateString()}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;">
+        <div class="li-amt" style="color:${e.type==='income'?'var(--green)':'var(--red)'}">${e.type==='income'?'+':'-'}$${e.amount.toFixed(2)}</div>
+        <button class="del-btn" onclick="deleteEntry(${e.id})">✕</button>
+      </div>
+    </div>
+  `).join('') : `<div style="color:var(--sub);font-size:.85rem;text-align:center;padding:20px;">No entries yet — add your first one above.</div>`;
+}
+
+/* ---------- RENDER: BUDGET STATUS ---------- */
+function renderBudget(){
+  const t = totals();
+  document.getElementById('budgetInput').value = data.budget || '';
+  if(data.budget>0){
+    const pct = Math.min(100, (t.expense/data.budget)*100);
+    const color = pct>90?'var(--red)':pct>70?'var(--amber)':'var(--green)';
+    document.getElementById('budgetStatus').innerHTML = `
+      <div style="font-size:.85rem;margin-bottom:4px;">Spent $${t.expense.toFixed(2)} of $${data.budget.toFixed(2)}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div style="font-size:.8rem;color:var(--sub);margin-top:4px;">$${Math.max(0,data.budget-t.expense).toFixed(2)} remaining this month</div>
+    `;
+  } else { document.getElementById('budgetStatus').innerHTML = ''; }
+}
+
+/* ---------- RENDER: GOALS ---------- */
+function renderGoals(){
+  const el = document.getElementById('goalList');
+  const sel = document.getElementById('simGoalSelect');
+  if(!data.goals.length){
+    el.innerHTML = `<div style="color:var(--sub);font-size:.85rem;text-align:center;padding:10px;">No goals yet — add one above (e.g. New Laptop).</div>`;
+    sel.innerHTML = `<option>Add a goal first</option>`;
+    return;
+  }
+  el.innerHTML = data.goals.map(g=>{
+    const pct = Math.min(100, Math.round((g.saved/g.target)*100));
+    return `<div class="goal-card">
+      <div class="goal-top">
+        <strong>${g.name}</strong>
+        <button class="del-btn" onclick="deleteGoal(${g.id})">✕</button>
+      </div>
+      <div style="font-size:.8rem;color:var(--sub);">$${g.saved.toFixed(2)} of $${g.target.toFixed(2)} (${pct}%)</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:.75rem;" onclick="bumpGoal(${g.id},10)">+$10</button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:.75rem;" onclick="bumpGoal(${g.id},25)">+$25</button>
+      </div>
+    </div>`;
+  }).join('');
+  sel.innerHTML = data.goals.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+}
+
+/* ---------- HEALTH SCORE ---------- */
+function computeScore(){
+  const t = totals();
+  let score = 50;
+  const factors = [];
+  if(t.income>0){
+    const saveRate = t.balance/t.income;
+    if(saveRate>0.3){score+=20; factors.push(['Save rate', `${Math.round(saveRate*100)}%`,'good']);}
+    else if(saveRate>0.1){score+=10; factors.push(['Save rate', `${Math.round(saveRate*100)}%`,'warn']);}
+    else{score-=10; factors.push(['Save rate', `${Math.round(saveRate*100)}%`,'bad']);}
+  } else { factors.push(['Save rate','No income logged','warn']); }
+
+  if(data.budget>0){
+    const pct = t.expense/data.budget;
+    if(pct<=0.8){score+=15; factors.push(['Budget discipline','On track','good']);}
+    else if(pct<=1){score+=5; factors.push(['Budget discipline','Cutting it close','warn']);}
+    else{score-=15; factors.push(['Budget discipline','Over budget','bad']);}
+  } else { factors.push(['Budget discipline','No budget set','warn']); }
+
+  if(data.goals.length){
+    const avgPct = data.goals.reduce((s,g)=>s+(g.saved/g.target),0)/data.goals.length;
+    if(avgPct>0.5){score+=15; factors.push(['Goal progress',`${Math.round(avgPct*100)}% avg`,'good']);}
+    else{score+=5; factors.push(['Goal progress',`${Math.round(avgPct*100)}% avg`,'warn']);}
+  } else { factors.push(['Goal progress','No goals set','warn']); }
+
+  if(data.entries.length>=5){score+=10; factors.push(['Tracking consistency','Active tracker','good']);}
+  else{factors.push(['Tracking consistency','Log more entries','warn']);}
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  return {score, factors};
+}
+function renderScore(){
+  const {score, factors} = computeScore();
+  const circumference = 2*Math.PI*60;
+  const offset = circumference - (score/100)*circumference;
+  const arc = document.getElementById('scoreArc');
+  arc.style.strokeDasharray = circumference;
+  arc.style.strokeDashoffset = offset;
+  arc.style.stroke = score>=70?'var(--green)':score>=45?'var(--amber)':'var(--red)';
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreBreakdown').innerHTML = factors.map(f=>`
+    <div class="score-row"><span>${f[0]}</span><span class="badge badge-${f[2]}">${f[1]}</span></div>
+  `).join('');
+}
+
+/* ---------- AI RECOMMENDATIONS ---------- */
+function renderAI(){
+  const t = totals();
+  const recs = [];
+  if(data.budget>0 && t.expense>data.budget) recs.push("You've exceeded your monthly budget — consider trimming Entertainment or Shopping categories this week.");
+  if(t.income>0 && (t.balance/t.income)<0.1) recs.push("Your save rate is under 10%. Try the '$10 rule': skip one small purchase daily and redirect it to your goal fund.");
+  const topCat = Object.entries(data.entries.filter(e=>e.type==='expense').reduce((m,e)=>{m[e.category]=(m[e.category]||0)+e.amount;return m;},{})).sort((a,b)=>b[1]-a[1])[0];
+  if(topCat) recs.push(`Your biggest spending category is ${topCat[0]} ($${topCat[1].toFixed(2)}). A 15% cut here could speed up your goal significantly.`);
+  if(data.goals.length){
+    const g = data.goals[0];
+    const remaining = g.target-g.saved;
+    if(remaining>0) recs.push(`You need $${remaining.toFixed(2)} more for "${g.name}". Saving just $15/week gets you there in about ${Math.ceil(remaining/15)} weeks.`);
+  }
+  if(!recs.length) recs.push("Add a few income and expense entries so I can generate personalized recommendations for you.");
+  document.getElementById('aiRecs').innerHTML = recs.map(r=>`<div class="ai-box"><div class="tag">Insight</div>${r}</div>`).join('');
+}
+
+/* ---------- CHECKLIST ---------- */
+const checklistItems = [
+  'Logged this week\\'s expenses',
+  'Set a monthly budget',
+  'Created at least one savings goal',
+  'Reviewed subscriptions for unused ones',
+  'Saved something toward my goal this week'
+];
+function renderChecklist(){
+  const checked = JSON.parse(localStorage.getItem('pfcc_checklist')||'[]');
+  document.getElementById('checklist').innerHTML = checklistItems.map((item,i)=>`
+    <label class="check-item"><input type="checkbox" ${checked.includes(i)?'checked':''} onchange="toggleCheck(${i})"> ${item}</label>
+  `).join('');
+}
+function toggleCheck(i){
+  let checked = JSON.parse(localStorage.getItem('pfcc_checklist')||'[]');
+  checked = checked.includes(i) ? checked.filter(x=>x!==i) : [...checked, i];
+  localStorage.setItem('pfcc_checklist', JSON.stringify(checked));
+}
+
+/* ---------- CHARTS (canvas, no libs) ---------- */
+function renderPie(){
+  const canvas = document.getElementById('pieChart');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const expenses = data.entries.filter(e=>e.type==='expense');
+  const byCat = expenses.reduce((m,e)=>{m[e.category]=(m[e.category]||0)+e.amount;return m;},{});
+  const cats = Object.keys(byCat);
+  if(!cats.length){
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--sub');
+    ctx.font='14px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('No expense data yet', canvas.width/2, canvas.height/2);
+    return;
+  }
+  const total = cats.reduce((s,c)=>s+byCat[c],0);
+  const colors = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#14b8a6','#f97316','#a855f7'];
+  let start = -Math.PI/2;
+  const cx=140, cy=140, r=110;
+  cats.forEach((c,i)=>{
+    const slice = (byCat[c]/total)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,start+slice);
+    ctx.closePath(); ctx.fillStyle=colors[i%colors.length]; ctx.fill();
+    start += slice;
+  });
+  ctx.globalCompositeOperation='destination-out';
+  ctx.beginPath(); ctx.arc(cx,cy,60,0,Math.PI*2); ctx.fill();
+  ctx.globalCompositeOperation='source-over';
+  // legend
+  let ly = 5;
+  ctx.font='11px sans-serif'; ctx.textAlign='left';
+}
+function renderLine(){
+  const canvas = document.getElementById('lineChart');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth;
+  const h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const recent = data.entries.slice(-7);
+  if(recent.length<2){
+    ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--sub');
+    ctx.font='13px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Add more entries to see your trend', w/2, h/2);
+    return;
+  }
+  let running = 0;
+  const points = recent.map(e=>{ running += (e.type==='income'?e.amount:-e.amount); return running; });
+  const max = Math.max(...points, 1), min = Math.min(...points, 0);
+  const range = (max-min)||1;
+  const pad=20;
+  ctx.beginPath();
+  points.forEach((p,i)=>{
+    const x = pad + (i/(points.length-1))*(w-2*pad);
+    const y = h-pad - ((p-min)/range)*(h-2*pad);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#6366f1'; ctx.lineWidth=3; ctx.stroke();
+  points.forEach((p,i)=>{
+    const x = pad + (i/(points.length-1))*(w-2*pad);
+    const y = h-pad - ((p-min)/range)*(h-2*pad);
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fillStyle='#8b5cf6'; ctx.fill();
+  });
+}
+
+/* ---------- SIMULATOR ---------- */
+function runSimulation(){
+  const weekly = parseFloat(document.getElementById('simWeekly').value) || 0;
+  const gid = parseInt(document.getElementById('simGoalSelect').value);
+  const g = data.goals.find(x=>x.id===gid);
+  const canvas = document.getElementById('simChart');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth;
+  const h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(!g || weekly<=0){
+    document.getElementById('simResult').innerHTML = 'Enter a weekly amount and select a goal to simulate.';
+    return;
+  }
+  const remaining = Math.max(0, g.target-g.saved);
+  const weeks = Math.ceil(remaining/weekly);
+  document.getElementById('simResult').innerHTML = `
+    At <strong>$${weekly}/week</strong>, you'll reach <strong>${g.name}</strong> in about
+    <strong>${weeks} week${weeks!==1?'s':''}</strong> (~${Math.ceil(weeks/4.33)} month${Math.ceil(weeks/4.33)!==1?'s':''}).`;
+  // draw projection line
+  const pad=20;
+  const pts = [];
+  let acc = g.saved;
+  for(let i=0;i<=weeks;i++){ pts.push(Math.min(acc, g.target)); acc+=weekly; }
+  const max = g.target;
+  ctx.beginPath();
+  pts.forEach((p,i)=>{
+    const x = pad + (i/(pts.length-1||1))*(w-2*pad);
+    const y = h-pad - (p/max)*(h-2*pad);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#10b981'; ctx.lineWidth=3; ctx.stroke();
+  // target line
+  ctx.beginPath();
+  ctx.setLineDash([5,5]);
+  ctx.moveTo(pad, h-pad-(h-2*pad));
+  ctx.lineTo(w-pad, h-pad-(h-2*pad));
+  ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1; ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+/* ---------- MASTER RENDER ---------- */
+function render(){
+  renderStats(); renderEntries(); renderBudget(); renderGoals();
+  renderScore(); renderAI(); renderChecklist(); renderPie(); renderLine(); runSimulation();
+}
+
+applyTheme();
+render();
+window.addEventListener('resize', ()=>{renderLine(); runSimulation();});
+</script>
+</body>
+</html>

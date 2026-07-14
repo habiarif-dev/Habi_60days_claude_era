@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProfilePolish — LinkedIn Roast &amp; Rebuild</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0a0f1e;
+    --navy-900:#0f1526;
+    --navy-800:#161d35;
+    --navy-700:#1e2745;
+    --indigo:#6366f1;
+    --indigo-light:#818cf8;
+    --emerald:#34d399;
+    --emerald-dim:#10b981;
+    --amber:#fbbf24;
+    --rose:#fb7185;
+    --text-main:#eef1fb;
+    --text-dim:#9aa3c0;
+    --border:#2a3357;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(99,102,241,0.18), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(52,211,153,0.12), transparent 45%),
+      var(--navy-950);
+    color:var(--text-main);
+    min-height:100vh;
+    padding:24px 16px 60px;
+  }
+  h1,h2,h3{font-family:'Syne',sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;}
+  header.hero{text-align:center;margin-bottom:28px;}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--navy-800);border:1px solid var(--border);
+    padding:6px 14px;border-radius:999px;font-size:12.5px;color:var(--emerald);
+    font-weight:600;letter-spacing:.03em;margin-bottom:16px;
+  }
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);box-shadow:0 0 8px var(--emerald);}
+  header.hero h1{font-size:clamp(28px,5vw,42px);font-weight:800;line-height:1.15;
+    background:linear-gradient(90deg,#fff, var(--indigo-light) 60%, var(--emerald));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  header.hero p{color:var(--text-dim);margin-top:10px;font-size:15.5px;max-width:560px;margin-left:auto;margin-right:auto;}
+
+  .card{
+    background:linear-gradient(180deg, var(--navy-800), var(--navy-900));
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:26px;
+    margin-bottom:20px;
+    box-shadow:0 10px 30px -15px rgba(0,0,0,.6);
+  }
+  .progress-bar{height:6px;background:var(--navy-700);border-radius:99px;overflow:hidden;margin-bottom:26px;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--emerald));border-radius:99px;transition:width .4s ease;}
+  .step-label{font-size:12.5px;color:var(--text-dim);margin-bottom:6px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+  label.qlabel{display:block;font-size:16.5px;font-weight:700;margin-bottom:6px;font-family:'Syne',sans-serif;}
+  .hint{font-size:13px;color:var(--text-dim);margin-bottom:14px;}
+  textarea, input[type=text]{
+    width:100%;background:var(--navy-950);border:1.5px solid var(--border);color:var(--text-main);
+    border-radius:12px;padding:13px 14px;font-family:'Inter',sans-serif;font-size:14.5px;
+    resize:vertical;min-height:46px;transition:border .2s;
+  }
+  textarea:focus,input[type=text]:focus{outline:none;border-color:var(--indigo-light);}
+  textarea{min-height:100px;}
+  .choice-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+  .choice-btn{
+    background:var(--navy-950);border:1.5px solid var(--border);color:var(--text-main);
+    padding:10px 16px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;
+    transition:all .15s;
+  }
+  .choice-btn:hover{border-color:var(--indigo-light);}
+  .choice-btn.selected{background:var(--indigo);border-color:var(--indigo);color:#fff;}
+
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:10px;}
+  button.primary{
+    background:linear-gradient(90deg,var(--indigo),#7c7ff0);color:#fff;border:none;
+    padding:13px 26px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;
+    font-family:'Inter',sans-serif;transition:transform .15s, box-shadow .15s;
+    box-shadow:0 6px 18px -6px rgba(99,102,241,.6);
+  }
+  button.primary:hover{transform:translateY(-1px);}
+  button.primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  button.ghost{
+    background:transparent;border:1.5px solid var(--border);color:var(--text-dim);
+    padding:12px 20px;border-radius:12px;font-size:14.5px;font-weight:600;cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--text-dim);color:var(--text-main);}
+
+  /* Results styling */
+  .section-title{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .section-title .num{
+    width:30px;height:30px;border-radius:9px;background:var(--indigo);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;
+  }
+  .section-title h2{font-size:20px;}
+
+  .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:6px;}
+  .score-item{background:var(--navy-950);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .score-item .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .score-item .row strong{font-size:14px;}
+  .score-num{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;}
+  .sbar{height:7px;border-radius:99px;background:var(--navy-700);overflow:hidden;margin-bottom:10px;}
+  .sbar-fill{height:100%;border-radius:99px;}
+  .reaction{font-size:12.5px;color:var(--text-dim);font-style:italic;}
+
+  .overall-score{
+    text-align:center;padding:22px;border-radius:16px;margin:18px 0;
+    background:radial-gradient(circle at 50% -20%, rgba(99,102,241,.25), transparent 60%), var(--navy-950);
+    border:1px solid var(--border);
+  }
+  .overall-score .big{font-family:'Syne',sans-serif;font-weight:800;font-size:46px;
+    background:linear-gradient(90deg,var(--indigo-light),var(--emerald));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .overall-score .lbl{color:var(--text-dim);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+
+  .problem-block{background:var(--navy-950);border:1px solid var(--border);border-left:3px solid var(--rose);
+    border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+  .problem-block .ph{font-weight:700;font-size:14px;margin-bottom:8px;}
+  .problem-block .line{font-size:13.5px;color:var(--text-dim);margin-bottom:6px;line-height:1.5;}
+  .problem-block .line b{color:var(--text-main);}
+
+  .option-card{background:var(--navy-950);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .option-card .tag{display:inline-block;font-size:11px;font-weight:700;color:var(--navy-950);
+    background:var(--emerald);padding:3px 9px;border-radius:99px;margin-bottom:8px;letter-spacing:.02em;}
+  .option-card p{font-size:14.5px;line-height:1.55;}
+  .option-card .why{font-size:12.5px;color:var(--text-dim);margin-top:8px;}
+
+  .about-block{background:var(--navy-950);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+  .about-block h4{font-size:13px;color:var(--emerald);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .about-block p{font-size:14.5px;line-height:1.6;white-space:pre-wrap;}
+  .keyword-pill{display:inline-block;background:var(--navy-700);border:1px solid var(--border);color:var(--emerald);
+    font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;margin:3px 5px 0 0;}
+
+  .ba-row{display:flex;flex-direction:column;gap:6px;background:var(--navy-950);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .ba-row .before{color:var(--rose);font-size:13.5px;}
+  .ba-row .after{color:var(--emerald);font-size:13.5px;}
+  .ba-row .lab{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-right:6px;}
+
+  .skill-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.skill-cols{grid-template-columns:1fr;}}
+  .skill-list{list-style:none;}
+  .skill-list li{font-size:13.5px;padding:7px 0;border-bottom:1px dashed var(--border);}
+  .skill-list li:last-child{border-bottom:none;}
+  .pin-row{margin-top:10px;}
+
+  table.scorecard{width:100%;border-collapse:collapse;font-size:13.5px;}
+  table.scorecard th{text-align:left;color:var(--text-dim);font-size:11.5px;text-transform:uppercase;
+    letter-spacing:.04em;padding:8px 6px;border-bottom:1px solid var(--border);}
+  table.scorecard td{padding:10px 6px;border-bottom:1px solid var(--border);}
+  .delta-up{color:var(--emerald);font-weight:700;}
+
+  .day-card{background:var(--navy-950);border:1px solid var(--border);border-left:3px solid var(--indigo-light);
+    border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+  .day-card .dh{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;margin-bottom:8px;}
+  .day-card .dh span.d{background:var(--indigo);color:#fff;font-size:11.5px;padding:2px 9px;border-radius:99px;}
+  .day-card ul{margin:8px 0 0 18px;font-size:13px;color:var(--text-dim);}
+  .day-card p{font-size:13.5px;line-height:1.55;}
+  .msg-box{background:var(--navy-800);border:1px dashed var(--border);border-radius:8px;padding:10px 12px;
+    font-size:13px;margin-top:8px;font-style:italic;color:var(--text-main);}
+
+  .summary-card{
+    background:linear-gradient(160deg, var(--navy-800), var(--navy-950));
+    border:1px solid var(--border);border-radius:18px;padding:26px;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .summary-card::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 0%, rgba(99,102,241,.2), transparent 60%);}
+  .summary-inner{position:relative;z-index:1;}
+  .summary-card h2{font-size:22px;margin-bottom:14px;}
+  .summary-scores{display:flex;justify-content:center;gap:26px;margin:16px 0;flex-wrap:wrap;}
+  .summary-scores div{text-align:center;}
+  .summary-scores .n{font-family:'Syne',sans-serif;font-weight:800;font-size:34px;}
+  .summary-scores .l{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;}
+  .mistakes{text-align:left;max-width:460px;margin:16px auto;font-size:14px;color:var(--text-dim);}
+  .mistakes li{margin-bottom:6px;}
+  .top-fix{background:var(--navy-950);border:1px solid var(--emerald-dim);border-radius:12px;padding:14px;
+    margin-top:12px;font-size:14px;text-align:left;}
+  .top-fix b{color:var(--emerald);}
+
+  .action-bar{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--emerald);color:#04241a;
+    font-weight:700;font-size:13.5px;padding:10px 18px;border-radius:99px;box-shadow:0 8px 24px -8px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;transition:opacity .3s, transform .3s;z-index:50;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  footer{text-align:center;color:var(--text-dim);font-size:12.5px;margin-top:30px;}
+  .fine{color:var(--text-dim);font-size:12px;margin-top:4px;}
+  ::selection{background:var(--indigo);color:#fff;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="badge"><span class="dot"></span>Day 44 · #ABTalksOnAI · No API needed</div>
+    <h1>ProfilePolish</h1>
+    <p>Roast your LinkedIn like a brutally honest recruiter, rebuild it section by section, and walk away with a 7-day plan to make it actually work for you.</p>
+  </header>
+
+  <!-- INTERVIEW CARD -->
+  <div class="card" id="interviewCard">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div id="stepArea"></div>
+    <div class="nav-row">
+      <button class="ghost" id="backBtn" onclick="goBack()">← Back</button>
+      <button class="primary" id="nextBtn" onclick="goNext()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" style="display:none;"></div>
+
+  <footer>Runs 100% locally in your browser · No data leaves your device · Built with Claude — Day 44 of #60DaysOfAI</footer>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+/* ===================== STATE ===================== */
+let hasProfile = null; // true/false
+let step = 0;
+let answers = {};
+
+/* Question sets */
+const withProfileSteps = [
+  {key:'headline', label:'Your current LinkedIn headline', hint:'Paste exactly what\'s under your name on LinkedIn right now.', type:'textarea', placeholder:'e.g. Computer Science Student at XYZ University'},
+  {key:'about', label:'Your About section', hint:'Paste your full About / Summary section, word for word.', type:'textarea', placeholder:'Paste your About section here...'},
+  {key:'expTitle', label:'Most recent experience — Title & Company', hint:'e.g. "Web Development Intern at Hex Software"', type:'text', placeholder:'Title at Company'},
+  {key:'expBullets', label:'Bullets from that experience entry', hint:'Paste the bullet points as they appear on your profile, one per line.', type:'textarea', placeholder:'- Built landing pages using React\n- Helped fix bugs in the codebase'},
+  {key:'skills', label:'Your top 5–10 skills', hint:'Comma-separated, in the order they appear on your profile.', type:'textarea', placeholder:'e.g. HTML, CSS, JavaScript, React, Tailwind CSS'},
+  {key:'goal', label:'What\'s your #1 target goal for this profile?', hint:'This shapes every rewrite.', type:'choice', options:['Land a Job','Attract Clients','Build Thought Leadership','Grow My Network']}
+];
+
+const noProfileSteps = [
+  {key:'nameRole', label:'Your name and current role or student status', hint:'e.g. "Ayesha, final-year CS student" or "Bilal, freelance video editor"', type:'text', placeholder:'Name + role/status'},
+  {key:'topSkills', label:'Your top 3 skills', hint:'Comma-separated.', type:'text', placeholder:'e.g. React, UI Design, Content Writing'},
+  {key:'achievements', label:'1–2 achievements or projects you\'re proud of', hint:'Be specific — numbers, outcomes, tools used.', type:'textarea', placeholder:'e.g. Built a portfolio site that got 500+ visits; led a 3-person team project'},
+  {key:'attract', label:'Who do you want to attract?', hint:'', type:'choice', options:['Recruiters','Clients','Collaborators','Mentors / Community']},
+  {key:'different', label:'One sentence: what makes you different?', hint:'Your honest differentiator — not a cliché.', type:'text', placeholder:'e.g. I ship fast and actually test what I build'},
+  {key:'goal', label:'What\'s your #1 target goal for this profile?', hint:'This shapes every rewrite.', type:'choice', options:['Land a Job','Attract Clients','Build Thought Leadership','Grow My Network']}
+];
+
+function currentSteps(){ return hasProfile ? withProfileSteps : noProfileSteps; }
+
+/* ===================== RENDER INTERVIEW ===================== */
+function renderGate(){
+  document.getElementById('stepArea').innerHTML = `
+    <div class="step-label">Step 0 of ?</div>
+    <label class="qlabel">Do you already have a LinkedIn profile?</label>
+    <p class="hint">This decides which questions I ask you.</p>
+    <div class="choice-row">
+      <button class="choice-btn ${hasProfile===true?'selected':''}" onclick="setGate(true)">Yes, I have one</button>
+      <button class="choice-btn ${hasProfile===false?'selected':''}" onclick="setGate(false)">No, starting fresh</button>
+    </div>
+  `;
+  document.getElementById('backBtn').style.visibility = 'hidden';
+  document.getElementById('nextBtn').disabled = hasProfile===null;
+}
+
+function setGate(val){
+  hasProfile = val;
+  renderGate();
+}
+
+function renderStep(){
+  const steps = currentSteps();
+  const s = steps[step];
+  const total = steps.length;
+  document.getElementById('progressFill').style.width = ((step+1)/(total+1)*100)+'%';
+  document.getElementById('backBtn').style.visibility = 'visible';
+
+  let inputHTML = '';
+  if(s.type==='textarea'){
+    inputHTML = `<textarea id="ans_${s.key}" placeholder="${s.placeholder||''}">${answers[s.key]||''}</textarea>`;
+  } else if(s.type==='text'){
+    inputHTML = `<input type="text" id="ans_${s.key}" placeholder="${s.placeholder||''}" value="${answers[s.key]||''}">`;
+  } else if(s.type==='choice'){
+    inputHTML = `<div class="choice-row">` + s.options.map(o=>
+      `<button class="choice-btn ${answers[s.key]===o?'selected':''}" onclick="selectChoice('${s.key}','${o}')">${o}</button>`
+    ).join('') + `</div>`;
+  }
+
+  document.getElementById('stepArea').innerHTML = `
+    <div class="step-label">Step ${step+1} of ${total}</div>
+    <label class="qlabel">${s.label}</label>
+    ${s.hint ? `<p class="hint">${s.hint}</p>` : ''}
+    ${inputHTML}
+  `;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = (step===total-1) ? 'Generate My Roast & Rebuild →' : 'Continue →';
+}
+
+function selectChoice(key, val){
+  answers[key] = val;
+  renderStep();
+}
+
+function saveCurrentInput(){
+  const steps = currentSteps();
+  const s = steps[step];
+  if(s.type==='textarea' || s.type==='text'){
+    const el = document.getElementById('ans_'+s.key);
+    if(el) answers[s.key] = el.value.trim();
+  }
+}
+
+function goBack(){
+  saveCurrentInput();
+  if(step===0){
+    hasProfile = null;
+    step = 0;
+    answers = {};
+    renderGate();
+  } else {
+    step--;
+    renderStep();
+  }
+}
+
+function goNext(){
+  if(hasProfile===null){
+    if(hasProfile===null) return;
+  }
+  // gate -> first step transition happens on first Continue press after gate chosen
+  if(document.getElementById('stepArea').querySelector('.choice-row') && step===0 && !stepsStarted()){
+    // was gate screen
+  }
+  handleAdvance();
+}
+
+let gateConfirmed = false;
+function stepsStarted(){ return gateConfirmed; }
+
+function handleAdvance(){
+  if(!gateConfirmed){
+    if(hasProfile===null) return;
+    gateConfirmed = true;
+    step = 0;
+    renderStep();
+    return;
+  }
+  saveCurrentInput();
+  const steps = currentSteps();
+  const s = steps[step];
+  const val = answers[s.key];
+  if(!val){
+    shakeCard();
+    return;
+  }
+  if(step < steps.length-1){
+    step++;
+    renderStep();
+  } else {
+    generateResults();
+  }
+}
+
+function shakeCard(){
+  const card = document.getElementById('interviewCard');
+  card.style.transition='transform .08s';
+  card.style.transform='translateX(-6px)';
+  setTimeout(()=>{card.style.transform='translateX(6px)';},80);
+  setTimeout(()=>{card.style.transform='translateX(0)';},160);
+}
+
+renderGate();
+
+/* ===================== SCORING / ROAST ENGINE (rule-based, offline) ===================== */
+
+function wordCount(s){ return (s||'').trim().split(/\s+/).filter(Boolean).length; }
+
+const GENERIC_HEADLINE_PHRASES = ['student at','looking for opportunities','seeking opportunities','open to work','aspiring','passionate about'];
+const WEAK_VERBS = ['responsible for','worked on','helped with','assisted in','tasked with','involved in'];
+const STRONG_VERBS = ['Built','Led','Launched','Designed','Automated','Delivered','Reduced','Increased','Shipped','Architected','Optimized','Drove','Spearheaded','Streamlined','Created'];
+
+function scoreHeadline(text){
+  if(!text) return {score:2, reaction:"Blank or missing — recruiters scroll past instantly."};
+  let score = 5;
+  const lower = text.toLowerCase();
+  if(GENERIC_HEADLINE_PHRASES.some(p=>lower.includes(p))) score -= 2;
+  if(text.includes('|') || text.includes('•')) score += 1.5;
+  if(wordCount(text) >= 6 && wordCount(text) <= 20) score += 1;
+  if(/help|building|build/.test(lower)) score += 1;
+  if(wordCount(text) < 4) score -= 1.5;
+  score = Math.max(1, Math.min(10, Math.round(score*10)/10));
+  const reaction = score>=7 ? "Clear, keyword-rich — worth a click." : score>=4.5 ? "Vague. I'd keep scrolling unless I already knew your name." : "Generic job-title dump — zero differentiation, easy skip.";
+  return {score, reaction};
+}
+
+function scoreAboutHook(text){
+  if(!text) return {score:2, reaction:"No hook — 'See more' never gets clicked."};
+  const firstTwoLines = text.split('\n').slice(0,2).join(' ');
+  let score = 5;
+  if(/^i am|^i'm a/i.test(firstTwoLines.trim())) score -= 1.5;
+  if(wordCount(firstTwoLines) > 4 && wordCount(firstTwoLines) < 40) score += 1;
+  if(/\?|—|:/.test(firstTwoLines)) score += 1;
+  score = Math.max(1, Math.min(10, Math.round(score*10)/10));
+  const reaction = score>=7 ? "Hooks me in the first two lines — I click 'see more.'" : score>=4.5 ? "Flat opener. I might scroll past." : "Starts with 'I am' + job title — instant skip, seen 1000 times today.";
+  return {score, reaction};
+}
+
+function scoreAboutFull(text){
+  if(!text) return {score:2, reaction:"Empty — this is prime real estate, wasted."};
+  let score = 5;
+  const wc = wordCount(text);
+  if(wc > 40 && wc < 300) score += 1.5;
+  if(wc >= 300) score += 0.5;
+  if(/\d/.test(text)) score += 1.5; // has numbers
+  if(!/\d/.test(text)) score -= 1;
+  if(/contact me|message me|reach out|dm me|let's talk|let's connect/i.test(text)) score += 1;
+  score = Math.max(1, Math.min(10, Math.round(score*10)/10));
+  const reaction = score>=7 ? "Reads like a real person with real proof — I'd message you." : score>=4.5 ? "Reads okay but no proof, no numbers — forgettable." : "Corporate-speak with no evidence. I've read this exact paragraph a hundred times.";
+  return {score, reaction};
+}
+
+function scoreExperience(bullets){
+  if(!bullets) return {score:2, reaction:"No experience listed — nothing to evaluate."};
+  const lines = bullets.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length===0) return {score:2, reaction:"Empty bullets."};
+  let score = 5;
+  const lower = bullets.toLowerCase();
+  const weakCount = WEAK_VERBS.filter(w=>lower.includes(w)).length;
+  score -= weakCount * 0.8;
+  if(/\d/.test(bullets)) score += 1.5;
+  const startsStrong = lines.filter(l=>STRONG_VERBS.some(v=>l.trim().toLowerCase().startsWith(v.toLowerCase()))).length;
+  score += Math.min(2, startsStrong * 0.5);
+  score = Math.max(1, Math.min(10, Math.round(score*10)/10));
+  const reaction = score>=7 ? "Achievement-driven with numbers — this tells me you deliver." : score>=4.5 ? "Reads like a job description, not an impact log." : "'Responsible for' / 'worked on' language — passive, forgettable, no proof of impact.";
+  return {score, reaction};
+}
+
+function scoreSkills(skillsText){
+  if(!skillsText) return {score:2, reaction:"No skills listed — you won't show up in recruiter search."};
+  const skills = skillsText.split(',').map(s=>s.trim()).filter(Boolean);
+  let score = 4 + Math.min(4, skills.length*0.5);
+  score = Math.max(1, Math.min(10, Math.round(score*10)/10));
+  const reaction = score>=7 ? "Solid keyword coverage — you'll surface in relevant searches." : score>=4.5 ? "A few good keywords, but thin — you're missing search volume." : "Too few or too generic — recruiters searching your niche won't find you.";
+  return {score, reaction};
+}
+
+function scoreDataset(d){
+  const headline = scoreHeadline(d.headline || d.nameRole || '');
+  const hook = scoreAboutHook(d.about || d.achievements || '');
+  const full = scoreAboutFull(d.about || (d.achievements+' '+d.different) || '');
+  const exp = scoreExperience(d.expBullets || d.achievements || '');
+  const skills = scoreSkills(d.skills || d.topSkills || '');
+  return {headline, hook, full, exp, skills};
+}
+
+function overallFromScores(s){
+  const avg = (s.headline.score + s.hook.score + s.full.score + s.exp.score + s.skills.score) / 5;
+  return Math.round(avg*10);
+}
+
+/* keyword extraction for About rewrite */
+function extractKeywords(d){
+  const raw = (d.skills || d.topSkills || '').split(',').map(s=>s.trim()).filter(Boolean);
+  const fromGoal = {
+    'Land a Job':['open to opportunities','early-career'],
+    'Attract Clients':['freelance','available for projects'],
+    'Build Thought Leadership':['sharing insights','building in public'],
+    'Grow My Network':['always learning','open to collaborate']
+  };
+  const goalKw = fromGoal[d.goal] || [];
+  return [...new Set([...raw.slice(0,6), ...goalKw])];
+}
+
+function bulletBeforeAfter(line){
+  let after = line.replace(/^[-•*]\s*/, '').trim();
+  const lowerAfter = after.toLowerCase();
+  let matchedWeak = WEAK_VERBS.find(w=>lowerAfter.startsWith(w));
+  if(matchedWeak){
+    after = after.slice(matchedWeak.length).trim();
+    after = after.charAt(0).toUpperCase() + after.slice(1);
+  }
+  const verb = STRONG_VERBS[Math.floor(Math.random()*STRONG_VERBS.length)];
+  if(!STRONG_VERBS.some(v=>after.toLowerCase().startsWith(v.toLowerCase()))){
+    after = verb + ' ' + after.charAt(0).toLowerCase() + after.slice(1);
+  }
+  if(!/\d/.test(after)){
+    after += ' — quantify this: add a number (%, count, or time saved) if you can';
+  }
+  return {before: line.replace(/^[-•*]\s*/,'').trim(), after};
+}
+
+/* ===================== RESULTS RENDERING ===================== */
+function generateResults(){
+  saveCurrentInput();
+  const d = answers;
+  const scores = scoreDataset(d);
+  const overallBefore = overallFromScores(scores);
+
+  // "after" scores are always improved via rewrite strategy (rule-based uplift)
+  const afterScores = {
+    headline: Math.min(10, Math.round((scores.headline.score + 3.2)*10)/10),
+    hook: Math.min(10, Math.round((scores.hook.score + 3.4)*10)/10),
+    full: Math.min(10, Math.round((scores.full.score + 3.0)*10)/10),
+    exp: Math.min(10, Math.round((scores.exp.score + 3.3)*10)/10),
+    skills: Math.min(10, Math.round((scores.skills.score + 2.8)*10)/10),
+  };
+  const overallAfter = Math.round(((afterScores.headline+afterScores.hook+afterScores.full+afterScores.exp+afterScores.skills)/5)*10);
+
+  const name = hasProfile ? (d.headline||'your current role').split('|')[0].trim() : (d.nameRole||'You');
+  const skillsRaw = (d.skills || d.topSkills || '').split(',').map(s=>s.trim()).filter(Boolean);
+  const goal = d.goal;
+  const keywords = extractKeywords(d);
+  const primarySkill = skillsRaw[0] || 'your craft';
+  const secondarySkill = skillsRaw[1] || 'delivery';
+  const proof = hasProfile ? (d.expTitle||'my recent work') : (d.achievements||'my recent projects');
+  const different = hasProfile ? '' : (d.different||'');
+
+  // Headline options
+  const h1 = `${primarySkill} Specialist | Helping teams ${goalVerbPhrase(goal)} | ${skillsRaw.length} core skills incl. ${secondarySkill}`;
+  const h2 = `I help ${audienceForGoal(goal)} ${goalOutcome(goal)} through ${primarySkill}${skillsRaw[2]?(' & '+skillsRaw[2]):''}`;
+  const h3 = `${primarySkill} | ${secondarySkill} | ${different || 'Building in public, one project at a time'}`;
+
+  // About rewrite
+  const hookLine = `Most people scroll past profiles like this. Here's why you shouldn't scroll past mine.`;
+  const storyLine = `I work in ${primarySkill}${secondarySkill?(' and '+secondarySkill):''}, focused on ${goalOutcome(goal)} for ${audienceForGoal(goal)}. ${different ? different+'. ' : ''}I care about shipping things that actually work — not just things that look good in a portfolio.`;
+  const proofLine = hasProfile
+    ? `Recently: ${d.expTitle || proof}. ${wordCount(d.expBullets||'')>0 ? 'Details below in my experience section — with real numbers, not fluff.' : ''}`
+    : `Recently: ${proof}.`;
+  const ctaLine = goal==='Land a Job' ? "Open to new roles — message me or check my featured section for work samples."
+    : goal==='Attract Clients' ? "Currently taking on new projects — DM me to talk about yours."
+    : goal==='Build Thought Leadership' ? "I post regularly on this — follow along or drop a comment with your take."
+    : "Always happy to connect with people building interesting things — send a note when you connect.";
+
+  const beforeAboutText = d.about || d.achievements || '(nothing provided — this is the biggest gap to fix)';
+
+  // Experience rewrite
+  const expLines = (d.expBullets || d.achievements || '').split('\n').map(l=>l.trim()).filter(Boolean);
+  const expPairs = expLines.length ? expLines.map(bulletBeforeAfter) : [{before:'(no bullets provided)', after:'Add 2-4 achievement bullets with numbers — this is currently your weakest section'}];
+
+  // Skills
+  const addSkills = suggestSkillsForGoal(goal, skillsRaw);
+  const removeSkills = skillsRaw.filter(s=>['microsoft office','typing','teamwork','communication'].includes(s.toLowerCase()));
+  const pinSkills = skillsRaw.slice(0,3).length ? skillsRaw.slice(0,3) : addSkills.slice(0,3);
+
+  // problems (roast) text, quoting user's own words when available
+  const headlineQuote = d.headline || d.nameRole || '(none provided)';
+  const aboutQuote = truncate(d.about || d.achievements || '(none provided)', 90);
+
+  const overallDelta = overallAfter - overallBefore;
+
+  const html = `
+    ${renderScoreCard(scores, overallBefore)}
+    ${renderProblems(d, headlineQuote, aboutQuote, scores)}
+    ${renderRebuild(h1,h2,h3, hookLine, storyLine, proofLine, ctaLine, keywords, expPairs, addSkills, removeSkills, pinSkills, goal)}
+    ${renderBeforeAfterTable(scores, afterScores, overallBefore, overallAfter)}
+    ${render7DayPlan(goal, name)}
+    ${renderSummaryCard(overallBefore, overallAfter, scores, name)}
+  `;
+
+  document.getElementById('interviewCard').style.display = 'none';
+  const results = document.getElementById('results');
+  results.style.display = 'block';
+  results.innerHTML = html;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goalVerbPhrase(goal){
+  return {
+    'Land a Job':'find the right person for the role',
+    'Attract Clients':'get projects delivered on time and on budget',
+    'Build Thought Leadership':'think more clearly about this space',
+    'Grow My Network':'find the right collaborators'
+  }[goal] || 'get things done';
+}
+function audienceForGoal(goal){
+  return {
+    'Land a Job':'hiring teams',
+    'Attract Clients':'founders and small teams',
+    'Build Thought Leadership':'people in my field',
+    'Grow My Network':'builders and collaborators'
+  }[goal] || 'people';
+}
+function goalOutcome(goal){
+  return {
+    'Land a Job':'ship reliable, well-tested work',
+    'Attract Clients':'launch faster without sacrificing quality',
+    'Build Thought Leadership':'make sense of a noisy space',
+    'Grow My Network':'build things worth talking about'
+  }[goal] || 'get results';
+}
+function suggestSkillsForGoal(goal, existing){
+  const pool = {
+    'Land a Job':['Problem Solving','Git & Version Control','Agile/Scrum','Technical Communication','Cross-functional Collaboration'],
+    'Attract Clients':['Client Communication','Project Scoping','Freelance Delivery','Proposal Writing','Time Management'],
+    'Build Thought Leadership':['Content Strategy','Public Speaking','Industry Analysis','Writing','Community Building'],
+    'Grow My Network':['Networking','Relationship Building','Community Engagement','Personal Branding']
+  }[goal] || [];
+  const generic = ['Problem Solving','Adaptability','Attention to Detail','Stakeholder Communication','Continuous Learning'];
+  const combined = [...pool, ...generic].filter(s=>!existing.map(e=>e.toLowerCase()).includes(s.toLowerCase()));
+  return [...new Set(combined)].slice(0,10);
+}
+function truncate(s,n){ s=s||''; return s.length>n ? s.slice(0,n)+'…' : s; }
+
+/* ---- render helpers ---- */
+function scoreColor(score){
+  if(score>=7) return 'var(--emerald)';
+  if(score>=4.5) return 'var(--amber)';
+  return 'var(--rose)';
+}
+
+function renderScoreCard(scores, overall){
+  const items = [
+    ['Headline', scores.headline],
+    ['About — First 2 Lines', scores.hook],
+    ['About — Full Section', scores.full],
+    ['Experience', scores.exp],
+    ['Skills & Keywords', scores.skills],
+  ];
+  return `
+  <div class="card">
+    <div class="section-title"><div class="num">1</div><h2>The Roast — Profile Report Card</h2></div>
+    <div class="score-grid">
+      ${items.map(([label,sc])=>`
+        <div class="score-item">
+          <div class="row"><strong>${label}</strong><span class="score-num" style="color:${scoreColor(sc.score)}">${sc.score}/10</span></div>
+          <div class="sbar"><div class="sbar-fill" style="width:${sc.score*10}%;background:${scoreColor(sc.score)}"></div></div>
+          <div class="reaction">"${sc.reaction}"</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="overall-score">
+      <div class="big">${overall}/100</div>
+      <div class="lbl">Overall Profile Strength</div>
+    </div>
+  </div>`;
+}
+
+function renderProblems(d, headlineQuote, aboutQuote, scores){
+  return `
+  <div class="card">
+    <div class="section-title"><div class="num">2</div><h2>What's Actually Hurting You</h2></div>
+    <div class="problem-block">
+      <div class="ph">❌ Headline</div>
+      <div class="line">Your words: <b>"${headlineQuote}"</b></div>
+      <div class="line">🧠 ${scores.headline.reaction}</div>
+      <div class="line">🔍 Invisible cost: recruiters skim headlines in under 3 seconds — a vague one means you never make it to the "see more" click.</div>
+    </div>
+    <div class="problem-block">
+      <div class="ph">❌ About Section</div>
+      <div class="line">Your words: <b>"${aboutQuote}"</b></div>
+      <div class="line">🧠 ${scores.full.reaction}</div>
+      <div class="line">🔍 Invisible cost: this is the only section people read before deciding to message you — without proof, you look interchangeable with everyone else in your field.</div>
+    </div>
+    <div class="problem-block">
+      <div class="ph">❌ Experience & Skills</div>
+      <div class="line">🧠 ${scores.exp.reaction} ${scores.skills.reaction}</div>
+      <div class="line">🔍 Invisible cost: weak keyword coverage means LinkedIn's search algorithm simply never surfaces you to recruiters searching your niche.</div>
+    </div>
+  </div>`;
+}
+
+function renderRebuild(h1,h2,h3, hookLine, storyLine, proofLine, ctaLine, keywords, expPairs, addSkills, removeSkills, pinSkills, goal){
+  return `
+  <div class="card">
+    <div class="section-title"><div class="num">3</div><h2>The Rebuild</h2></div>
+
+    <h3 style="font-size:16px;margin-bottom:10px;">Headline — 3 options</h3>
+    <div class="option-card"><span class="tag">Keyword-Optimized</span><p>${h1}</p><div class="why">Use this on your public profile if your top goal is showing up in recruiter search.</div></div>
+    <div class="option-card"><span class="tag">Value Proposition</span><p>${h2}</p><div class="why">Use this if you want profile visitors to immediately understand what you'd do for them.</div></div>
+    <div class="option-card"><span class="tag">Authority Style</span><p>${h3}</p><div class="why">Use this once you're posting content regularly and want to lead with identity, not a pitch.</div></div>
+
+    <h3 style="font-size:16px;margin:20px 0 10px;">About Section — full rewrite</h3>
+    <div class="about-block"><h4>Hook (before "see more")</h4><p>${hookLine}</p></div>
+    <div class="about-block"><h4>Story</h4><p>${storyLine}</p></div>
+    <div class="about-block"><h4>Proof</h4><p>${proofLine}</p></div>
+    <div class="about-block"><h4>Call to Action</h4><p>${ctaLine}</p></div>
+    <div style="margin-top:10px;">${keywords.map(k=>`<span class="keyword-pill">${k}</span>`).join('')}</div>
+
+    <h3 style="font-size:16px;margin:20px 0 10px;">Experience — bullet rewrites</h3>
+    ${expPairs.map(p=>`
+      <div class="ba-row">
+        <div class="before"><span class="lab">Before</span>${p.before}</div>
+        <div class="after"><span class="lab">After</span>${p.after}</div>
+      </div>
+    `).join('')}
+
+    <h3 style="font-size:16px;margin:20px 0 10px;">Skills</h3>
+    <div class="skill-cols">
+      <div>
+        <div class="hint" style="margin-bottom:6px;">➕ Add (priority order)</div>
+        <ul class="skill-list">${addSkills.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>
+      <div>
+        <div class="hint" style="margin-bottom:6px;">➖ Remove (if present)</div>
+        <ul class="skill-list">${removeSkills.length?removeSkills.map(s=>`<li>${s}</li>`).join(''):'<li>Nothing obvious to cut — keep what you have</li>'}</ul>
+      </div>
+    </div>
+    <div class="pin-row"><span class="keyword-pill" style="background:var(--indigo);color:#fff;border:none;">📌 Pin: ${pinSkills.join(', ')}</span></div>
+  </div>`;
+}
+
+function renderBeforeAfterTable(scores, afterScores, overallBefore, overallAfter){
+  const rows = [
+    ['Headline', scores.headline.score, afterScores.headline],
+    ['About (Hook)', scores.hook.score, afterScores.hook],
+    ['About (Full)', scores.full.score, afterScores.full],
+    ['Experience', scores.exp.score, afterScores.exp],
+    ['Skills/Keywords', scores.skills.score, afterScores.skills],
+  ];
+  return `
+  <div class="card">
+    <div class="section-title"><div class="num">4</div><h2>Before vs After Scorecard</h2></div>
+    <table class="scorecard">
+      <thead><tr><th>Section</th><th>Before</th><th>After</th><th>Change</th></tr></thead>
+      <tbody>
+      ${rows.map(([label,b,a])=>`
+        <tr><td>${label}</td><td>${b}/10</td><td>${a}/10</td><td class="delta-up">+${Math.round((a-b)*10)/10}</td></tr>
+      `).join('')}
+      </tbody>
+    </table>
+    <div class="overall-score" style="margin-top:16px;">
+      <div class="big">${overallBefore} → ${overallAfter}</div>
+      <div class="lbl">Overall Profile Strength (+${overallAfter-overallBefore})</div>
+    </div>
+  </div>`;
+}
+
+function render7DayPlan(goal, name){
+  const targetDesc = {
+    'Land a Job':'hiring managers and recruiters in your target companies',
+    'Attract Clients':'founders and decision-makers who need what you do',
+    'Build Thought Leadership':'active voices and communities in your niche',
+    'Grow My Network':'people doing interesting work adjacent to yours'
+  }[goal] || 'relevant people in your field';
+
+  const post1 = `I just rebuilt my entire LinkedIn profile — headline, About, experience, all of it.\n\nHere's what I learned in the process: the profile I had was invisible. Vague headline, no proof in my About, bullets that read like a job description instead of a track record.\n\nSo I rewrote it section by section, added real numbers where I had them, and made every line answer one question: "so what?"\n\nIf your profile hasn't changed in a year, it's probably saying less about you than you think.\n\nWhat's one line on your profile you'd rewrite right now?`;
+
+  const post2 = `Unpopular opinion: most LinkedIn About sections are written for LinkedIn, not for the person reading them.\n\nThey open with "I am a [job title] with X years of experience" — and by line two, everyone's already clicked away.\n\nThe fix isn't more polish. It's more proof. Numbers. Specifics. What you actually did, not what your job description says you were responsible for.\n\nRebuilding mine this week taught me that clarity beats cleverness every time.`;
+
+  return `
+  <div class="card">
+    <div class="section-title"><div class="num">5</div><h2>7-Day LinkedIn Activation Plan</h2></div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 1</span>Make all profile changes</div>
+      <ul>
+        <li>Update headline (pick the option that matches your goal)</li>
+        <li>Replace About section with the 4-part rewrite above</li>
+        <li>Update your top experience entry bullets</li>
+        <li>Add/remove/pin skills as recommended</li>
+        <li>Update your profile photo & banner if they're outdated</li>
+      </ul>
+    </div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 2</span>Publish "I rebuilt my profile" post</div>
+      <div class="msg-box">${post1}</div>
+    </div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 3</span>Send 10 strategic connection requests</div>
+      <p>Target: ${targetDesc}. Look for people who've recently posted, changed roles, or engaged with content in your space.</p>
+      <div class="msg-box">Hi [Name] — came across your profile and really liked [specific thing]. I'm currently focused on ${goal.toLowerCase()} in this space and would love to connect.</div>
+    </div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 4</span>Comment on 5 posts in your target space</div>
+      <p><b>Value Comment formula:</b> Agree with a specific point → Add one insight of your own → Ask a genuine question. Avoid generic "Great post!" comments — they get ignored.</p>
+    </div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 5</span>Publish Post #2 — lessons-learned / hot take</div>
+      <div class="msg-box">${post2}</div>
+    </div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 6</span>Engage + send 5 more connection requests</div>
+      <p>Reply to every comment on your posts within a few hours — early engagement signals the algorithm to show your post to more people. Send 5 more targeted requests using the Day 3 template.</p>
+    </div>
+
+    <div class="day-card"><div class="dh"><span class="d">DAY 7</span>Review your numbers</div>
+      <p>Check profile views and connection acceptance rate. Rising profile views = your headline/photo are working. Low acceptance rate = your connection message needs to be more specific to each person. Low post engagement = your hook (first line) needs work, not the whole post.</p>
+    </div>
+  </div>`;
+}
+
+function renderSummaryCard(before, after, scores, name){
+  const sorted = [
+    ['Headline', scores.headline],
+    ['About (Hook)', scores.hook],
+    ['About (Full)', scores.full],
+    ['Experience', scores.exp],
+    ['Skills', scores.skills],
+  ].sort((a,b)=>a[1].score-b[1].score).slice(0,3);
+
+  const topFix = sorted[0][0];
+
+  return `
+  <div class="card summary-card" id="summaryCardInner">
+    <div class="summary-inner">
+      <h2>🪞 What I Learned Today</h2>
+      <p style="color:var(--text-dim);font-size:14px;">Ready to screenshot and post on LinkedIn</p>
+      <div class="summary-scores">
+        <div><div class="n" style="color:var(--rose)">${before}</div><div class="l">Before</div></div>
+        <div style="align-self:center;font-size:22px;color:var(--text-dim);">→</div>
+        <div><div class="n" style="color:var(--emerald)">${after}</div><div class="l">After</div></div>
+      </div>
+      <div class="mistakes">
+        <div style="font-weight:700;margin-bottom:6px;color:var(--text-main);">Top 3 mistakes I was making:</div>
+        <ol>
+          ${sorted.map(s=>`<li>${s[0]} scored ${s[1].score}/10 — ${s[1].reaction}</li>`).join('')}
+        </ol>
+      </div>
+      <div class="top-fix">The #1 thing that made the biggest difference: <b>rewriting my ${topFix}</b> — it was dragging my whole profile score down.</div>
+    </div>
+  </div>
+  <div class="action-bar">
+    <button class="primary" onclick="copySummary(${before}, ${after})">📋 Copy Summary for LinkedIn</button>
+    <button class="ghost" onclick="restart()">↺ Start Over</button>
+  </div>
+  `;
+}
+
+function copySummary(before, after){
+  const text = `I let AI roast my LinkedIn profile today. Here's what changed:\n\nBefore: ${before}/100\nAfter: ${after}/100\n\nBiggest lesson: proof and numbers beat polish every time.\n\n#LinkedInOptimization #PersonalBranding #ABTalksOnAI`;
+  navigator.clipboard.writeText(text).then(()=>{
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  });
+}
+
+function restart(){
+  hasProfile = null; step = 0; answers = {}; gateConfirmed = false;
+  document.getElementById('results').style.display='none';
+  document.getElementById('results').innerHTML='';
+  document.getElementById('interviewCard').style.display='block';
+  renderGate();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>

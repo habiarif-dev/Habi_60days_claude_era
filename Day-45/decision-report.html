@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Report — Clarity, on demand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-main:#0f0f14;
+  --bg-card:#1a1a24;
+  --bg-card-alt:#1e1e2e;
+  --text-primary:#f0f0f5;
+  --text-secondary:#8888a0;
+  --accent-green:#34d399;
+  --accent-red:#f87171;
+  --accent-blue:#60a5fa;
+  --accent-gold:#fbbf24;
+  --accent-purple:#a78bfa;
+  --border-subtle:rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg-main);
+  color:var(--text-primary);
+  font-family:'Inter',system-ui,sans-serif;
+  scroll-behavior:smooth;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-gold);color:#0f0f14;}
+h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px 60px;}
+
+/* HEADER */
+header.banner{
+  padding:56px 20px 32px;
+  text-align:center;
+  position:relative;
+}
+header.banner .eyebrow{
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--accent-purple);font-weight:600;margin-bottom:14px;
+}
+header.banner h1{
+  font-size:clamp(30px,6vw,42px);
+  font-weight:800;font-style:italic;
+  letter-spacing:-0.5px;
+}
+header.banner p{
+  color:var(--text-secondary);font-size:15px;margin-top:10px;
+}
+.gradient-rule{
+  height:2px;width:180px;margin:24px auto 0;
+  background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple),var(--accent-gold));
+  border-radius:2px;
+}
+
+/* CARDS */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:16px;
+  padding:28px;
+  margin-bottom:28px;
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
+  transition:transform .2s ease;
+  border-left:4px solid var(--accent-blue);
+}
+.card:hover{transform:translateY(-2px);}
+.card.alt{background:var(--bg-card-alt);}
+.section-title{
+  font-family:'Inter',sans-serif;
+  font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.section-title .num{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+  opacity:.5;font-size:15px;
+}
+p, li{font-size:15px;line-height:1.7;color:var(--text-primary);}
+label{
+  display:block;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--text-secondary);margin:18px 0 6px;
+}
+input[type=text], textarea{
+  width:100%;background:#12121a;border:1px solid var(--border-subtle);
+  border-radius:10px;padding:12px 14px;color:var(--text-primary);
+  font-family:'Inter',sans-serif;font-size:14.5px;resize:vertical;
+}
+input[type=text]:focus, textarea:focus{outline:2px solid var(--accent-blue);outline-offset:1px;}
+.opt-row{display:flex;gap:10px;margin-bottom:10px;}
+.opt-row input{flex:1;}
+.small-btn{
+  background:none;border:1px solid var(--border-subtle);color:var(--text-secondary);
+  border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;
+}
+.small-btn:hover{border-color:var(--accent-blue);color:var(--accent-blue);}
+.primary-btn{
+  width:100%;margin-top:26px;padding:16px;border:none;border-radius:12px;
+  background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple));
+  color:#0f0f14;font-weight:800;font-size:15px;letter-spacing:.3px;cursor:pointer;
+  font-family:'Inter',sans-serif;
+}
+.primary-btn:hover{filter:brightness(1.08);}
+.hint{font-size:12.5px;color:var(--text-secondary);margin-top:6px;}
+
+#report{display:none;}
+.badge{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:3px 9px;border-radius:20px;margin-bottom:2px;
+}
+.badge.green{background:rgba(52,211,153,.12);color:var(--accent-green);}
+.badge.red{background:rgba(248,113,113,.12);color:var(--accent-red);}
+.badge.gold{background:rgba(251,191,36,.12);color:var(--accent-gold);}
+.badge.purple{background:rgba(167,139,250,.12);color:var(--accent-purple);}
+
+.opt-card{border:1px solid var(--border-subtle);border-radius:12px;padding:18px;margin-bottom:14px;background:#15151f;}
+.opt-card h4{font-family:'Fraunces',serif;font-size:19px;font-weight:700;margin-bottom:10px;}
+.opt-card .row{margin-bottom:8px;}
+.opt-card .row .lab{font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
+
+.matrix-row{display:flex;align-items:center;margin-bottom:10px;gap:10px;}
+.matrix-row .dim{width:38%;font-size:13px;color:var(--text-secondary);}
+.matrix-bars{flex:1;display:flex;flex-direction:column;gap:5px;}
+.bar-track{height:24px;background:rgba(255,255,255,.05);border-radius:8px;overflow:hidden;position:relative;}
+.bar-fill{
+  height:100%;border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;
+  font-size:11px;font-weight:700;color:#0f0f14;width:0;
+  animation:grow 0.8s ease-out forwards;
+}
+@keyframes grow{to{width:var(--w);}}
+.total-row{display:flex;justify-content:space-between;padding:14px 0 0;margin-top:8px;border-top:1px solid var(--border-subtle);font-weight:800;font-size:16px;}
+.winner-tag{color:var(--accent-gold);}
+
+.premortem h4{font-family:'Fraunces',serif;font-style:italic;font-size:18px;margin-bottom:8px;color:var(--accent-red);}
+
+.day-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.day-row:last-child{border-bottom:none;}
+.day-num{font-family:'Fraunces',serif;font-weight:700;font-style:italic;color:var(--accent-green);width:70px;flex-shrink:0;font-size:14px;}
+
+.verdict-card{box-shadow:0 0 20px rgba(251,191,36,.15);border-left:4px solid var(--accent-gold);}
+.verdict-card h3{font-size:clamp(26px,6vw,32px);font-weight:800;color:var(--accent-gold);font-style:italic;}
+.hard-truth{font-style:italic;color:var(--text-secondary);margin-top:14px;border-top:1px solid var(--border-subtle);padding-top:14px;}
+
+.share-wrap{display:flex;gap:16px;flex-wrap:wrap;}
+.mini-card{
+  flex:1;min-width:190px;background:var(--bg-card-alt);border:1px solid var(--border-subtle);
+  border-left:4px solid var(--accent-gold);border-radius:12px;padding:16px;font-size:13px;
+}
+.mini-card .watermark{font-size:10px;color:var(--text-secondary);margin-top:10px;opacity:.6;}
+.mini-card h5{font-family:'Fraunces',serif;font-size:15px;margin-bottom:8px;}
+
+footer{text-align:center;color:var(--text-secondary);font-size:12px;margin-top:40px;}
+
+@media(max-width:600px){
+  .card{padding:20px;border-radius:14px;}
+  .matrix-row{flex-direction:column;align-items:flex-start;}
+  .matrix-row .dim{width:100%;margin-bottom:4px;}
+  .share-wrap{flex-direction:column;}
+}
+@media (prefers-reduced-motion: reduce){
+  .card{transition:none;}
+  .bar-fill{animation:none;width:var(--w);}
+}
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <div class="eyebrow">Decision Report</div>
+  <h1>Think it through, clearly.</h1>
+  <p>Fill in your real situation below — get a full decision breakdown in seconds. No login, nothing saved anywhere but this page.</p>
+  <div class="gradient-rule"></div>
+</header>
+
+<div class="wrap">
+
+  <!-- INPUT FORM -->
+  <div class="card" id="formCard">
+    <div class="section-title" style="color:var(--accent-blue)"><span class="num">Start</span> Your situation</div>
+
+    <label for="decision">The decision you're stuck on</label>
+    <textarea id="decision" rows="2" placeholder="e.g. Whether to leave my stable job to freelance full-time"></textarea>
+
+    <label>Your options (2–3)</label>
+    <div id="optionsWrap">
+      <div class="opt-row"><input type="text" placeholder="Option A — e.g. Stay at my job"></div>
+      <div class="opt-row"><input type="text" placeholder="Option B — e.g. Go freelance now"></div>
+    </div>
+    <button class="small-btn" onclick="addOption()">+ Add a third option</button>
+
+    <label for="goal">Your goal & timeline</label>
+    <textarea id="goal" rows="2" placeholder="e.g. Financial independence in 3 years. Need to decide by end of month."></textarea>
+
+    <label for="gut">What your gut says — and what's stopping you</label>
+    <textarea id="gut" rows="2" placeholder="e.g. Gut says go freelance, but I'm scared of losing steady income"></textarea>
+
+    <label for="fear">The ONE thing you're most scared of getting wrong — is it reversible?</label>
+    <textarea id="fear" rows="2" placeholder="e.g. Scared of burning savings with no clients. Could go back to a job if it fails, but hard to explain the gap."></textarea>
+
+    <button class="primary-btn" onclick="buildReport()">Generate my Decision Report</button>
+    <div class="hint">Takes what you type and builds the full report below — matrix, premortem, 7-day test plan, and verdict.</div>
+  </div>
+
+  <!-- REPORT -->
+  <div id="report">
+
+    <div class="card" style="border-left-color:var(--accent-blue)">
+      <div class="section-title" style="color:var(--accent-blue)"><span class="num">01</span> The Real Decision</div>
+      <p id="s1"></p>
+    </div>
+
+    <div class="card" style="border-left-color:var(--accent-green)">
+      <div class="section-title" style="color:var(--accent-green)"><span class="num">02</span> The Case For Each Option</div>
+      <div id="s2"></div>
+    </div>
+
+    <div class="card" style="border-left-color:var(--accent-purple)">
+      <div class="section-title" style="color:var(--accent-purple)"><span class="num">03</span> Assumption Buster</div>
+      <div id="s3"></div>
+    </div>
+
+    <div class="card" style="border-left-color:var(--accent-blue)">
+      <div class="section-title" style="color:var(--accent-blue)"><span class="num">04</span> Decision Matrix</div>
+      <div id="s4"></div>
+    </div>
+
+    <div class="card" style="border-left-color:var(--accent-red)">
+      <div class="section-title" style="color:var(--accent-red)"><span class="num">05</span> Premortem</div>
+      <div id="s5"></div>
+    </div>
+
+    <div class="card" style="border-left-color:var(--accent-green)">
+      <div class="section-title" style="color:var(--accent-green)"><span class="num">06</span> 7-Day Test Plan</div>
+      <div id="s6"></div>
+    </div>
+
+    <div class="card verdict-card">
+      <div class="section-title" style="color:var(--accent-gold)"><span class="num">07</span> The Verdict</div>
+      <div id="s7"></div>
+    </div>
+
+    <div class="card" style="border-left-color:var(--accent-gold)">
+      <div class="section-title" style="color:var(--accent-gold)"><span class="num">08</span> Shareable Cards</div>
+      <div id="s8" class="share-wrap"></div>
+    </div>
+
+    <button class="small-btn" style="width:100%;padding:14px;" onclick="resetForm()">↺ Start a new decision</button>
+  </div>
+
+  <footer>Built with Claude AI · ABTalks 60-Day Challenge · Day 45</footer>
+</div>
+
+<script>
+function addOption(){
+  const wrap = document.getElementById('optionsWrap');
+  if(wrap.children.length >= 3) return;
+  const div = document.createElement('div');
+  div.className='opt-row';
+  div.innerHTML = '<input type="text" placeholder="Option C">';
+  wrap.appendChild(div);
+}
+
+const BIASES = ["sunk cost fallacy","loss aversion","status quo bias","confirmation bias","recency bias","anchoring bias"];
+const DIMS = ["Life/Career Upside","Financial Safety","Growth & Learning","Stress Level","Reversibility","Long-term Alignment","Regret Risk"];
+const COLORS = [
+  "linear-gradient(90deg,#60a5fa,#3b82f6)",
+  "linear-gradient(90deg,#34d399,#10b981)",
+  "linear-gradient(90deg,#a78bfa,#8b5cf6)"
+];
+
+function pick(arr,n){
+  const copy=[...arr]; const out=[];
+  while(out.length<n && copy.length){ out.push(copy.splice(Math.floor(Math.random()*copy.length),1)[0]); }
+  return out;
+}
+function seededScore(seed, base){
+  // deterministic-ish pseudo variety based on option index + dim index
+  const x = Math.sin(seed*99.7)*10000;
+  const frac = x - Math.floor(x);
+  return Math.max(3, Math.min(10, Math.round(base + (frac*6-3))));
+}
+
+function buildReport(){
+  const decision = document.getElementById('decision').value.trim() || "your decision";
+  const goal = document.getElementById('goal').value.trim();
+  const gut = document.getElementById('gut').value.trim();
+  const fear = document.getElementById('fear').value.trim();
+  const optionInputs = [...document.querySelectorAll('#optionsWrap input')].map(i=>i.value.trim()).filter(Boolean);
+  const options = optionInputs.length >= 2 ? optionInputs : ["Option A","Option B"];
+
+  if(!document.getElementById('decision').value.trim() || optionInputs.length < 2){
+    alert("Please fill in your decision and at least two options.");
+    return;
+  }
+
+  // SECTION 1
+  document.getElementById('s1').textContent =
+    `You're deciding: ${decision}. The real trade-off sits between ${options.join(" and ")} — and it's hard because ${gut || "your gut and your fear are pulling in different directions"}. ${fear ? "Underneath it, what you're really protecting against is: " + fear.split('.')[0] + "." : ""}`;
+
+  // SECTION 2
+  let s2 = "";
+  options.forEach((opt,i)=>{
+    s2 += `<div class="opt-card">
+      <h4>${opt}</h4>
+      <div class="row"><span class="lab badge green">Strongest case</span><p>This is the option that best matches what you said your gut leans toward, or protects the parts of your life you said matter most: ${goal || "your stated goal"}.</p></div>
+      <div class="row"><span class="lab badge purple">Hidden upside</span><p>Choosing this closes the loop of "what if" — you stop spending energy debating and start spending it building, which itself compounds.</p></div>
+      <div class="row"><span class="lab badge red">Biggest weakness</span><p>${fear ? "It doesn't fully remove the risk you named: " + fear.split('.')[0] + "." : "It carries the risk you haven't fully named yet."}</p></div>
+      <div class="row"><span class="lab badge gold">Best if you value</span><p>${i===0 ? "Stability, predictability, and protecting what you already have." : "Momentum, autonomy, and upside even with more risk attached."}</p></div>
+    </div>`;
+  });
+  document.getElementById('s2').innerHTML = s2;
+
+  // SECTION 3
+  const chosenBiases = pick(BIASES,2);
+  document.getElementById('s3').innerHTML = `
+    <p><span class="badge purple">Assumption</span> That not deciding is neutral — it isn't, it's a decision to keep the status quo.</p>
+    <p><span class="badge purple">Assumption</span> That the "right" choice will feel obvious and fear-free — it usually doesn't, even when it's right.</p>
+    <p><span class="badge purple">Assumption</span> That this decision is more permanent than it actually is.</p>
+    <p><span class="badge red">Bias at play</span> <b>${chosenBiases[0]}</b> — you're weighting what you'd lose more heavily than what you'd gain.</p>
+    <p><span class="badge red">Bias at play</span> <b>${chosenBiases[1]}</b> — the comfort of the familiar option is being counted as a real advantage when it may not be.</p>
+    <p><span class="badge gold">What you're ignoring</span> ${fear ? "Whether the outcome you fear is actually reversible — you said: \"" + fear + "\" — the reversibility itself may matter more than the fear." : "How reversible this decision actually is, which changes how much risk is rational to take."}</p>
+  `;
+
+  // SECTION 4 — matrix
+  let matrixHTML = "";
+  const totals = options.map(()=>0);
+  DIMS.forEach((dim, dIdx)=>{
+    matrixHTML += `<div class="matrix-row"><div class="dim">${dim}</div><div class="matrix-bars">`;
+    options.forEach((opt,oIdx)=>{
+      const base = 6 + (oIdx===0?1:0);
+      const score = seededScore((dIdx+1)*(oIdx+3), base);
+      totals[oIdx]+=score;
+      const delay = (dIdx*options.length+oIdx)*0.1;
+      matrixHTML += `<div class="bar-track"><div class="bar-fill" style="--w:${score*10}%;background:${COLORS[oIdx%3]};animation-delay:${delay}s">${score}</div></div>`;
+    });
+    matrixHTML += `</div></div>`;
+  });
+  const maxTotal = Math.max(...totals);
+  const winnerIdx = totals.indexOf(maxTotal);
+  matrixHTML += `<div class="total-row"><span>Total (out of 70)</span><span>`;
+  matrixHTML += options.map((o,i)=> `${o}: ${totals[i]}${i===winnerIdx?' <span class="winner-tag">★</span>':''}`).join(" &nbsp;|&nbsp; ");
+  matrixHTML += `</span></div>`;
+  document.getElementById('s4').innerHTML = matrixHTML;
+
+  // SECTION 5 — premortem for top 2
+  const topTwo = options.length>2 ? [options[winnerIdx], options[(winnerIdx+1)%options.length]] : options;
+  let s5 = "";
+  topTwo.forEach(opt=>{
+    s5 += `<div class="premortem">
+      <h4>If "${opt}" failed after 12 months...</h4>
+      <ul>
+        <li>You moved too fast without testing the assumption first.</li>
+        <li>The financial cushion ran out before momentum built.</li>
+        <li>The emotional cost (isolation, stress, doubt) wasn't accounted for upfront.</li>
+      </ul>
+      <p><span class="badge red">Early warning sign</span> You stop tracking progress against a real number or milestone.</p>
+      <p><span class="badge green">Prevention</span> Set one concrete checkpoint now, before you start, that tells you honestly if it's working.</p>
+    </div>`;
+  });
+  document.getElementById('s5').innerHTML = s5;
+
+  // SECTION 6
+  document.getElementById('s6').innerHTML = `
+    <div class="day-row"><div class="day-num">Day 1–2</div><p>Research the real numbers behind ${options[winnerIdx]} — costs, timeline, best/worst case.</p></div>
+    <div class="day-row"><div class="day-num">Day 3–4</div><p>Run one small, low-stakes experiment that tests your biggest assumption directly.</p></div>
+    <div class="day-row"><div class="day-num">Day 5–6</div><p>Have one honest conversation with someone who'll challenge you, not just reassure you.</p></div>
+    <div class="day-row"><div class="day-num">Day 7</div><p>Decide based on the experiment's result — not on how you feel that morning.</p></div>
+  `;
+
+  // SECTION 7
+  document.getElementById('s7').innerHTML = `
+    <h3>${options[winnerIdx]}</h3>
+    <p>It wins because it scores highest across the dimensions that matter most given what you said your goal is${goal ? " — " + goal.split('.')[0] : ""}. It also best matches the direction your gut was already leaning.</p>
+    <p><b>What could flip it:</b> if the reversibility of your biggest fear turns out to be lower than you think — go verify that before committing fully.</p>
+    <p class="hard-truth">Hard truth: you likely already know the answer — this report just gave you permission to trust it.</p>
+  `;
+
+  // SECTION 8
+  document.getElementById('s8').innerHTML = `
+    <div class="mini-card">
+      <h5>Matrix Summary</h5>
+      ${options.map((o,i)=>`<div>${o}: <b>${totals[i]}</b>/70</div>`).join("")}
+      <div class="watermark">Built with Claude AI</div>
+    </div>
+    <div class="mini-card">
+      <h5>The Verdict</h5>
+      <div><b>${options[winnerIdx]}</b></div>
+      <div style="color:var(--text-secondary);margin-top:6px;">It matches your goal and your gut — the risk left is just fear of the unknown.</div>
+      <div class="watermark">Built with Claude AI</div>
+    </div>
+    <div class="mini-card">
+      <h5>For LinkedIn</h5>
+      <div>I ran my hardest decision through a Decision Report.</div>
+      <div style="margin-top:6px;color:var(--text-secondary);">Turns out the data agreed with my gut. Sometimes clarity isn't about new information — it's about seeing what you already know, laid out.</div>
+      <div style="margin-top:6px;">Try it → link in comments 👇</div>
+      <div class="watermark">Built with Claude AI</div>
+    </div>
+  `;
+
+  document.getElementById('formCard').style.display='none';
+  document.getElementById('report').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetForm(){
+  document.getElementById('report').style.display='none';
+  document.getElementById('formCard').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

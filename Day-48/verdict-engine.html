@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Verdict Engine</title>
+<style>
+  :root{
+    --ink:#12201A;
+    --ink-2:#1B2E24;
+    --parchment:#EDE6D6;
+    --parchment-dim:#DCD3BC;
+    --brass:#B08D57;
+    --brass-bright:#D4AF6A;
+    --burgundy:#7A2E33;
+    --green:#3E6B4F;
+    --line:rgba(237,230,214,0.14);
+    --shadow:0 12px 30px rgba(0,0,0,0.35);
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
+    --mono:'SFMono-Regular',ui-monospace,'Courier New',monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(176,141,87,0.08), transparent 55%),
+      var(--ink);
+    color:var(--parchment);
+    font-family:var(--sans);
+    min-height:100vh;
+    line-height:1.5;
+  }
+  a{color:var(--brass-bright);}
+
+  /* ---------- Header ---------- */
+  header.masthead{
+    padding:28px 24px 20px;
+    border-bottom:1px solid var(--line);
+    text-align:center;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    opacity:0.85;
+  }
+  h1.wordmark{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(30px,5vw,46px);
+    margin:6px 0 4px;
+    letter-spacing:0.01em;
+  }
+  h1.wordmark em{ font-style:italic; color:var(--brass-bright); }
+  .subhead{
+    color:var(--parchment-dim);
+    font-size:14px;
+    max-width:560px;
+    margin:0 auto;
+  }
+
+  /* ---------- Docket tabs ---------- */
+  .docket-tabs{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    flex-wrap:wrap;
+    padding:18px 16px 0;
+  }
+  .tab{
+    font-family:var(--serif);
+    font-size:15px;
+    background:var(--ink-2);
+    color:var(--parchment-dim);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:10px 18px 12px;
+    border-radius:8px 8px 0 0;
+    cursor:pointer;
+    position:relative;
+    top:1px;
+    transition:all .15s ease;
+  }
+  .tab:hover{ color:var(--parchment); }
+  .tab.active{
+    background:var(--parchment);
+    color:var(--ink);
+    font-weight:600;
+    border-color:var(--parchment);
+  }
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 20px 60px;
+  }
+
+  .case-panel{
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:0 10px 10px 10px;
+    box-shadow:var(--shadow);
+    padding:28px;
+    margin-top:0;
+  }
+
+  .case-title{
+    font-family:var(--serif);
+    font-size:22px;
+    margin:0 0 4px;
+  }
+  .case-desc{
+    color:var(--parchment-dim);
+    font-size:13.5px;
+    margin:0 0 22px;
+    max-width:640px;
+  }
+
+  /* ---------- Weights panel ---------- */
+  .weights{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+    margin-bottom:26px;
+    padding:18px;
+    background:rgba(0,0,0,0.18);
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .weight-row label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    font-family:var(--mono);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--parchment-dim);
+    margin-bottom:6px;
+  }
+  .weight-row .wval{ color:var(--brass-bright); font-weight:700; }
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:3px;
+    background:var(--line);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:16px;height:16px;border-radius:50%;
+    background:var(--brass-bright);
+    border:2px solid var(--ink);
+    cursor:pointer;
+    box-shadow:0 0 0 1px var(--brass);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;
+    background:var(--brass-bright);border:2px solid var(--ink);cursor:pointer;
+  }
+  .weights-foot{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:4px; grid-column:1/-1;
+  }
+  .reset-btn{
+    background:none;border:1px solid var(--brass);color:var(--brass-bright);
+    font-family:var(--mono); font-size:11px; letter-spacing:0.05em;
+    padding:7px 12px; border-radius:6px; cursor:pointer; text-transform:uppercase;
+  }
+  .reset-btn:hover{ background:rgba(176,141,87,0.12); }
+
+  /* ---------- Ranked results ---------- */
+  .ranked-list{ display:flex; flex-direction:column; gap:12px; }
+  .verdict-card{
+    display:grid;
+    grid-template-columns:56px 1fr auto;
+    gap:16px;
+    align-items:center;
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:8px;
+    padding:16px 18px;
+    position:relative;
+    overflow:hidden;
+    transition:transform .25s ease;
+  }
+  .verdict-card.rank-1{ box-shadow:0 0 0 2px var(--brass-bright), var(--shadow); }
+  .rank-num{
+    font-family:var(--serif);
+    font-size:30px;
+    text-align:center;
+    color:var(--brass);
+    font-weight:700;
+  }
+  .rank-1 .rank-num{ color:var(--burgundy); }
+  .stamp{
+    position:absolute;
+    top:8px; right:14px;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.12em;
+    color:var(--burgundy);
+    border:1.5px solid var(--burgundy);
+    border-radius:50%;
+    width:56px;height:56px;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;
+    transform:rotate(12deg);
+    opacity:0.85;
+    text-transform:uppercase;
+  }
+  .opt-name{ font-family:var(--serif); font-size:18px; font-weight:600; }
+  .opt-tagline{ font-size:12.5px; color:#4a4438; margin-top:2px; }
+  .opt-breakdown{
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;
+  }
+  .chip{
+    font-family:var(--mono);
+    font-size:10.5px;
+    background:rgba(18,32,26,0.08);
+    border:1px solid rgba(18,32,26,0.15);
+    border-radius:4px;
+    padding:3px 7px;
+    display:inline-flex; gap:5px; align-items:center;
+  }
+  .chip.estimate{ border-color:var(--burgundy); color:var(--burgundy); }
+  .chip .dot{ width:5px;height:5px;border-radius:50%; background:var(--green); }
+  .chip.estimate .dot{ background:var(--burgundy); }
+  .score-total{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:700;
+    text-align:right;
+    color:var(--ink);
+    min-width:64px;
+  }
+  .score-label{ font-size:9.5px; text-transform:uppercase; letter-spacing:0.08em; color:#6b6350; display:block; text-align:right;}
+
+  /* ---------- collapsibles ---------- */
+  details.collapse{
+    margin-top:22px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:rgba(0,0,0,0.16);
+    overflow:hidden;
+  }
+  details.collapse summary{
+    cursor:pointer;
+    padding:14px 18px;
+    font-family:var(--serif);
+    font-size:15px;
+    list-style:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  details.collapse summary::-webkit-details-marker{ display:none; }
+  details.collapse summary::after{
+    content:'+';
+    font-family:var(--mono);
+    color:var(--brass-bright);
+    font-size:18px;
+  }
+  details.collapse[open] summary::after{ content:'–'; }
+  .collapse-body{ padding:0 18px 18px; font-size:13.5px; color:var(--parchment-dim); }
+  .collapse-body h4{ font-family:var(--serif); color:var(--parchment); font-size:14px; margin:14px 0 6px; }
+  .collapse-body ul{ margin:6px 0; padding-left:18px; }
+  .collapse-body li{ margin-bottom:6px; }
+  .source-item{
+    display:flex; gap:10px; padding:8px 0; border-bottom:1px dashed var(--line);
+    font-size:12.5px;
+  }
+  .source-item:last-child{ border-bottom:none; }
+  .source-tag{
+    font-family:var(--mono); font-size:10px; color:var(--brass-bright);
+    background:rgba(176,141,87,0.12); padding:2px 6px; border-radius:4px;
+    height:fit-content; white-space:nowrap;
+  }
+  .conflict{
+    border-left:2px solid var(--burgundy);
+    padding-left:12px;
+    margin:10px 0;
+  }
+
+  /* ---------- custom mode ---------- */
+  .custom-empty{
+    text-align:center; padding:50px 20px; color:var(--parchment-dim);
+  }
+  .custom-empty .big{ font-family:var(--serif); font-size:20px; color:var(--parchment); margin-bottom:8px;}
+  .btn{
+    background:var(--brass-bright); color:var(--ink); border:none;
+    font-family:var(--sans); font-weight:700; font-size:13px;
+    padding:10px 18px; border-radius:6px; cursor:pointer; margin-top:14px;
+  }
+  .btn.secondary{ background:transparent; color:var(--brass-bright); border:1px solid var(--brass); }
+  .custom-form{ display:grid; gap:10px; margin-top:16px; }
+  .custom-form input{
+    background:rgba(237,230,214,0.06); border:1px solid var(--line); color:var(--parchment);
+    padding:9px 10px; border-radius:6px; font-size:13px; font-family:var(--sans);
+  }
+  .custom-form input::placeholder{ color:#7d8a80; }
+  .row-flex{ display:flex; gap:8px; flex-wrap:wrap; }
+  .row-flex > *{ flex:1; min-width:140px; }
+  .tiny-note{ font-size:11.5px; color:#8a9188; margin-top:-4px; }
+  table.custom-table{ width:100%; border-collapse:collapse; margin-top:14px; font-size:12.5px; }
+  table.custom-table th, table.custom-table td{
+    border:1px solid var(--line); padding:6px 8px; text-align:left;
+  }
+  table.custom-table th{ font-family:var(--mono); font-size:10.5px; text-transform:uppercase; color:var(--brass-bright); }
+  .del-btn{ background:none; border:none; color:var(--burgundy); cursor:pointer; font-size:14px; }
+
+  /* ---------- loading ---------- */
+  .loading-wrap{ display:flex; flex-direction:column; align-items:center; padding:60px 20px; gap:14px; color:var(--parchment-dim); }
+  .seal-spin{
+    width:44px;height:44px;border-radius:50%;
+    border:3px solid rgba(176,141,87,0.25);
+    border-top-color:var(--brass-bright);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  footer{
+    text-align:center; padding:24px; color:#6b7a70; font-size:11.5px;
+  }
+
+  @media (max-width:600px){
+    .verdict-card{ grid-template-columns:40px 1fr; }
+    .score-total{ grid-column:1/-1; text-align:left; display:flex; gap:8px; align-items:baseline; }
+    .case-panel{ padding:18px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="eyebrow">Compare &amp; Decide — Case No. 2026-07</div>
+  <h1 class="wordmark">The <em>Verdict</em> Engine</h1>
+  <p class="subhead">Adjust the weight of evidence. Watch the ranking reach its verdict — live, in your browser, with every source on the record.</p>
+</header>
+
+<nav class="docket-tabs" id="tabs"></nav>
+
+<main>
+  <div class="case-panel" id="panel"></div>
+</main>
+
+<footer>Runs entirely client-side · no external libraries, no API calls · data current as of research date noted in each case file</footer>
+
+<script>
+/* =========================================================================
+   DATA — every numeric value below is either:
+   sourced:true  → taken directly from a cited publication (see .sources)
+   sourced:false → an editorial estimate/derivation, always visibly flagged
+   ========================================================================= */
+
+const DATASETS = {
+
+  cloud: {
+    label: "Cloud Hosting",
+    title: "Cloud Hosting Providers",
+    desc: "AWS, Google Cloud, Microsoft Azure, and DigitalOcean, compared on market position, price of entry, free-tier generosity, and ease of use.",
+    researchDate: "July 2026",
+    criteria: [
+      { id:"share", name:"Market Share", unit:"%", higherIsBetter:true, weight:5 },
+      { id:"entry", name:"Cheapest Entry Compute", unit:"$/mo", higherIsBetter:false, weight:4 },
+      { id:"free",  name:"Free-Tier Generosity", unit:"/10", higherIsBetter:true, weight:4 },
+      { id:"ease",  name:"Ease of Use", unit:"/10", higherIsBetter:true, weight:3 },
+    ],
+    options: [
+      { name:"AWS", tagline:"Broadest catalog, best serverless stack",
+        scores:{
+          share:{ value:32, sourced:true, note:"32% global market share (Synergy Research Group, cited via CloudZero, Jan 2026)" },
+          entry:{ value:22, sourced:false, note:"No single 'entry price' — AWS is pay-as-you-go across 200+ services. Estimated mid-range placeholder; not a published figure." },
+          free:{ value:6, sourced:true, note:"'Broadest service catalog and the best serverless stack (Lambda + DynamoDB)', but free tier is largely time-limited (agentdeals.dev, 2026)" },
+          ease:{ value:5, sourced:true, note:"'Customers may spend more time figuring out what services to buy and how to set them up' (HostingAdvice.com, Apr 2026)" },
+        }},
+      { name:"Google Cloud", tagline:"The only permanent free VM",
+        scores:{
+          share:{ value:12, sourced:true, note:"12% global market share (Synergy Research Group, cited via CloudZero, Jan 2026)" },
+          entry:{ value:0, sourced:true, note:"e2-micro instance is permanently free under GCP's always-free tier (agentdeals.dev, 2026)" },
+          free:{ value:10, sourced:true, note:"'Wins for side projects — the only provider with a permanent free VM ... most generous always-free limits' (agentdeals.dev, 2026)" },
+          ease:{ value:7, sourced:false, note:"No direct usability quote found for GCP specifically; scored relative to peers based on general pricing-simplicity commentary (CloudAtler, 2026)." },
+        }},
+      { name:"Azure", tagline:"Enterprise balance, deepest Microsoft ties",
+        scores:{
+          share:{ value:23, sourced:true, note:"23% global market share (Synergy Research Group, cited via CloudZero, Jan 2026)" },
+          entry:{ value:15, sourced:false, note:"$200 trial credit confirmed (agentdeals.dev); no flat ongoing entry price published — estimated placeholder." },
+          free:{ value:8, sourced:true, note:"'65+ always-free services, $200 trial, Cosmos DB lifetime free tier' (agentdeals.dev, 2026)" },
+          ease:{ value:8, sourced:true, note:"'Azure offers a more balanced and comprehensive user experience' (HostingAdvice.com, Apr 2026)" },
+        }},
+      { name:"DigitalOcean", tagline:"Cheapest sticker price, simplest console",
+        scores:{
+          share:{ value:1, sourced:true, note:"1% global market share (Synergy Research Group, cited via CloudZero, Jan 2026)" },
+          entry:{ value:4, sourced:true, note:"$4/mo Droplet after January 2026 price cuts (agentdeals.dev, 2026)" },
+          free:{ value:3, sourced:true, note:"'Doesn't compete on free tiers but wins on simplicity and competitive paid pricing' (agentdeals.dev, 2026)" },
+          ease:{ value:4, sourced:true, note:"Conflicting source: Promevo.com states DigitalOcean 'has a reputation for complexity' for teams without in-house expertise (Jan 2024) — see Research panel for how this was reconciled." },
+        }},
+    ],
+    sources: [
+      { tag:"S1", label:"Synergy Research Group market-share figures", url:"https://www.cloudzero.com/blog/cloud-pricing-comparison/", pub:"CloudZero", date:"Jan 29, 2026" },
+      { tag:"S2", label:"Cloud free-tier comparison (GCP/Azure/DO specifics)", url:"https://agentdeals.dev/cloud-free-tier-comparison-2026", pub:"agentdeals.dev", date:"Jul 2026" },
+      { tag:"S3", label:"AWS/Azure/Google trade-off commentary & support pricing", url:"https://www.hostingadvice.com/how-to/aws-azure-google-cloud-alternatives/", pub:"HostingAdvice.com", date:"Apr 16, 2026" },
+      { tag:"S4", label:"DigitalOcean usability claim (complexity for enterprise teams)", url:"https://promevo.com/blog/google-cloud-vs-aws-vs-azure-digital-ocean", pub:"Promevo", date:"Jan 23, 2024" },
+      { tag:"S5", label:"2026 pricing-landscape context", url:"https://cloudatler.com/blog/aws-vs-azure-vs-google-cloud-pricing-comparison-2026-an-architect-s-guide", pub:"CloudAtler", date:"Jun 2026" },
+    ],
+    conflicts: `<div class="conflict"><strong>Ease of use — DigitalOcean.</strong> DigitalOcean's own marketing and most user reviews frame it as the simplest console on the market. But Promevo's 2024 comparison specifically flags DigitalOcean as having "a reputation for complexity" for teams migrating from a hyperscaler. Resolution: the score above (4/10) treats DO as simple for solo developers/small teams (its primary audience) but weights down slightly for the documented enterprise-migration friction — a middle score rather than picking one source over the other.</div>
+    <div class="conflict"><strong>"Entry price" doesn't exist for AWS or Azure.</strong> Unlike DigitalOcean's flat $4/mo Droplet or GCP's free e2-micro, AWS and Azure price per-service with no single "cheapest tier." Rather than invent a number, those two cells are explicitly flagged as editorial estimates in the sources panel and chip markers on each card.</div>`
+  },
+
+  languages: {
+    label: "Languages",
+    title: "Programming Languages",
+    desc: "Python, JavaScript, Java, and Rust, compared on index ranking, real-world usage, salary signal, and momentum — using TIOBE, Stack Overflow, and industry salary data.",
+    researchDate: "July 2026",
+    criteria: [
+      { id:"tiobe", name:"TIOBE Popularity (Jul 2026)", unit:"rank", higherIsBetter:false, weight:5 },
+      { id:"usage", name:"Real-World Usage Signal", unit:"/10", higherIsBetter:true, weight:4 },
+      { id:"salary", name:"Salary Premium", unit:"/10", higherIsBetter:true, weight:4 },
+      { id:"momentum", name:"Momentum / Sentiment", unit:"/10", higherIsBetter:true, weight:3 },
+    ],
+    options: [
+      { name:"Python", tagline:"#1 on TIOBE, first call for AI features",
+        scores:{
+          tiobe:{ value:1, sourced:true, note:"#1 on the TIOBE Index, July 2026, at 18.94% — 'Python remains first with a wide lead' (TechRepublic, Jul 2026)" },
+          usage:{ value:7, sourced:false, note:"No direct Stack Overflow 'currently used' % found for Python in sources gathered. Estimated from a related but distinct metric: 41.9% of developers say they want to learn/work with it (Boundev, 2026)." },
+          salary:{ value:5, sourced:false, note:"No specific salary-premium % published for Python in the sources gathered; scored as a neutral baseline (flagged estimate)." },
+          momentum:{ value:9, sourced:true, note:"'If you are scaling an AI feature, this is why most teams hire senior Python developers first' (Boundev.ai, 2026)" },
+        }},
+      { name:"JavaScript", tagline:"Still the most-used language on the web",
+        scores:{
+          tiobe:{ value:6, sourced:true, note:"Rank #6 on the TIOBE Index, July 2026 (TechRepublic, Jul 2026)" },
+          usage:{ value:9, sourced:true, note:"66% of respondents use JavaScript, Stack Overflow Developer Survey 2025 (Nextage Blog, May 2026) — note: Boundev cites a differing 62.3% figure, see Research panel." },
+          salary:{ value:5, sourced:false, note:"No specific salary-premium % found for JavaScript; scored as a neutral baseline (flagged estimate)." },
+          momentum:{ value:7, sourced:true, note:"'npm consumption up 15% year over year' and JS remains essential despite TypeScript's rise (Boundev.ai, 2026)" },
+        }},
+      { name:"Java", tagline:"The enterprise backbone that won't die",
+        scores:{
+          tiobe:{ value:4, sourced:true, note:"Rank #4 on the TIOBE Index, July 2026 (TechRepublic, Jul 2026)" },
+          usage:{ value:6, sourced:false, note:"No directly comparable usage % found for Java in the sources gathered; scored relative to peers from qualitative description (flagged estimate)." },
+          salary:{ value:5, sourced:false, note:"No specific salary-premium % found for Java; scored as a neutral baseline (flagged estimate)." },
+          momentum:{ value:6, sourced:true, note:"'Remains very much alive in banking systems, ERPs, corporate applications' via the Spring/Spring Boot ecosystem (Nextage Blog, May 2026)" },
+        }},
+      { name:"Rust", tagline:"Just broke into TIOBE's top 10 — and pays the most",
+        scores:{
+          tiobe:{ value:10, sourced:true, note:"Entered the TIOBE top 10 for the first time in July 2026, climbing from #18 a year earlier (TechRepublic, Jul 2026)" },
+          usage:{ value:4, sourced:false, note:"No direct 'currently used' % found; Rust is newer to mainstream use, estimated conservatively (flagged estimate)." },
+          salary:{ value:9, sourced:true, note:"Commands roughly a +24% salary premium above the median software-developer salary (RockstarDeveloperUniversity.com, Apr 2026)" },
+          momentum:{ value:10, sourced:true, note:"Most 'admired' language at 82.2% in combined 2026 rankings (Boundev.ai, 2026)" },
+        }},
+    ],
+    sources: [
+      { tag:"L1", label:"TIOBE Index for July 2026 — full top-10 rankings", url:"https://www.techrepublic.com/article/news-tiobe-index-language-rankings/", pub:"TechRepublic", date:"Jul 2026" },
+      { tag:"L2", label:"Stack Overflow Developer Survey 2025 usage figures", url:"https://nextage.com.br/blog/en/top-20-programming-languages/", pub:"Nextage Blog", date:"May 8, 2026" },
+      { tag:"L3", label:"Combined TIOBE/PYPL/Stack Overflow 2026 breakdown", url:"https://www.boundev.ai/blog/most-popular-programming-languages-2026", pub:"Boundev.ai", date:"Jul 2026" },
+      { tag:"L4", label:"Language salary-premium data", url:"https://rockstardeveloperuniversity.com/programming-language-statistics/", pub:"RockstarDeveloperUniversity.com", date:"Apr 15, 2026" },
+    ],
+    conflicts: `<div class="conflict"><strong>JavaScript "usage" — 66% vs 62.3%.</strong> Nextage Blog cites the Stack Overflow Developer Survey 2025 directly at 66% of respondents. Boundev.ai separately reports 62.3% for the same rough claim. These likely reflect different survey slices (all respondents vs. professional developers only). Resolution: the higher, directly-attributed Stack Overflow figure (66%) was used for the score, and the discrepancy is disclosed here rather than silently picked.</div>
+    <div class="conflict"><strong>No single "salary premium" exists for Python, JavaScript, or Java.</strong> Only Rust had a specific, citable premium (+24%). Rather than estimate precise numbers for the other three, they were scored at a flat neutral baseline and explicitly flagged as estimates in every card and the sources panel.</div>`
+  },
+
+  laptops: {
+    label: "Laptops",
+    title: "Laptops for Developers & Students",
+    desc: "MacBook Air M4, Dell XPS 13, Lenovo ThinkPad X1 Carbon, and Framework Laptop 13 Pro, compared on price, battery life, weight, and repairability.",
+    researchDate: "July 2026",
+    criteria: [
+      { id:"price", name:"Starting Price", unit:"$", higherIsBetter:false, weight:5 },
+      { id:"battery", name:"Battery Life", unit:"hrs", higherIsBetter:true, weight:4 },
+      { id:"weight", name:"Weight", unit:"lb", higherIsBetter:false, weight:3 },
+      { id:"repair", name:"Repairability / Long-Term Value", unit:"/10", higherIsBetter:true, weight:3 },
+    ],
+    options: [
+      { name:"MacBook Air (M4)", tagline:"Longest real-world battery life tested",
+        scores:{
+          price:{ value:999, sourced:true, note:"Starting price $999 (TechRadar, 2026 XPS-vs-Air comparison)" },
+          battery:{ value:18, sourced:true, note:"18 hours real-world, LaptopMag Battery Tests, cited via TheLaptopPicker.com (2026)" },
+          weight:{ value:2.7, sourced:true, note:"2.7 lbs, MacBook Air 13.6\" (ShopSavvy.com weight comparison table, Jan 2026)" },
+          repair:{ value:5, sourced:false, note:"No repairability citation found; scored using a different cited metric (70% resale value after 3 years, MacRumors via TheLaptopPicker.com) as an imperfect proxy — flagged estimate." },
+        }},
+      { name:"Dell XPS 13", tagline:"OLED option, strong all-round productivity",
+        scores:{
+          price:{ value:1099, sourced:true, note:"Base starting price $1,099 (TheLaptopPicker.com, 2026 pricing breakdown)" },
+          battery:{ value:10, sourced:true, note:"10 hours, LaptopMag Battery Tests, cited via TheLaptopPicker.com (2026) — Intel config; a separate Snapdragon X Elite config is reported elsewhere at 20+ hrs (TechPointZone.com, Apr 2026), see Research panel." },
+          weight:{ value:2.7, sourced:true, note:"2.7 lbs / 1.21kg (TechRadar.com spec sheet, 2026)" },
+          repair:{ value:4, sourced:false, note:"No repairability or long-term value citation found for the XPS 13 specifically; scored as a below-average estimate versus Framework's documented repairability (flagged estimate)." },
+        }},
+      { name:"ThinkPad X1 Carbon", tagline:"Business-grade, priced accordingly",
+        scores:{
+          price:{ value:2100, sourced:true, note:"Starting price ~$2,100 (ShopSavvy.com comparison table, Jan 2026)" },
+          battery:{ value:12, sourced:false, note:"No directly-cited battery figure found for this exact model in the sources gathered; estimated mid-pack for its class (flagged estimate)." },
+          weight:{ value:2.5, sourced:false, note:"No directly-cited weight found in the sources gathered; estimated from its ultraportable-business category (flagged estimate)." },
+          repair:{ value:5, sourced:false, note:"No repairability citation found; ThinkPads have a general reputation for serviceability but no source in this research batch confirms specifics (flagged estimate)." },
+        }},
+      { name:"Framework Laptop 13 Pro", tagline:"Every component is individually replaceable",
+        scores:{
+          price:{ value:1199, sourced:true, note:"$1,199 DIY Edition starting price (Frame.work official product page, Apr 2026)" },
+          battery:{ value:14, sourced:true, note:"Framework claims 20 hrs (Netflix streaming test); independent review estimates real-world mixed-workload battery closer to 12–16 hrs — midpoint used here (Vibetric.com review, Jun 2026)" },
+          weight:{ value:2.8, sourced:false, note:"No weight citation found for the redesigned 13 Pro chassis; using the prior-generation Framework 13 (2023) weight of 2.8 lbs as a proxy (Tom's Guide, 2023) — flagged estimate." },
+          repair:{ value:10, sourced:true, note:"'Every component — battery, SSD, RAM, mainboard — is replaceable individually... aligns with legislation that Apple and sealed-unit competitors cannot address' (Vibetric.com, Jun 2026)" },
+        }},
+    ],
+    sources: [
+      { tag:"P1", label:"MacBook Air M4 vs Dell XPS 13 battery & pricing breakdown", url:"https://www.thelaptoppicker.com/macbook-vs-xps-premium", pub:"TheLaptopPicker.com", date:"2026" },
+      { tag:"P2", label:"MacBook Air / Dell XPS 13 / ThinkPad X1 Carbon spec & weight table", url:"https://shopsavvy.com/answers/how-does-the-dell-xps-14-2026-compare-to-the-lenovo-thinkpad-x1-carbon", pub:"ShopSavvy.com", date:"Jan 30, 2026" },
+      { tag:"P3", label:"Dell XPS 13 full spec sheet (2025 edition)", url:"https://www.techradar.com/computing/laptops/dell-xps-13-vs-macbook-air-which-is-the-king-of-laptops", pub:"TechRadar", date:"2026" },
+      { tag:"P4", label:"Dell XPS 13 Snapdragon X Elite battery claim", url:"https://techpointzone.com/dell-xps-13-vs-macbook-air", pub:"TechPointZone.com", date:"Apr 30, 2026" },
+      { tag:"P5", label:"Framework Laptop 13 Pro pricing & specs (official)", url:"https://frame.work/blog/introducing-framework-laptop-13-pro", pub:"Frame.work", date:"Apr 21, 2026" },
+      { tag:"P6", label:"Framework Laptop 13 Pro independent review (real-world battery, repairability)", url:"https://vibetric.com/framework-laptop-pro-13-review/", pub:"Vibetric.com", date:"Jun 8, 2026" },
+      { tag:"P7", label:"Framework Laptop 13 (2023) prior-gen weight reference", url:"https://www.tomsguide.com/reviews/framework-laptop-13-2023", pub:"Tom's Guide", date:"2023" },
+    ],
+    conflicts: `<div class="conflict"><strong>Dell XPS 13 battery life — 10 hrs vs 20+ hrs.</strong> LaptopMag's tested figure (cited via TheLaptopPicker.com) puts the Intel-configured XPS 13 at 10 hours. TechPointZone reports a Snapdragon X Elite configuration hitting 20+ hours. These are different chip configurations sold under the same model name. Resolution: the Intel figure (10 hrs) was used since it matches the same test methodology (LaptopMag) used for the MacBook Air comparison, keeping the battery comparison apples-to-apples; the ARM figure is disclosed here.</div>
+    <div class="conflict"><strong>Framework 13 Pro battery — 20 hrs claimed vs 12–16 hrs real-world.</strong> Framework's own marketing states 20 hours under a best-case streaming test. An independent review (Vibetric.com) estimates real-world mixed workloads land at 12–16 hours. The midpoint of the real-world estimate (14 hrs) was used for scoring rather than the marketing figure, to keep the comparison consistent with how the other three laptops were scored (independent test data, not manufacturer claims).</div>
+    <div class="conflict"><strong>ThinkPad X1 Carbon — thinnest data coverage.</strong> The sources gathered for this research pass confirmed only its starting price with confidence. Battery, weight, and repairability are estimates and are flagged accordingly on its card — treat its ranking with proportionally less confidence than the other three.</div>`
+  },
+};
+
+/* ========================= STATE ========================= */
+let currentCategory = "cloud";
+let weights = {};      // { datasetKey: { critId: value } }
+let customData = { criteria: [], options: [] };
+let loading = true;
+
+function cloneDefaultWeights(dsKey){
+  const ds = DATASETS[dsKey];
+  const w = {};
+  ds.criteria.forEach(c => w[c.id] = c.weight);
+  return w;
+}
+Object.keys(DATASETS).forEach(k => weights[k] = cloneDefaultWeights(k));
+
+/* ========================= RENDER: TABS ========================= */
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  const cats = [...Object.keys(DATASETS), 'custom'];
+  tabs.innerHTML = cats.map(k => {
+    const label = k === 'custom' ? 'Custom Comparison' : DATASETS[k].label;
+    const active = k === currentCategory ? 'active' : '';
+    return `<button class="tab ${active}" data-cat="${k}">${label}</button>`;
+  }).join('');
+  tabs.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentCategory = btn.dataset.cat;
+      loading = true;
+      renderTabs();
+      renderPanel();
+      setTimeout(()=>{ loading = false; renderPanel(); }, 420);
+    });
+  });
+}
+
+/* ========================= SCORING ========================= */
+function computeRanking(ds, dsWeights){
+  // normalize each criterion 0-1 across options (min-max), respecting higherIsBetter
+  const results = ds.options.map(opt => ({ opt, total:0, parts:[] }));
+  ds.criteria.forEach(crit=>{
+    const raw = ds.options.map(o => o.scores[crit.id].value);
+    const min = Math.min(...raw), max = Math.max(...raw);
+    const range = (max - min) || 1;
+    ds.options.forEach((opt,i)=>{
+      let norm = (raw[i]-min)/range;
+      if(!crit.higherIsBetter) norm = 1 - norm;
+      const w = dsWeights[crit.id] ?? crit.weight;
+      const contrib = norm * w;
+      results[i].total += contrib;
+      results[i].parts.push({ crit, norm, contrib, raw: raw[i], sourced: opt.scores[crit.id].sourced, note: opt.scores[crit.id].note });
+    });
+  });
+  const maxPossible = ds.criteria.reduce((s,c)=> s + (dsWeights[c.id] ?? c.weight), 0) || 1;
+  results.forEach(r => r.pct = Math.round((r.total/maxPossible)*100));
+  results.sort((a,b)=> b.total - a.total);
+  return results;
+}
+
+/* ========================= RENDER: PANEL ========================= */
+function renderPanel(){
+  const panel = document.getElementById('panel');
+
+  if(loading){
+    panel.innerHTML = `<div class="loading-wrap"><div class="seal-spin"></div><div>Reviewing the evidence…</div></div>`;
+    return;
+  }
+
+  if(currentCategory === 'custom'){
+    renderCustom(panel);
+    return;
+  }
+
+  const ds = DATASETS[currentCategory];
+  const dsWeights = weights[currentCategory];
+  const ranking = computeRanking(ds, dsWeights);
+
+  panel.innerHTML = `
+    <h2 class="case-title">${ds.title}</h2>
+    <p class="case-desc">${ds.desc}</p>
+
+    <div class="weights">
+      ${ds.criteria.map(c => `
+        <div class="weight-row">
+          <label>${c.name} <span class="wval" id="wval-${currentCategory}-${c.id}">${dsWeights[c.id]}</span></label>
+          <input type="range" min="0" max="10" step="1" value="${dsWeights[c.id]}" data-crit="${c.id}" class="weight-slider">
+        </div>
+      `).join('')}
+      <div class="weights-foot">
+        <span class="tiny-note">Drag to reprioritize — the ranking below updates instantly.</span>
+        <button class="reset-btn" id="resetWeights">Reset weights</button>
+      </div>
+    </div>
+
+    <div class="ranked-list">
+      ${ranking.map((r, idx) => `
+        <div class="verdict-card ${idx===0 ? 'rank-1':''}">
+          ${idx===0 ? '<div class="stamp">Top Pick</div>' : ''}
+          <div class="rank-num">${idx+1}</div>
+          <div>
+            <div class="opt-name">${r.opt.name}</div>
+            <div class="opt-tagline">${r.opt.tagline}</div>
+            <div class="opt-breakdown">
+              ${r.parts.map(p => `
+                <span class="chip ${p.sourced ? '' : 'estimate'}" title="${p.note.replace(/"/g,'&quot;')}">
+                  <span class="dot"></span>${p.crit.name}: ${p.raw}${p.crit.unit && p.crit.unit.length<=4 ? p.crit.unit : ''}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+          <div>
+            <span class="score-total">${r.pct}</span>
+            <span class="score-label">Verdict Score</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <details class="collapse">
+      <summary>Sources — every data point on the record</summary>
+      <div class="collapse-body">
+        <p class="tiny-note" style="margin-bottom:10px;">Green-dot chips above are directly sourced facts. Burgundy-dot chips are editorial estimates — hover any chip on a card to see its note.</p>
+        ${ds.sources.map(s => `
+          <div class="source-item">
+            <span class="source-tag">${s.tag}</span>
+            <span><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a> — ${s.pub}, ${s.date}</span>
+          </div>
+        `).join('')}
+      </div>
+    </details>
+
+    <details class="collapse">
+      <summary>How this was researched — conflicts &amp; methodology</summary>
+      <div class="collapse-body">
+        <h4>Research date</h4>
+        <p>${ds.researchDate}. Cloud/tech pricing and rankings shift frequently — treat figures as a snapshot, not a permanent truth.</p>
+        <h4>Method</h4>
+        <p>Each option is scored 0–1 per criterion (min-max normalized across the option set, direction-corrected for "lower is better" criteria like price), then combined using your weights above into a single Verdict Score out of 100.</p>
+        <h4>Conflicts resolved</h4>
+        ${ds.conflicts}
+      </div>
+    </details>
+  `;
+
+  panel.querySelectorAll('.weight-slider').forEach(slider=>{
+    slider.addEventListener('input', (e)=>{
+      const critId = e.target.dataset.crit;
+      weights[currentCategory][critId] = Number(e.target.value);
+      document.getElementById(`wval-${currentCategory}-${critId}`).textContent = e.target.value;
+      renderPanel();
+    });
+  });
+  const rb = document.getElementById('resetWeights');
+  if(rb) rb.addEventListener('click', ()=>{
+    weights[currentCategory] = cloneDefaultWeights(currentCategory);
+    renderPanel();
+  });
+}
+
+/* ========================= CUSTOM MODE ========================= */
+function renderCustom(panel){
+  if(customData.options.length === 0 || customData.criteria.length === 0){
+    panel.innerHTML = `
+      <h2 class="case-title">Custom Comparison</h2>
+      <p class="case-desc">Build your own comparison. This runs entirely offline — nothing here is independently researched or fact-checked, so treat every value as self-reported.</p>
+      <div class="custom-empty">
+        <div class="big">No case open yet</div>
+        <p>Add at least two options and one criterion to start weighing your own decision.</p>
+        <button class="btn" id="startCustom">Start a custom case</button>
+      </div>
+    `;
+    document.getElementById('startCustom').addEventListener('click', ()=>{
+      customData.criteria = [{id:'c1', name:'Cost', higherIsBetter:false, weight:5, unit:'$'}];
+      customData.options = [];
+      renderPanel();
+    });
+    return;
+  }
+
+  const ds = { criteria: customData.criteria, options: customData.options };
+  const dsWeights = {};
+  customData.criteria.forEach(c => dsWeights[c.id] = c.weight);
+  const hasEnough = customData.options.length >= 2;
+
+  panel.innerHTML = `
+    <h2 class="case-title">Custom Comparison</h2>
+    <p class="case-desc">Self-entered data — flagged throughout as not independently sourced.</p>
+
+    <h4 style="font-family:var(--serif); font-size:15px; margin:0 0 8px;">Criteria</h4>
+    <table class="custom-table">
+      <thead><tr><th>Name</th><th>Direction</th><th>Weight</th><th></th></tr></thead>
+      <tbody>
+        ${customData.criteria.map(c => `
+          <tr>
+            <td>${c.name}</td>
+            <td>${c.higherIsBetter ? 'Higher is better' : 'Lower is better'}</td>
+            <td>${c.weight}</td>
+            <td><button class="del-btn" data-crit-del="${c.id}">✕</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <div class="custom-form row-flex" style="margin-top:10px;">
+      <input type="text" id="newCritName" placeholder="New criterion, e.g. Speed">
+      <select id="newCritDir" style="background:rgba(237,230,214,0.06);border:1px solid var(--line);color:var(--parchment);border-radius:6px;padding:9px;">
+        <option value="1">Higher is better</option>
+        <option value="0">Lower is better</option>
+      </select>
+      <button class="btn secondary" id="addCrit">Add criterion</button>
+    </div>
+
+    <h4 style="font-family:var(--serif); font-size:15px; margin:22px 0 8px;">Options</h4>
+    ${customData.options.length ? `
+      <table class="custom-table">
+        <thead><tr><th>Name</th>${customData.criteria.map(c=>`<th>${c.name}</th>`).join('')}<th></th></tr></thead>
+        <tbody>
+          ${customData.options.map(o => `
+            <tr>
+              <td>${o.name}</td>
+              ${customData.criteria.map(c=>`<td>${o.scores[c.id]?.value ?? '—'}</td>`).join('')}
+              <td><button class="del-btn" data-opt-del="${o.name}">✕</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : `<p class="tiny-note">No options yet — add at least two below.</p>`}
+
+    <div class="custom-form" style="margin-top:10px;">
+      <input type="text" id="newOptName" placeholder="Option name, e.g. Option A">
+      <div class="row-flex">
+        ${customData.criteria.map(c => `<input type="number" step="any" class="newOptVal" data-crit="${c.id}" placeholder="${c.name} value">`).join('')}
+      </div>
+      <button class="btn secondary" id="addOpt">Add option</button>
+      <span class="tiny-note">All values here are user-entered — not independently sourced or verified.</span>
+    </div>
+
+    ${hasEnough ? renderCustomRanking(ds, dsWeights) : `<p class="tiny-note" style="margin-top:16px;">Add one more option to see a ranking.</p>`}
+
+    ${customData.options.length > 0 ? `<div style="margin-top:18px;"><button class="reset-btn" id="clearCustom">Clear custom case</button></div>` : ''}
+  `;
+
+  const addCritBtn = document.getElementById('addCrit');
+  if(addCritBtn) addCritBtn.addEventListener('click', ()=>{
+    const name = document.getElementById('newCritName').value.trim();
+    if(!name) return;
+    const dir = document.getElementById('newCritDir').value === "1";
+    const id = 'c' + Date.now();
+    customData.criteria.push({ id, name, higherIsBetter:dir, weight:5, unit:'' });
+    customData.options.forEach(o => o.scores[id] = { value:0, sourced:false, note:'User-entered value; no criterion set yet for this option.' });
+    renderPanel();
+  });
+
+  const addOptBtn = document.getElementById('addOpt');
+  if(addOptBtn) addOptBtn.addEventListener('click', ()=>{
+    const name = document.getElementById('newOptName').value.trim();
+    if(!name) return;
+    const scores = {};
+    document.querySelectorAll('.newOptVal').forEach(inp=>{
+      const critId = inp.dataset.crit;
+      const val = parseFloat(inp.value);
+      scores[critId] = { value: isNaN(val) ? 0 : val, sourced:false, note:'User-entered value — not independently sourced.' };
+    });
+    customData.options.push({ name, tagline:'User-entered option', scores });
+    renderPanel();
+  });
+
+  panel.querySelectorAll('[data-crit-del]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id = b.dataset.critDel;
+      customData.criteria = customData.criteria.filter(c => c.id !== id);
+      customData.options.forEach(o => delete o.scores[id]);
+      renderPanel();
+    });
+  });
+  panel.querySelectorAll('[data-opt-del]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const name = b.dataset.optDel;
+      customData.options = customData.options.filter(o => o.name !== name);
+      renderPanel();
+    });
+  });
+  const clearBtn = document.getElementById('clearCustom');
+  if(clearBtn) clearBtn.addEventListener('click', ()=>{
+    customData = { criteria: [], options: [] };
+    renderPanel();
+  });
+
+  // weight sliders for custom criteria (rendered inline within ranking function below need listeners)
+  panel.querySelectorAll('.weight-slider').forEach(slider=>{
+    slider.addEventListener('input', (e)=>{
+      const critId = e.target.dataset.crit;
+      const crit = customData.criteria.find(c=>c.id===critId);
+      if(crit) crit.weight = Number(e.target.value);
+      document.getElementById(`wval-custom-${critId}`).textContent = e.target.value;
+      renderPanel();
+    });
+  });
+}
+
+function renderCustomRanking(ds, dsWeights){
+  const ranking = computeRanking(ds, dsWeights);
+  const weightSliders = `
+    <div class="weights" style="margin-top:18px;">
+      ${ds.criteria.map(c => `
+        <div class="weight-row">
+          <label>${c.name} <span class="wval" id="wval-custom-${c.id}">${dsWeights[c.id]}</span></label>
+          <input type="range" min="0" max="10" step="1" value="${dsWeights[c.id]}" data-crit="${c.id}" class="weight-slider">
+        </div>
+      `).join('')}
+    </div>
+  `;
+  const list = `
+    <div class="ranked-list" style="margin-top:16px;">
+      ${ranking.map((r, idx) => `
+        <div class="verdict-card ${idx===0 ? 'rank-1':''}">
+          ${idx===0 ? '<div class="stamp">Top Pick</div>' : ''}
+          <div class="rank-num">${idx+1}</div>
+          <div>
+            <div class="opt-name">${r.opt.name}</div>
+            <div class="opt-breakdown">
+              ${r.parts.map(p => `<span class="chip estimate" title="User-entered"><span class="dot"></span>${p.crit.name}: ${p.raw}</span>`).join('')}
+            </div>
+          </div>
+          <div>
+            <span class="score-total">${r.pct}</span>
+            <span class="score-label">Verdict Score</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  return weightSliders + list;
+}
+
+/* ========================= INIT ========================= */
+renderTabs();
+renderPanel();
+setTimeout(()=>{ loading = false; renderPanel(); }, 500);
+</script>
+</body>
+</html>

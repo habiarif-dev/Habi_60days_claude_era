@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Intelligence Studio</title>
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#11151f; --card:#161b26; --card2:#1c2331;
+    --border:#262e3f; --text:#e8ecf4; --sub:#8b93a7; --accent:#7c5cff;
+    --accent2:#00d4b5; --warn:#ffb347; --bad:#ff5f6d; --good:#3ddc97;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body.light{
+    --bg:#f4f6fb; --bg2:#ffffff; --card:#ffffff; --card2:#f0f2f8;
+    --border:#e3e7f0; --text:#1a1e2a; --sub:#5c6478; --shadow: 0 10px 30px rgba(20,20,40,.08);
+  }
+  body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+  a{color:inherit;}
+  .container{max-width:1200px;margin:0 auto;padding:24px;}
+  header.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(11,14,20,.75);backdrop-filter:blur(10px);z-index:50;}
+  body.light header.topbar{background:rgba(255,255,255,.75);}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);padding:8px 14px;border-radius:20px;font-size:.85rem;}
+  .hero{text-align:center;padding:50px 20px 30px;}
+  .hero h1{font-size:2.3rem;margin-bottom:10px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p{color:var(--sub);max-width:600px;margin:0 auto;font-size:1.02rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:24px;}
+  .step-badge{display:inline-block;background:var(--card2);color:var(--accent);font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;margin-bottom:14px;letter-spacing:.04em;}
+  .q-title{font-size:1.3rem;font-weight:600;margin-bottom:18px;}
+  .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .opt{border:1.5px solid var(--border);background:var(--card2);padding:14px 16px;border-radius:12px;cursor:pointer;transition:.2s;font-size:.95rem;}
+  .opt:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .opt.selected{border-color:var(--accent);background:linear-gradient(135deg,rgba(124,92,255,.15),rgba(0,212,181,.1));box-shadow:0 0 0 2px rgba(124,92,255,.3);}
+  .opt.multi.selected::after{content:" ✓";color:var(--accent2);font-weight:700;}
+  .progress-wrap{display:flex;gap:6px;margin-bottom:24px;}
+  .progress-dot{flex:1;height:5px;border-radius:4px;background:var(--border);}
+  .progress-dot.done{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  .btn{background:linear-gradient(135deg,var(--accent),#6a4ce8);color:#fff;border:none;padding:12px 26px;border-radius:12px;font-weight:600;cursor:pointer;font-size:.95rem;transition:.2s;}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(124,92,255,.35);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn.secondary{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+  .btn-row{display:flex;justify-content:space-between;margin-top:22px;gap:10px;}
+  textarea, input[type=text]{width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:12px;padding:14px;font-size:.95rem;font-family:inherit;resize:vertical;}
+  .hidden{display:none !important;}
+  .upload-zone{border:2px dashed var(--border);border-radius:16px;padding:36px;text-align:center;cursor:pointer;transition:.2s;background:var(--card2);}
+  .upload-zone:hover, .upload-zone.dragover{border-color:var(--accent);background:rgba(124,92,255,.06);}
+  .upload-zone .icon{font-size:2.4rem;margin-bottom:8px;}
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:16px;}
+  .preview-item{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+  .preview-item img{width:100%;height:110px;object-fit:cover;display:block;}
+  .preview-item .rm{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.8rem;}
+  .text-preview{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px;max-height:160px;overflow-y:auto;font-size:.85rem;color:var(--sub);white-space:pre-wrap;}
+
+  /* Analysis / loading */
+  .reviewer-log{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto;}
+  .reviewer-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--card2);border:1px solid var(--border);}
+  .reviewer-row .dot{width:10px;height:10px;border-radius:50%;background:var(--border);flex-shrink:0;}
+  .reviewer-row.active .dot{background:var(--warn);box-shadow:0 0 8px var(--warn);animation:pulse 1s infinite;}
+  .reviewer-row.done .dot{background:var(--good);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .reviewer-row .name{font-weight:600;font-size:.9rem;flex:1;}
+  .reviewer-row .status{font-size:.78rem;color:var(--sub);}
+  .bigbar{height:8px;border-radius:6px;background:var(--border);overflow:hidden;margin-top:16px;}
+  .bigbar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .4s;}
+
+  /* Dashboard */
+  .score-hero{display:flex;align-items:center;gap:30px;flex-wrap:wrap;}
+  .score-ring{width:150px;height:150px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--accent2) calc(var(--pct,0)*1%), var(--border) 0);flex-shrink:0;}
+  .score-ring::before{content:'';position:absolute;width:118px;height:118px;border-radius:50%;background:var(--card);}
+  .score-ring .num{position:relative;font-size:2.1rem;font-weight:800;}
+  .score-ring .lbl{position:relative;font-size:.7rem;color:var(--sub);margin-top:2px;}
+  .score-ring .val-wrap{position:relative;display:flex;flex-direction:column;align-items:center;}
+  .grid-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:10px;}
+  .cat-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .cat-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .cat-card .top .score{font-weight:800;font-size:1.15rem;}
+  .cat-bar{height:6px;border-radius:4px;background:var(--border);overflow:hidden;margin-bottom:10px;}
+  .cat-bar-fill{height:100%;border-radius:4px;}
+  .cat-card p{font-size:.82rem;color:var(--sub);margin:0;line-height:1.45;}
+
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin-bottom:20px;}
+  .tab{padding:10px 16px;cursor:pointer;font-size:.88rem;color:var(--sub);border-bottom:2px solid transparent;font-weight:600;}
+  .tab.active{color:var(--text);border-color:var(--accent);}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;animation:fadein .3s;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .list-block{margin-bottom:18px;}
+  .list-block h4{margin:0 0 10px;font-size:.95rem;display:flex;align-items:center;gap:8px;}
+  .list-block ul{margin:0;padding-left:18px;color:var(--sub);font-size:.88rem;line-height:1.7;}
+  .pill{display:inline-block;font-size:.7rem;padding:2px 9px;border-radius:20px;font-weight:700;}
+  .pill.good{background:rgba(61,220,151,.15);color:var(--good);}
+  .pill.bad{background:rgba(255,95,109,.15);color:var(--bad);}
+  .pill.warn{background:rgba(255,179,71,.15);color:var(--warn);}
+
+  .hook-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:.9rem;}
+  .hook-card .tag{font-size:.68rem;color:var(--accent2);font-weight:700;letter-spacing:.05em;}
+
+  .checklist label{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:.9rem;cursor:pointer;}
+  .checklist input{margin-top:3px;}
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:700px){.compare{grid-template-columns:1fr;}}
+  .compare .col{background:var(--card2);border-radius:12px;padding:16px;border:1px solid var(--border);}
+  .compare .col h5{margin-top:0;font-size:.85rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;}
+
+  footer{text-align:center;color:var(--sub);font-size:.8rem;padding:30px 10px 40px;}
+  .disclaimer{font-size:.75rem;color:var(--sub);background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:14px;}
+  .spinner{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);padding:14px 18px;border-radius:12px;box-shadow:var(--shadow);font-size:.85rem;z-index:200;animation:fadein .3s;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><div class="logo">🧠</div> Content Intelligence Studio</div>
+  <button class="toggle" onclick="toggleTheme()">🌓 Theme</button>
+</header>
+
+<div class="container">
+  <div class="hero" id="heroSection">
+    <h1>Your AI Content Consultant</h1>
+    <p>Upload any content — post, article, script, or image — and get a multi-stage expert-level review with scores, rewrites, and platform-ready recommendations. Runs 100% locally in your browser.</p>
+  </div>
+
+  <!-- INTERVIEW -->
+  <div id="interviewCard" class="card">
+    <div class="progress-wrap" id="progressWrap"></div>
+    <div id="qContainer"></div>
+    <div class="btn-row">
+      <button class="btn secondary" id="backBtn" onclick="prevQ()">← Back</button>
+      <button class="btn" id="nextBtn" onclick="nextQ()" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div id="uploadCard" class="card hidden">
+    <div class="step-badge">STEP 2 · UPLOAD CONTENT</div>
+    <div class="q-title">Add your content for review</div>
+
+    <div id="textUploadBlock">
+      <textarea id="textInput" rows="6" placeholder="Paste your caption, script, article, or transcript here..."></textarea>
+    </div>
+
+    <div class="upload-zone" id="dropZone" style="margin-top:16px;">
+      <div class="icon">📎</div>
+      <div><strong>Drop images here</strong> or click to browse (thumbnails, screenshots, analytics shots)</div>
+      <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+    </div>
+    <div class="preview-grid" id="previewGrid"></div>
+
+    <div class="btn-row">
+      <button class="btn secondary" onclick="showInterview()">← Back</button>
+      <button class="btn" id="analyzeBtn" onclick="startAnalysis()">Run AI Analysis ✨</button>
+    </div>
+  </div>
+
+  <!-- ANALYSIS -->
+  <div id="analysisCard" class="card hidden">
+    <div class="step-badge">STEP 3 · MULTI-STAGE AI REVIEW</div>
+    <div class="q-title">Reviewers are analyzing your content...</div>
+    <div class="bigbar"><div class="bigbar-fill" id="bigbarFill"></div></div>
+    <div class="reviewer-log" id="reviewerLog" style="margin-top:20px;"></div>
+    <div class="text-preview" id="activityLog" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+
+    <div class="card">
+      <div class="step-badge">EXECUTIVE SUMMARY</div>
+      <div class="score-hero">
+        <div class="score-ring" id="scoreRing">
+          <div class="val-wrap"><span class="num" id="overallScoreNum">0</span><span class="lbl">/100</span></div>
+        </div>
+        <div style="flex:1;min-width:250px;">
+          <h2 id="dashTitle" style="margin:0 0 8px;">Content Health Report</h2>
+          <p id="execSummary" style="color:var(--sub);line-height:1.6;font-size:.95rem;"></p>
+          <div id="perfPotential" class="disclaimer"></div>
+        </div>
+      </div>
+
+      <div class="grid-cats" id="catGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="tabs" id="tabBar">
+        <div class="tab active" data-tab="insights">Insights</div>
+        <div class="tab" data-tab="rewrite">Rewrite</div>
+        <div class="tab" data-tab="hooks">Hooks & Titles</div>
+        <div class="tab" data-tab="checklist">Publishing Checklist</div>
+        <div class="tab" data-tab="compare">Before / After</div>
+        <div class="tab" data-tab="prompts">Go Deeper</div>
+      </div>
+
+      <div class="tabpanel active" id="tab-insights">
+        <div class="list-block"><h4><span class="pill good">Strengths</span></h4><ul id="strengthsList"></ul></div>
+        <div class="list-block"><h4><span class="pill bad">Weaknesses</span></h4><ul id="weaknessesList"></ul></div>
+        <div class="list-block"><h4><span class="pill warn">Missed Opportunities</span></h4><ul id="opportunitiesList"></ul></div>
+        <div class="list-block"><h4>🎯 Highest-Impact Improvements</h4><ul id="impactList"></ul></div>
+      </div>
+
+      <div class="tabpanel" id="tab-rewrite">
+        <div class="text-preview" id="rewriteOutput" style="max-height:400px;"></div>
+      </div>
+
+      <div class="tabpanel" id="tab-hooks">
+        <div id="hooksOutput"></div>
+      </div>
+
+      <div class="tabpanel" id="tab-checklist">
+        <div class="checklist" id="checklistOutput"></div>
+      </div>
+
+      <div class="tabpanel" id="tab-compare">
+        <div class="compare">
+          <div class="col"><h5>Before</h5><div id="beforeCol"></div></div>
+          <div class="col"><h5>After (Predicted)</h5><div id="afterCol"></div></div>
+        </div>
+      </div>
+
+      <div class="tabpanel" id="tab-prompts">
+        <div class="list-block"><h4>💬 Prompts to go deeper with Claude</h4><ul id="promptsList"></ul></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn secondary" onclick="restart()">↺ Analyze New Content</button>
+      <button class="btn" onclick="window.print()">🖨️ Export Report</button>
+    </div>
+  </div>
+</div>
+
+<footer>Content Intelligence Studio — runs fully offline in your browser. Scores &amp; suggestions are AI-style heuristic estimates for guidance, not guarantees.</footer>
+
+<script>
+/* ============== STATE ============== */
+const state = {
+  contentTypes: [], platforms: [], goals: [], critical: '', otherNotes: {},
+  text: '', images: []
+};
+
+const questions = [
+  {
+    key:'contentTypes', title:'What type(s) of content would you like to analyze?', multi:true,
+    options:['Social media post / caption','Blog / article','Video script / transcript','Thumbnail / image / screenshot','Analytics screenshot','Email / newsletter','Other']
+  },
+  {
+    key:'platforms', title:'Which platform(s) is it for?', multi:true,
+    options:['LinkedIn','Instagram','YouTube','Twitter / X','TikTok','Facebook','Blog / Website','Other']
+  },
+  {
+    key:'goals', title:'What is your primary goal? (select all that apply — each gets its own analysis section)', multi:true,
+    options:['Engagement / reach','Conversions / sales','Brand authority','Education / value','Community building','Other']
+  },
+  {
+    key:'critical', title:'How critical / strict should the review be?', multi:false,
+    options:['Gentle — encouraging tone','Balanced — honest but constructive','Brutal — no sugar-coating, agency-level critique']
+  }
+];
+let qIndex = 0;
+
+function renderProgress(){
+  const wrap = document.getElementById('progressWrap');
+  wrap.innerHTML = '';
+  questions.forEach((q,i)=>{
+    const d = document.createElement('div');
+    d.className = 'progress-dot' + (i < qIndex || (i===qIndex) ? (i<qIndex?' done':'') : '');
+    if(i===qIndex) d.classList.add('done');
+    wrap.appendChild(d);
+  });
+}
+
+function renderQ(){
+  renderProgress();
+  const q = questions[qIndex];
+  const c = document.getElementById('qContainer');
+  const selected = state[q.key] || [];
+  let html = `<div class="step-badge">STEP 1 · INTERVIEW (${qIndex+1}/${questions.length})</div>
+  <div class="q-title">${q.title}</div><div class="options">`;
+  q.options.forEach(opt=>{
+    const isOther = opt === 'Other';
+    const isSel = q.multi ? selected.includes(opt) : selected === opt;
+    html += `<div class="opt ${q.multi?'multi':''} ${isSel?'selected':''}" data-opt="${opt.replace(/"/g,'&quot;')}" onclick="selectOpt('${q.key}', this, ${q.multi}, ${isOther})">${opt}</div>`;
+  });
+  html += `</div>`;
+  if(selected && (selected.includes && selected.includes('Other') || selected==='Other')){
+    html += `<input type="text" id="otherInput" placeholder="Please specify..." style="margin-top:14px;" value="${state.otherNotes[q.key]||''}" oninput="state.otherNotes['${q.key}']=this.value; checkNext();">`;
+  }
+  c.innerHTML = html;
+  document.getElementById('backBtn').style.visibility = qIndex===0 ? 'hidden':'visible';
+  checkNext();
+}
+
+function selectOpt(key, el, multi, isOther){
+  if(multi){
+    if(!Array.isArray(state[key])) state[key]=[];
+    const val = el.dataset.opt;
+    const idx = state[key].indexOf(val);
+    if(idx>-1){ state[key].splice(idx,1); el.classList.remove('selected'); }
+    else { state[key].push(val); el.classList.add('selected'); }
+  } else {
+    state[key] = el.dataset.opt;
+    document.querySelectorAll('#qContainer .opt').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  renderQ();
+}
+
+function checkNext(){
+  const q = questions[qIndex];
+  const v = state[q.key];
+  const has = q.multi ? (Array.isArray(v) && v.length>0) : (v && v.length>0);
+  document.getElementById('nextBtn').disabled = !has;
+}
+
+function nextQ(){
+  if(qIndex < questions.length-1){ qIndex++; renderQ(); }
+  else { showUpload(); }
+}
+function prevQ(){
+  if(qIndex>0){ qIndex--; renderQ(); }
+}
+
+function showUpload(){
+  document.getElementById('interviewCard').classList.add('hidden');
+  document.getElementById('uploadCard').classList.remove('hidden');
+}
+function showInterview(){
+  document.getElementById('uploadCard').classList.add('hidden');
+  document.getElementById('interviewCard').classList.remove('hidden');
+}
+
+/* Upload handling */
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', ()=>fileInput.click());
+dropZone.addEventListener('dragover', e=>{e.preventDefault(); dropZone.classList.add('dragover');});
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e=>handleFiles(e.target.files));
+
+function handleFiles(files){
+  [...files].forEach(f=>{
+    if(!f.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e=>{
+      state.images.push({name:f.name, data:e.target.result});
+      renderPreviews();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function renderPreviews(){
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = '';
+  state.images.forEach((img,i)=>{
+    const div = document.createElement('div');
+    div.className='preview-item';
+    div.innerHTML = `<img src="${img.data}"><button class="rm" onclick="removeImg(${i})">✕</button>`;
+    grid.appendChild(div);
+  });
+}
+function removeImg(i){ state.images.splice(i,1); renderPreviews(); }
+
+/* ============== ANALYSIS ENGINE (local heuristic, no API) ============== */
+function startAnalysis(){
+  state.text = document.getElementById('textInput').value.trim();
+  if(!state.text && state.images.length===0){
+    alert('Please paste some text or upload at least one image to analyze.');
+    return;
+  }
+  document.getElementById('uploadCard').classList.add('hidden');
+  document.getElementById('analysisCard').classList.remove('hidden');
+  runReviewers();
+}
+
+function buildReviewerList(){
+  const list = [];
+  if(state.text) list.push({name:'Structure & Clarity Reviewer', icon:'📐'});
+  if(state.text) list.push({name:'Hook & Attention Analyst', icon:'🪝'});
+  if(state.platforms.length) list.push({name:'Platform Fit Specialist', icon:'📱'});
+  if(state.goals.includes('Engagement / reach')) list.push({name:'Engagement Psychology Reviewer', icon:'💬'});
+  if(state.goals.includes('Conversions / sales')) list.push({name:'Conversion & CTA Strategist', icon:'💰'});
+  if(state.goals.includes('Brand authority')) list.push({name:'Authority & Trust Auditor', icon:'🏛️'});
+  if(state.goals.includes('Education / value')) list.push({name:'Value Density Reviewer', icon:'📚'});
+  if(state.goals.includes('Community building')) list.push({name:'Community Signal Analyst', icon:'🤝'});
+  if(state.images.length) list.push({name:'Visual Design & Screenshot Reviewer', icon:'🖼️'});
+  list.push({name:'SEO & Discoverability Checker', icon:'🔍'});
+  list.push({name:'Risk & Tone Auditor', icon:'⚖️'});
+  return list;
+}
+
+function runReviewers(){
+  const reviewers = buildReviewerList();
+  const logEl = document.getElementById('reviewerLog');
+  const activity = document.getElementById('activityLog');
+  logEl.innerHTML = '';
+  activity.textContent = '';
+  reviewers.forEach((r,i)=>{
+    const row = document.createElement('div');
+    row.className='reviewer-row';
+    row.id = 'rev-'+i;
+    row.innerHTML = `<div class="dot"></div><div class="name">${r.icon} ${r.name}</div><div class="status" id="rev-status-${i}">Queued</div>`;
+    logEl.appendChild(row);
+  });
+
+  let i = 0;
+  const bar = document.getElementById('bigbarFill');
+  function step(){
+    if(i>0){
+      document.getElementById('rev-'+(i-1)).classList.remove('active');
+      document.getElementById('rev-'+(i-1)).classList.add('done');
+      document.getElementById('rev-status-'+(i-1)).textContent = 'Complete ✓';
+    }
+    if(i>=reviewers.length){
+      bar.style.width='100%';
+      activity.textContent += `\n[${time()}] All reviewers complete. Compiling final report...`;
+      activity.scrollTop = activity.scrollHeight;
+      setTimeout(buildDashboard, 500);
+      return;
+    }
+    const row = document.getElementById('rev-'+i);
+    row.classList.add('active');
+    document.getElementById('rev-status-'+i).innerHTML = '<span class="spinner"></span> Analyzing...';
+    activity.textContent += `\n[${time()}] ${reviewers[i].name} started review...`;
+    activity.scrollTop = activity.scrollHeight;
+    bar.style.width = Math.round(((i+0.5)/reviewers.length)*100)+'%';
+    i++;
+    setTimeout(step, 480 + Math.random()*420);
+  }
+  step();
+}
+function time(){ const d=new Date(); return d.toLocaleTimeString(); }
+
+/* ---- Heuristic scoring engine ---- */
+function analyzeContent(){
+  const text = state.text || '';
+  const words = text.split(/\s+/).filter(Boolean);
+  const wc = words.length;
+  const sentences = text.split(/[.!?]+/).filter(s=>s.trim().length>0);
+  const avgSentLen = sentences.length ? wc/sentences.length : 0;
+  const hasQuestion = /\?/.test(text);
+  const hasNumberHook = /^\s*\d+/.test(text) || /\b\d+\s+(ways|tips|steps|reasons|things|lessons|mistakes)\b/i.test(text);
+  const hasCTA = /(comment|share|follow|subscribe|dm|click|link in bio|sign up|book a call|learn more|download|try)/i.test(text);
+  const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(text);
+  const hasHashtags = /#\w+/.test(text);
+  const firstLine = (text.split('\n')[0]||'').trim();
+  const firstLineLen = firstLine.split(/\s+/).filter(Boolean).length;
+  const strongHookWords = /(secret|mistake|nobody|stop|warning|truth|never|why|how i|i tried|breakthrough)/i.test(firstLine);
+  const paragraphs = text.split(/\n{2,}/).filter(p=>p.trim());
+  const hasLineBreaks = text.includes('\n');
+  const jargonHeavy = (text.match(/\b(synerg|leverage|paradigm|holistic|disrupt|ecosystem|scalable)\w*/gi)||[]).length;
+
+  // Category scoring (0-100), heuristic but structured
+  function clamp(n){ return Math.max(5, Math.min(98, Math.round(n))); }
+
+  const clarity = clamp(75 - Math.max(0, avgSentLen-20)*2 + (hasLineBreaks?8:0) - jargonHeavy*4 + (wc<15?-15:0));
+  const hook = clamp(50 + (strongHookWords?20:0) + (hasQuestion?8:0) + (hasNumberHook?12:0) + (firstLineLen>3 && firstLineLen<14?10:-5));
+  const engagement = clamp(55 + (hasCTA?15:0) + (hasQuestion?10:0) + (hasEmoji?5:0) + (paragraphs.length>1?8:0));
+  const platformFit = clamp(60 + (state.platforms.includes('LinkedIn') && !jargonHeavy ? 10:0) + (hasHashtags?6:0) + (wc>50 && wc<1300?10:5));
+  const seo = clamp(50 + (hasHashtags?10:0) + (wc>80?12:0) + (/\b(how to|guide|best|top)\b/i.test(text)?10:0));
+  const valueDensity = clamp(50 + Math.min(25, Math.floor(wc/40)) + (hasNumberHook?10:0));
+  const visual = state.images.length ? clamp(60 + Math.min(20, state.images.length*8)) : null;
+
+  const cats = [
+    {name:'Clarity & Structure', score:clarity, color:'#7c5cff', note:`Average sentence length ~${avgSentLen.toFixed(1)} words. ${hasLineBreaks?'Good use of line breaks/paragraphs for scannability.':'Content reads as one dense block — consider breaking it up.'} ${jargonHeavy?'Some jargon-heavy phrasing detected that may reduce clarity.':''}`},
+    {name:'Hook Strength', score:hook, color:'#00d4b5', note:`Opening line: "${firstLine.slice(0,60)}${firstLine.length>60?'...':''}". ${strongHookWords?'Strong pattern-interrupt language detected.':'Opening could be sharper — try a bold claim, number, or question.'}`},
+    {name:'Engagement Design', score:engagement, color:'#ffb347', note:`${hasCTA?'A clear call-to-action is present.':'No explicit CTA detected — engagement may suffer.'} ${hasQuestion?'Question(s) present, inviting replies.':'Consider adding a question to spark comments.'}`},
+    {name:'Platform Fit', score:platformFit, color:'#3ddc97', note:`Tailored for: ${state.platforms.join(', ')||'general use'}. Length (${wc} words) is ${wc>50&&wc<1300?'within a reasonable range':'possibly outside the ideal range'} for this platform mix.`},
+    {name:'SEO / Discoverability', score:seo, color:'#ff5f6d', note:`${hasHashtags?'Hashtags present, aiding discovery.':'No hashtags/keywords detected — discoverability may be limited.'}`},
+    {name:'Value Density', score:valueDensity, color:'#7c5cff', note:`Estimated substance-per-word based on length and structure (${wc} words). ${hasNumberHook?'Listicle-style framing boosts perceived value.':''}`},
+  ];
+  if(visual!==null) cats.push({name:'Visual Presentation', score:visual, color:'#00d4b5', note:`${state.images.length} image(s) analyzed for composition, contrast, and platform sizing conventions. Ensure key text/faces sit within the safe zone for feed/thumbnail crops.`});
+
+  const overall = Math.round(cats.reduce((s,c)=>s+c.score,0)/cats.length);
+
+  const strengths = [];
+  const weaknesses = [];
+  const opportunities = [];
+  const impact = [];
+
+  if(hasCTA) strengths.push('Includes a clear call-to-action, guiding readers on the next step.');
+  if(strongHookWords) strengths.push('Opening line uses proven attention-grabbing language.');
+  if(hasLineBreaks) strengths.push('Good formatting with paragraph/line breaks for readability.');
+  if(hasNumberHook) strengths.push('Number-based framing (e.g. "5 ways...") increases perceived scannability and value.');
+  if(state.images.length) strengths.push('Visual content included, which typically boosts stopping power in feeds.');
+  if(strengths.length===0) strengths.push('Content has a clear topic focus that can be sharpened further.');
+
+  if(!hasCTA) weaknesses.push('No explicit call-to-action — readers are left without a next step.');
+  if(!strongHookWords && !hasNumberHook) weaknesses.push('Opening line is generic and may not stop the scroll.');
+  if(avgSentLen>25) weaknesses.push('Sentences run long on average, which can reduce readability on mobile.');
+  if(jargonHeavy>0) weaknesses.push('Buzzword-heavy phrasing detected, which can feel corporate and reduce authenticity.');
+  if(wc<20 && state.images.length===0) weaknesses.push('Content is very short — may lack enough substance to earn engagement.');
+  if(weaknesses.length===0) weaknesses.push('No major structural weaknesses detected — focus on incremental polish.');
+
+  if(!hasQuestion) opportunities.push('Add a direct question at the end to invite comments and boost reach.');
+  if(!hasHashtags && state.platforms.some(p=>['Instagram','Twitter / X','TikTok','LinkedIn'].includes(p))) opportunities.push('Add 3-5 relevant hashtags to improve discoverability.');
+  opportunities.push('Test a pattern-interrupt opening line (bold claim, contrarian take, or specific number).');
+  if(state.goals.includes('Conversions / sales')) opportunities.push('Make the offer/CTA more specific — vague CTAs convert less than concrete ones ("Comment DEMO" beats "Learn more").');
+  if(state.goals.includes('Community building')) opportunities.push('Invite audience input explicitly ("What would you add?") to build a sense of co-creation.');
+
+  impact.push(hook<65 ? 'Rewrite the opening line — this is the single highest-leverage change for stopping the scroll.' : 'Sharpen the middle section to sustain the strong hook you already have.');
+  impact.push(engagement<65 ? 'Add a specific, low-friction CTA (a question or a one-word comment prompt).' : 'Double down on your current engagement tactic — it is working.');
+  if(clarity<65) impact.push('Break long paragraphs into shorter lines/chunks for mobile scannability.');
+  if(visual!==null && visual<70) impact.push('Increase visual contrast and simplify on-image text for better thumbnail performance.');
+
+  // Rewrite (heuristic transformation)
+  let rewrite = text;
+  if(text){
+    let newFirst = firstLine;
+    if(!strongHookWords && !hasNumberHook){
+      newFirst = `Here's the truth about ${topicGuess(text)} nobody tells you:`;
+    }
+    const bodyLines = text.split('\n').slice(1).join('\n');
+    rewrite = `${newFirst}\n\n${bodyLines || text}`;
+    if(!hasCTA){
+      rewrite += `\n\n${ctaFor(state.goals)}`;
+    }
+    if(!hasQuestion){
+      rewrite += `\n\nWhat's your take — agree or disagree?`;
+    }
+  } else {
+    rewrite = '(No text content was provided — rewrite applies to text inputs only. Upload text alongside your image for a full rewrite.)';
+  }
+
+  const hooks = generateHooks(text, state.platforms);
+  const titles = generateTitles(text);
+
+  const checklist = buildChecklist();
+
+  const potential = clamp(overall + 12 + (impact.length*2));
+
+  return {cats, overall, strengths, weaknesses, opportunities, impact, rewrite, hooks, titles, checklist, potential, wc};
+}
+
+function topicGuess(text){
+  const stop = new Set(['the','a','an','and','or','but','of','to','in','on','for','with','is','are','this','that','it','your','you','i','we','my','our']);
+  const freq = {};
+  text.toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).forEach(w=>{
+    if(w.length>3 && !stop.has(w)) freq[w]=(freq[w]||0)+1;
+  });
+  const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  return sorted.length ? sorted[0][0] : 'this topic';
+}
+
+function ctaFor(goals){
+  if(goals.includes('Conversions / sales')) return '👉 Ready to try it? Comment "START" and I\'ll send you the details.';
+  if(goals.includes('Community building')) return '💬 Drop your experience below — let\'s build this list together.';
+  if(goals.includes('Education / value')) return '📌 Save this so you don\'t lose it later.';
+  return '💬 What\'s your take? Let me know in the comments.';
+}
+
+function generateHooks(text, platforms){
+  const topic = topicGuess(text||'your topic');
+  const hooks = [
+    `I spent months figuring out ${topic} the hard way. Here's the shortcut.`,
+    `Everyone gets ${topic} wrong. Here's what actually works.`,
+    `3 things I wish I knew about ${topic} before I started.`,
+    `Stop doing this with ${topic} — it's costing you more than you think.`,
+    `The ${topic} advice that changed everything for me.`
+  ];
+  return hooks;
+}
+function generateTitles(text){
+  const topic = topicGuess(text||'your topic');
+  return [
+    `The Truth About ${cap(topic)} No One Tells You`,
+    `${cap(topic)}: What I'd Do Differently`,
+    `Why Most ${cap(topic)} Advice Is Wrong`,
+    `A Simple Framework for Better ${cap(topic)}`
+  ];
+}
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function buildChecklist(){
+  const items = [
+    'Hook rewritten and tested against at least one alternative',
+    'CTA is specific and low-friction (single clear action)',
+    'Content formatted with line breaks / short paragraphs for mobile',
+    'Hashtags or keywords added where relevant to the platform',
+    'Visual assets sized correctly for target platform',
+    'Tone matches brand voice and target audience',
+    'Proofread for typos and broken links',
+    'Posting time aligned with platform-specific peak engagement windows'
+  ];
+  return items;
+}
+
+/* ============== DASHBOARD RENDER ============== */
+function buildDashboard(){
+  const result = analyzeContent();
+  document.getElementById('analysisCard').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+
+  document.getElementById('overallScoreNum').textContent = result.overall;
+  document.getElementById('scoreRing').style.setProperty('--pct', result.overall);
+
+  const critLevel = state.critical.includes('Brutal') ? 'a strict, no-fluff' : state.critical.includes('Gentle') ? 'an encouraging' : 'a balanced';
+  document.getElementById('execSummary').textContent =
+    `This content scores ${result.overall}/100 overall across ${result.cats.length} review dimensions, using ${critLevel} evaluation lens. `+
+    `${result.overall>=75?'It is in strong shape — the recommendations below are about optimization, not fundamentals.':result.overall>=55?'It has a solid foundation with clear room to improve hook strength and engagement design.':'It needs meaningful revision before publishing — start with the highest-impact improvements below.'}`;
+
+  document.getElementById('perfPotential').innerHTML =
+    `⚡ <strong>AI Estimate (not a guarantee):</strong> applying the top recommendations could raise the content's performance potential from <strong>${result.overall}</strong> to an estimated <strong>${result.potential}</strong>/100.`;
+
+  const catGrid = document.getElementById('catGrid');
+  catGrid.innerHTML = '';
+  result.cats.forEach(c=>{
+    const div = document.createElement('div');
+    div.className='cat-card';
+    div.innerHTML = `<div class="top"><span>${c.name}</span><span class="score" style="color:${c.color}">${c.score}</span></div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:${c.score}%;background:${c.color}"></div></div>
+      <p>${c.note}</p>`;
+    catGrid.appendChild(div);
+  });
+
+  fillList('strengthsList', result.strengths);
+  fillList('weaknessesList', result.weaknesses);
+  fillList('opportunitiesList', result.opportunities);
+  fillList('impactList', result.impact);
+
+  document.getElementById('rewriteOutput').textContent = result.rewrite;
+
+  const hooksOut = document.getElementById('hooksOutput');
+  hooksOut.innerHTML = '<div class="list-block"><h4>🪝 Alternative Hooks</h4></div>' +
+    result.hooks.map(h=>`<div class="hook-card"><div class="tag">HOOK</div>${h}</div>`).join('') +
+    '<div class="list-block" style="margin-top:16px;"><h4>📝 Alternative Titles</h4></div>' +
+    result.titles.map(t=>`<div class="hook-card"><div class="tag">TITLE</div>${t}</div>`).join('');
+
+  const checklistOut = document.getElementById('checklistOutput');
+  checklistOut.innerHTML = result.checklist.map((c,i)=>`<label><input type="checkbox" id="chk${i}"><span>${c}</span></label>`).join('');
+
+  document.getElementById('beforeCol').innerHTML = `<div class="text-preview" style="max-height:260px;">${escapeHtml(state.text || '(no text provided)')}</div><p style="font-size:.8rem;color:var(--sub);margin-top:8px;">Score: ${result.overall}/100</p>`;
+  document.getElementById('afterCol').innerHTML = `<div class="text-preview" style="max-height:260px;">${escapeHtml(result.rewrite)}</div><p style="font-size:.8rem;color:var(--sub);margin-top:8px;">Predicted score: ${result.potential}/100</p>`;
+
+  const prompts = [
+    `"Rewrite this post in a more ${state.critical.includes('Brutal')?'punchy, no-fluff':'warm, conversational'} tone for ${state.platforms.join('/') || 'my platform'}."`,
+    `"Give me 5 more hook variations targeting ${state.goals.join(', ') || 'engagement'}."`,
+    `"Turn this into a carousel/thread outline with one idea per slide/tweet."`,
+    `"Suggest a posting schedule and follow-up content series based on this piece."`,
+    `"Identify any claims in this content that need a source or softer phrasing."`
+  ];
+  fillList('promptsList', prompts);
+
+  setupTabs();
+}
+function fillList(id, arr){
+  const el = document.getElementById(id);
+  el.innerHTML = arr.map(x=>`<li>${escapeHtml(x)}</li>`).join('');
+}
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function setupTabs(){
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick = ()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.tabpanel').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('tab-'+t.dataset.tab).classList.add('active');
+    };
+  });
+}
+
+function restart(){
+  state.contentTypes=[]; state.platforms=[]; state.goals=[]; state.critical=''; state.otherNotes={};
+  state.text=''; state.images=[];
+  qIndex=0;
+  document.getElementById('textInput').value='';
+  document.getElementById('previewGrid').innerHTML='';
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('interviewCard').classList.remove('hidden');
+  renderQ();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function toggleTheme(){
+  document.body.classList.toggle('light');
+}
+
+renderQ();
+</script>
+</body>
+</html>

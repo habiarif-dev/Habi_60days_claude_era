@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+<style>
+  :root{
+    --navy-950:#070b16; --navy-900:#0c1224; --navy-800:#131b34; --navy-700:#1c2748;
+    --indigo:#5b6ee8; --emerald:#34d399; --amber:#f5b942;
+    --ink-100:#eef1fb; --ink-300:#a9b2d4; --ink-500:#6a7396;
+    --line: rgba(168,178,214,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(91,110,232,0.20), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(52,211,153,0.12), transparent 55%),
+      var(--navy-950);
+    color:var(--ink-100); font-family:'Inter',sans-serif; min-height:100vh; line-height:1.5;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:56px 24px 120px;}
+  header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:44px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand .mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--indigo),var(--emerald));
+    display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;color:var(--navy-950);font-size:16px;flex-shrink:0;}
+  .brand-text{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+  .brand-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-500);letter-spacing:0.04em;text-transform:uppercase;}
+  .stage-pill{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);
+    border:1px solid rgba(245,185,66,0.35); background:rgba(245,185,66,0.08); padding:6px 12px;border-radius:100px;letter-spacing:0.04em;}
+  h1.hero{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(30px,4.5vw,48px);line-height:1.05;letter-spacing:-0.01em;margin:0 0 14px;
+    background:linear-gradient(135deg,#fff 30%, var(--ink-300));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero-sub{color:var(--ink-300);font-size:16px;max-width:600px;margin-bottom:36px;}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+  .tab{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:9px 14px;border-radius:9px;border:1px solid var(--line);
+    color:var(--ink-500);cursor:pointer;background:var(--navy-900);letter-spacing:0.02em;transition:.15s;}
+  .tab.active{color:var(--navy-950);background:var(--emerald);border-color:var(--emerald);font-weight:600;}
+  .tab.locked::after{content:' 🔒';}
+  .tab:hover:not(.active){color:var(--ink-100);border-color:var(--indigo);}
+
+  .card{background:linear-gradient(180deg, var(--navy-800), var(--navy-900)); border:1px solid var(--line); border-radius:18px; padding:32px; margin-bottom:20px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--emerald);margin-bottom:10px;}
+  h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin:0 0 6px;}
+  .why{color:var(--ink-500);font-size:13px;margin-bottom:22px;font-style:italic;}
+
+  label.field-label{display:block;font-size:12.5px;color:var(--ink-300);margin:16px 0 6px;font-weight:600;}
+  textarea, input[type=text], select{
+    width:100%; background:var(--navy-950); border:1px solid var(--line); border-radius:10px;
+    color:var(--ink-100); font-family:'Inter',sans-serif; font-size:14.5px; padding:12px 14px; resize:vertical;
+  }
+  textarea:focus,input:focus,select:focus{outline:none;border-color:var(--indigo);}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23a9b2d4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  .stack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:8px;}
+  .stack-item{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--navy-900);}
+  .stack-item .role{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .stack-item .choice{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;}
+  .stack-item .reason{font-size:12.5px;color:var(--ink-500);}
+
+  .mermaid-box{background:var(--navy-950);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:12px;overflow-x:auto;}
+
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);}
+  th{font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;color:var(--ink-500);letter-spacing:.04em;}
+  td{color:var(--ink-300);}
+  td.mono{font-family:'JetBrains Mono',monospace;color:var(--emerald);font-size:12.5px;}
+
+  .endpoint{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px;background:var(--navy-900);}
+  .endpoint .method{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;margin-right:8px;}
+  .m-GET{background:rgba(52,211,153,.15);color:var(--emerald);}
+  .m-POST{background:rgba(91,110,232,.2);color:#a4b0f5;}
+  .m-PUT{background:rgba(245,185,66,.2);color:var(--amber);}
+  .m-DELETE{background:rgba(239,90,90,.18);color:#ef7a7a;}
+  .endpoint .path{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-100);}
+  .endpoint p{font-size:12.5px;color:var(--ink-500);margin:8px 0 0;}
+
+  .wireframe{border:1px dashed var(--line);border-radius:12px;padding:18px;background:var(--navy-950);margin-top:12px;}
+  .wireframe .wf-title{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-500);margin-bottom:10px;}
+  .wf-box{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;font-size:11.5px;color:var(--ink-500);font-family:'JetBrains Mono',monospace;}
+  .wf-box.accent{border-color:var(--indigo);color:var(--ink-300);}
+
+  .tree{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink-300);white-space:pre;background:var(--navy-950);
+    border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:12px;overflow-x:auto;line-height:1.7;}
+
+  .btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+  button{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;border-radius:10px;padding:13px 22px;border:none;cursor:pointer;transition:.15s;}
+  .btn-primary{background:linear-gradient(135deg,var(--indigo),#4457d1);color:#fff;}
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed;filter:none;}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink-300);}
+  .btn-ghost:hover{border-color:var(--ink-300);color:var(--ink-100);}
+  .btn-sm{padding:8px 14px;font-size:12.5px;}
+
+  .deliv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px;}
+  .deliv{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--navy-900);}
+  .deliv h3{font-family:'Syne',sans-serif;font-size:14px;margin:0 0 6px;}
+  .deliv p{font-size:11.5px;color:var(--ink-500);margin:0 0 12px;}
+  .deliv button{width:100%;}
+
+  footer{text-align:center;color:var(--ink-500);font-size:12px;margin-top:60px;font-family:'JetBrains Mono',monospace;}
+  .hidden{display:none !important;}
+  .check-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--ink-300);}
+  .check-row:last-child{border-bottom:none;}
+  .check-row .dot{width:8px;height:8px;border-radius:50%;background:var(--emerald);margin-top:6px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">S</div>
+      <div><div class="brand-text">System Design Studio</div><div class="brand-sub">Day 52 · Architecture & Technical Blueprint</div></div>
+    </div>
+    <span class="stage-pill">DAY 2 · SYSTEM DESIGN</span>
+  </header>
+
+  <h1 class="hero">Plan it once.<br>Build it without guessing.</h1>
+  <p class="hero-sub">Describe your v1.0 in a few fields and this studio turns it into a full technical blueprint: tech stack, Mermaid architecture, database schema, API spec, wireframes, and folder structure — five documents, ready to download and commit.</p>
+
+  <div class="tabs" id="tabs"></div>
+
+  <!-- 0: intake -->
+  <section id="tab-0">
+    <div class="card">
+      <div class="eyebrow">Step 0 · Project Snapshot</div>
+      <h2>Tell us what you're building</h2>
+      <div class="why">This feeds every deliverable below — stack, schema, API, and folder structure all derive from these answers.</div>
+
+      <label class="field-label">Project name</label>
+      <input type="text" id="pName" placeholder="e.g. Mood Ledger">
+
+      <label class="field-label">One-line description (from your PRD)</label>
+      <textarea id="pDesc" rows="2" placeholder="e.g. A private daily mood and habit tracker with a visual streak calendar."></textarea>
+
+      <div class="grid2">
+        <div>
+          <label class="field-label">Primary data the app stores</label>
+          <input type="text" id="pData" placeholder="e.g. daily entries, habits, tags">
+        </div>
+        <div>
+          <label class="field-label">Core user action</label>
+          <input type="text" id="pAction" placeholder="e.g. log a mood entry">
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div>
+          <label class="field-label">Needs user accounts?</label>
+          <select id="pAuth"><option>No — single device, local only</option><option>Yes — simple login</option></select>
+        </div>
+        <div>
+          <label class="field-label">Needs an AI feature?</label>
+          <select id="pAI"><option>No AI needed</option><option>Yes — text generation/analysis</option></select>
+        </div>
+      </div>
+
+      <label class="field-label">Number of main screens</label>
+      <select id="pScreens"><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="genBtn">Generate technical blueprint</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1: stack -->
+  <section id="tab-1" class="hidden">
+    <div class="card">
+      <div class="eyebrow">1 · Tech Stack</div>
+      <h2>Justified, all-free stack</h2>
+      <div class="why">Every choice is picked to match your scope — no paid tools, nothing you don't need.</div>
+      <div class="stack-grid" id="stackGrid"></div>
+    </div>
+  </section>
+
+  <!-- 2: architecture -->
+  <section id="tab-2" class="hidden">
+    <div class="card">
+      <div class="eyebrow">2 · System Architecture</div>
+      <h2>Component diagram & request lifecycle</h2>
+      <div class="why">Rendered live with Mermaid — this is what ships in ARCHITECTURE.md.</div>
+      <div class="mermaid-box"><div class="mermaid" id="archDiagram"></div></div>
+      <div class="mermaid-box"><div class="mermaid" id="flowDiagram"></div></div>
+    </div>
+  </section>
+
+  <!-- 3: schema -->
+  <section id="tab-3" class="hidden">
+    <div class="card">
+      <div class="eyebrow">3 · Database Design</div>
+      <h2>Schema, validated against your PRD</h2>
+      <div class="why">Local-storage collections if no accounts; relational tables if accounts are needed.</div>
+      <div id="schemaContent"></div>
+    </div>
+  </section>
+
+  <!-- 4: api -->
+  <section id="tab-4" class="hidden">
+    <div class="card">
+      <div class="eyebrow">4 · API Design</div>
+      <h2>v1.0 endpoints</h2>
+      <div class="why">Purpose, request/response, validation, and errors for each — no implementation yet.</div>
+      <div id="apiContent"></div>
+    </div>
+  </section>
+
+  <!-- 5: ui -->
+  <section id="tab-5" class="hidden">
+    <div class="card">
+      <div class="eyebrow">5 · UI & User Flow</div>
+      <h2>Wireframes & navigation</h2>
+      <div class="why">Every screen exists for a reason — mapped from your core action.</div>
+      <div class="mermaid-box"><div class="mermaid" id="uiFlow"></div></div>
+      <div id="wireframeContent"></div>
+    </div>
+  </section>
+
+  <!-- 6: structure -->
+  <section id="tab-6" class="hidden">
+    <div class="card">
+      <div class="eyebrow">6 · Project Structure</div>
+      <h2>Folder layout</h2>
+      <div class="why">Where Day 3 code will actually live.</div>
+      <div class="tree" id="treeContent"></div>
+    </div>
+  </section>
+
+  <!-- 7: readiness + deliverables -->
+  <section id="tab-7" class="hidden">
+    <div class="card">
+      <div class="eyebrow">7 · Day 3 Readiness Check</div>
+      <h2>Ready to build tomorrow</h2>
+      <div id="readinessContent"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Deliverables</div>
+      <h2>Download today's five documents</h2>
+      <div class="deliv-grid">
+        <div class="deliv"><h3>📐 ARCHITECTURE.md</h3><p>Component diagram, data flow, lifecycle.</p><button class="btn-primary btn-sm" id="dlArch">Download</button></div>
+        <div class="deliv"><h3>🗃️ SCHEMA.md</h3><p>Collections/tables, fields, relationships.</p><button class="btn-primary btn-sm" id="dlSchema">Download</button></div>
+        <div class="deliv"><h3>🔌 API.md</h3><p>Every v1.0 endpoint, fully specced.</p><button class="btn-primary btn-sm" id="dlApi">Download</button></div>
+        <div class="deliv"><h3>🖼️ UI-WIREFRAMES.md</h3><p>User flow, screens, navigation.</p><button class="btn-primary btn-sm" id="dlUi">Download</button></div>
+        <div class="deliv"><h3>📁 PROJECT-STRUCTURE.md</h3><p>Folder layout, explained.</p><button class="btn-primary btn-sm" id="dlStruct">Download</button></div>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" id="restartBtn">Start over</button></div>
+    </div>
+  </section>
+
+  <footer>System Design Studio — built for the AB Talks 60-Day Claude AI Challenge · no external API · runs entirely in your browser</footer>
+</div>
+
+<script>
+mermaid.initialize({ startOnLoad:false, theme:'dark', themeVariables:{
+  background:'#0c1224', primaryColor:'#1c2748', primaryTextColor:'#eef1fb', primaryBorderColor:'#5b6ee8',
+  lineColor:'#6a7396', secondaryColor:'#131b34', tertiaryColor:'#0c1224'
+}});
+
+const tabDefs = ['Snapshot','Stack','Architecture','Schema','API','UI & Flow','Structure','Readiness'];
+let unlocked = 0;
+const proj = {};
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  tabDefs.forEach((name,i)=>{
+    const t = document.createElement('div');
+    t.className = 'tab' + (i===currentTab?' active':'') + (i>unlocked?' locked':'');
+    t.textContent = `${i}. ${name}`;
+    if(i<=unlocked) t.onclick = () => showTab(i);
+    tabs.appendChild(t);
+  });
+}
+let currentTab = 0;
+function showTab(i){
+  currentTab = i;
+  for(let j=0;j<tabDefs.length;j++){
+    document.getElementById('tab-'+j).classList.toggle('hidden', j!==i);
+  }
+  renderTabs();
+  if(i>=2) setTimeout(()=>mermaid.run({querySelector:'.mermaid'}),50);
+}
+
+document.getElementById('genBtn').onclick = () => {
+  proj.name = document.getElementById('pName').value.trim() || 'Untitled Project';
+  proj.desc = document.getElementById('pDesc').value.trim() || 'A focused, single-purpose web tool.';
+  proj.data = document.getElementById('pData').value.trim() || 'entries';
+  proj.action = document.getElementById('pAction').value.trim() || 'create an entry';
+  proj.auth = document.getElementById('pAuth').value;
+  proj.ai = document.getElementById('pAI').value;
+  proj.screens = parseInt(document.getElementById('pScreens').value);
+  proj.needsAuth = proj.auth.startsWith('Yes');
+  proj.needsAI = proj.ai.startsWith('Yes');
+
+  buildStack(); buildArchitecture(); buildSchema(); buildApi(); buildUi(); buildStructure(); buildReadiness();
+  unlocked = 7;
+  showTab(1);
+};
+
+// ---------- 1. Stack ----------
+function buildStack(){
+  const items = [
+    {role:'Frontend', choice:'HTML + CSS + Vanilla JS (single file)', reason:`Matches a ${proj.screens}-screen, ${proj.needsAI?'AI-assisted':'no-AI'} tool — no build step needed, deploys instantly.`},
+    {role:'Backend', choice: proj.needsAuth ? 'Lightweight Node/Express API' : 'None — fully client-side', reason: proj.needsAuth ? 'Accounts require a server to issue and verify sessions.' : 'No accounts or server-side logic required for v1.0 — keeps deployment free and instant.'},
+    {role:'Database', choice: proj.needsAuth ? 'Free-tier hosted database (e.g. SQLite/Postgres on a free plan)' : 'Browser localStorage', reason: proj.needsAuth ? 'Accounts need durable, shared storage across devices.' : `Storing "${proj.data}" locally is enough for a single-user v1.0 and needs zero setup.`},
+    {role:'Authentication', choice: proj.needsAuth ? 'Simple email/password or magic-link auth' : 'None', reason: proj.needsAuth ? 'Matches your requirement for user accounts without adding OAuth complexity.' : 'Explicitly out of scope — keeps v1.0 shippable in the remaining days.'},
+    {role:'AI Model/API', choice: proj.needsAI ? 'Free-tier text model API, called client-side with a user-provided key' : 'Not required', reason: proj.needsAI ? `Powers the "${proj.action}" flow without hardcoding a paid key into the product.` : 'This project\'s core value doesn\'t depend on AI — added complexity with no user benefit.'},
+    {role:'Hosting', choice:'GitHub Pages (or Netlify free tier)', reason:'Free static hosting is enough for a client-side v1.0 and deploys straight from your repo.'},
+    {role:'Other tools', choice:'Git + GitHub for version control', reason:'Matches the standing workflow for this capstone — one commit per day, one deployable checkpoint.'},
+  ];
+  const grid = document.getElementById('stackGrid');
+  grid.innerHTML = items.map(i => `<div class="stack-item"><div class="role">${i.role}</div><div class="choice">${i.choice}</div><div class="reason">${i.reason}</div></div>`).join('');
+}
+
+// ---------- 2. Architecture ----------
+function buildArchitecture(){
+  const archMermaid = `flowchart TD
+  U["User (browser)"] --> UI["${proj.name} — UI Layer"]
+  UI --> STATE["App State / Store"]
+  STATE --> PERSIST["${proj.needsAuth ? 'API layer' : 'localStorage'}"]
+  ${proj.needsAuth ? 'PERSIST --> DB[("Database")]' : ''}
+  ${proj.needsAI ? 'UI --> AI["AI Model API"]\n  AI --> UI' : ''}
+  UI --> U`;
+  const flowMermaid = `sequenceDiagram
+  participant User
+  participant UI as ${proj.name} UI
+  participant Store as State/Storage
+  User->>UI: ${proj.action}
+  UI->>Store: save ${proj.data}
+  Store-->>UI: confirm saved
+  UI-->>User: updated view`;
+  document.getElementById('archDiagram').textContent = archMermaid;
+  document.getElementById('archDiagram').removeAttribute('data-processed');
+  document.getElementById('flowDiagram').textContent = flowMermaid;
+  document.getElementById('flowDiagram').removeAttribute('data-processed');
+  proj.archMermaid = archMermaid; proj.flowMermaid = flowMermaid;
+}
+
+// ---------- 3. Schema ----------
+function buildSchema(){
+  const c = document.getElementById('schemaContent');
+  if(proj.needsAuth){
+    c.innerHTML = `<table><tr><th>Table</th><th>Field</th><th>Type</th><th>Constraint</th></tr>
+      <tr><td class="mono">users</td><td>id</td><td>uuid</td><td>primary key</td></tr>
+      <tr><td class="mono">users</td><td>email</td><td>text</td><td>unique, not null</td></tr>
+      <tr><td class="mono">users</td><td>created_at</td><td>timestamp</td><td>default now</td></tr>
+      <tr><td class="mono">${proj.data.split(',')[0].trim() || 'entries'}</td><td>id</td><td>uuid</td><td>primary key</td></tr>
+      <tr><td class="mono">${proj.data.split(',')[0].trim() || 'entries'}</td><td>user_id</td><td>uuid</td><td>foreign key → users.id</td></tr>
+      <tr><td class="mono">${proj.data.split(',')[0].trim() || 'entries'}</td><td>content</td><td>text</td><td>not null</td></tr>
+      <tr><td class="mono">${proj.data.split(',')[0].trim() || 'entries'}</td><td>created_at</td><td>timestamp</td><td>default now</td></tr>
+      </table>
+      <p class="why" style="margin-top:14px;">Relationship: one user → many ${proj.data.split(',')[0].trim() || 'entries'}. Validated against the PRD's core flow: "${proj.action}".</p>`;
+  } else {
+    c.innerHTML = `<table><tr><th>Store key</th><th>Shape</th><th>Notes</th></tr>
+      <tr><td class="mono">${proj.name.toLowerCase().replace(/\s+/g,'-')}:${proj.data.split(',')[0].trim() || 'entries'}</td><td>Array&lt;Object&gt;</td><td>Each item: {id, ${proj.data.split(',').map(d=>d.trim()).join(', ')}, createdAt}</td></tr>
+      <tr><td class="mono">${proj.name.toLowerCase().replace(/\s+/g,'-')}:settings</td><td>Object</td><td>User preferences, kept minimal for v1.0</td></tr>
+      </table>
+      <p class="why" style="margin-top:14px;">No server-side schema needed — all data lives in browser localStorage as JSON, matching the PRD's "no accounts" constraint and the core action: "${proj.action}".</p>`;
+  }
+}
+
+// ---------- 4. API ----------
+function buildApi(){
+  const c = document.getElementById('apiContent');
+  if(!proj.needsAuth){
+    c.innerHTML = `<p class="why">No server-side API for v1.0 — all reads/writes go directly to localStorage in the browser. Documented here as the client-side "contract" instead:</p>
+      <div class="endpoint"><span class="method m-POST">SAVE</span><span class="path">localStorage.setItem('${proj.name.toLowerCase().replace(/\s+/g,'-')}:${proj.data.split(',')[0].trim()||'entries'}', json)</span>
+        <p><strong>Purpose:</strong> Persist a new or updated ${proj.data.split(',')[0].trim()||'entry'} after "${proj.action}".<br><strong>Validation:</strong> Required fields present, non-empty content.<br><strong>Auth:</strong> None.<br><strong>Errors:</strong> Storage quota exceeded → show inline warning.</p></div>
+      <div class="endpoint"><span class="method m-GET">READ</span><span class="path">localStorage.getItem('${proj.name.toLowerCase().replace(/\s+/g,'-')}:${proj.data.split(',')[0].trim()||'entries'}')</span>
+        <p><strong>Purpose:</strong> Load all saved ${proj.data.split(',')[0].trim()||'entries'} on app start.<br><strong>Validation:</strong> Fallback to empty array if missing or malformed.<br><strong>Auth:</strong> None.<br><strong>Errors:</strong> Corrupted JSON → reset to empty state, warn user.</p></div>
+      <div class="endpoint"><span class="method m-DELETE">DELETE</span><span class="path">remove item by id, re-save array</span>
+        <p><strong>Purpose:</strong> Let the user remove a ${proj.data.split(',')[0].trim()||'entry'}.<br><strong>Validation:</strong> Confirm id exists before removing.<br><strong>Auth:</strong> None.<br><strong>Errors:</strong> id not found → no-op, no crash.</p></div>`;
+  } else {
+    const res = proj.data.split(',')[0].trim() || 'entries';
+    c.innerHTML = `
+      <div class="endpoint"><span class="method m-POST">POST</span><span class="path">/api/auth/login</span>
+        <p><strong>Purpose:</strong> Authenticate a returning user.<br><strong>Request:</strong> {email, password}<br><strong>Response:</strong> {token, user}<br><strong>Validation:</strong> Valid email format, password min length.<br><strong>Auth:</strong> None (public).<br><strong>Errors:</strong> 401 invalid credentials.</p></div>
+      <div class="endpoint"><span class="method m-GET">GET</span><span class="path">/api/${res}</span>
+        <p><strong>Purpose:</strong> List the current user's ${res}.<br><strong>Request:</strong> Bearer token.<br><strong>Response:</strong> {items: [...]}<br><strong>Validation:</strong> Token present and valid.<br><strong>Auth:</strong> Required.<br><strong>Errors:</strong> 401 unauthenticated.</p></div>
+      <div class="endpoint"><span class="method m-POST">POST</span><span class="path">/api/${res}</span>
+        <p><strong>Purpose:</strong> Create a new ${res.replace(/s$/,'')} via "${proj.action}".<br><strong>Request:</strong> {content, ...}<br><strong>Response:</strong> {id, ...created object}<br><strong>Validation:</strong> Required fields non-empty.<br><strong>Auth:</strong> Required.<br><strong>Errors:</strong> 400 invalid input, 401 unauthenticated.</p></div>
+      <div class="endpoint"><span class="method m-PUT">PUT</span><span class="path">/api/${res}/:id</span>
+        <p><strong>Purpose:</strong> Update an existing ${res.replace(/s$/,'')}.<br><strong>Request:</strong> {fields to update}<br><strong>Response:</strong> {updated object}<br><strong>Validation:</strong> id belongs to requesting user.<br><strong>Auth:</strong> Required.<br><strong>Errors:</strong> 403 not owner, 404 not found.</p></div>
+      <div class="endpoint"><span class="method m-DELETE">DELETE</span><span class="path">/api/${res}/:id</span>
+        <p><strong>Purpose:</strong> Remove a ${res.replace(/s$/,'')}.<br><strong>Request:</strong> Bearer token.<br><strong>Response:</strong> {success: true}<br><strong>Validation:</strong> id belongs to requesting user.<br><strong>Auth:</strong> Required.<br><strong>Errors:</strong> 403 not owner, 404 not found.</p></div>`;
+  }
+}
+
+// ---------- 5. UI Flow ----------
+function buildUi(){
+  const screens = ['Home','Main view'];
+  if(proj.screens>=3) screens.push('Detail / Edit');
+  if(proj.screens>=4) screens.push('Settings');
+  if(proj.screens>=5) screens.push('History / Archive');
+  proj.screenList = screens;
+  const uiMermaid = `flowchart LR
+  ${screens.map((s,i)=>`S${i}["${s}"]`).join('\n  ')}
+  ${screens.slice(0,-1).map((s,i)=>`S${i} --> S${i+1}`).join('\n  ')}
+  ${screens.length>2 ? `S1 --> S0` : ''}`;
+  document.getElementById('uiFlow').textContent = uiMermaid;
+  document.getElementById('uiFlow').removeAttribute('data-processed');
+  proj.uiMermaid = uiMermaid;
+
+  const c = document.getElementById('wireframeContent');
+  c.innerHTML = screens.map(s => `
+    <div class="wireframe">
+      <div class="wf-title">SCREEN — ${s.toUpperCase()}</div>
+      <div class="wf-box">Header — "${proj.name}"</div>
+      <div class="wf-box accent">${s === screens[0] ? `Primary action: "${proj.action}"` : `List / view of ${proj.data.split(',')[0].trim()||'entries'}`}</div>
+      <div class="wf-box">Navigation — ${screens.filter(x=>x!==s).join(' · ')}</div>
+    </div>`).join('');
+}
+
+// ---------- 6. Structure ----------
+function buildStructure(){
+  const slug = proj.name.toLowerCase().replace(/\s+/g,'-');
+  const tree = `${slug}/
+├── index.html          # entry point — full UI shell
+├── /assets
+│   ├── styles.css       # design tokens + layout
+│   └── /icons
+├── /js
+│   ├── app.js           # app init, state, event wiring
+│   ├── store.js         # ${proj.needsAuth ? 'API client' : 'localStorage read/write'}
+│   └── render.js        # DOM rendering for each screen
+├── /docs
+│   ├── PRD.md
+│   ├── ARCHITECTURE.md
+│   ├── SCHEMA.md
+│   ├── API.md
+│   ├── UI-WIREFRAMES.md
+│   ├── PROJECT-STRUCTURE.md
+│   └── IMPLEMENTATION-BLUEPRINT.md
+├── README.md
+└── .gitignore`;
+  document.getElementById('treeContent').textContent = tree;
+  proj.tree = tree;
+}
+
+// ---------- 7. Readiness ----------
+function buildReadiness(){
+  const checks = [
+    'Tech stack requires no paid tools or API keys hardcoded into the client.',
+    `Database design matches the core action: "${proj.action}".`,
+    'Every v1.0 screen maps to a step in the user flow — none added for decoration.',
+    'API/storage contract covers create, read, and delete for the core data.',
+    'Folder structure is flat enough to start coding immediately on Day 3.',
+    'No new features were introduced today beyond what Day 1 scoped.'
+  ];
+  document.getElementById('readinessContent').innerHTML = checks.map(c=>`<div class="check-row"><div class="dot"></div>${c}</div>`).join('');
+}
+
+function download(filename, text){
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('dlArch').onclick = () => {
+  download('ARCHITECTURE.md', `# Architecture — ${proj.name}\n\n## Component Diagram\n\`\`\`mermaid\n${proj.archMermaid}\n\`\`\`\n\n## Request Lifecycle\n\`\`\`mermaid\n${proj.flowMermaid}\n\`\`\`\n\n## Notes\n- AI interaction: ${proj.needsAI ? 'Client calls the AI model API directly on user action.' : 'Not applicable — no AI in v1.0.'}\n- External services: ${proj.needsAI ? 'AI model API only.' : 'None — fully self-contained.'}\n\n---\nGenerated by System Design Studio — Day 52.`);
+};
+document.getElementById('dlSchema').onclick = () => {
+  download('SCHEMA.md', `# Schema — ${proj.name}\n\n${document.getElementById('schemaContent').innerText}\n\n---\nGenerated by System Design Studio — Day 52.`);
+};
+document.getElementById('dlApi').onclick = () => {
+  download('API.md', `# API Design — ${proj.name}\n\n${document.getElementById('apiContent').innerText}\n\n---\nGenerated by System Design Studio — Day 52.`);
+};
+document.getElementById('dlUi').onclick = () => {
+  download('UI-WIREFRAMES.md', `# UI & User Flow — ${proj.name}\n\n## Screen Flow\n\`\`\`mermaid\n${proj.uiMermaid}\n\`\`\`\n\n## Wireframes\n${document.getElementById('wireframeContent').innerText}\n\n---\nGenerated by System Design Studio — Day 52.`);
+};
+document.getElementById('dlStruct').onclick = () => {
+  download('PROJECT-STRUCTURE.md', `# Project Structure — ${proj.name}\n\n\`\`\`\n${proj.tree}\n\`\`\`\n\n---\nGenerated by System Design Studio — Day 52.`);
+};
+document.getElementById('restartBtn').onclick = () => location.reload();
+
+renderTabs();
+</script>
+</body>
+</html>

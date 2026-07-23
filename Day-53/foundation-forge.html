@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foundation Forge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --char-950:#0e0f10; --char-900:#151718; --char-850:#1a1d1f; --char-800:#212426;
+    --orange:#ff8a3d; --teal:#2dd4bf; --violet:#a78bfa;
+    --paper-100:#f4f1ea; --paper-300:#c9c3b4; --paper-500:#8b8577;
+    --line: rgba(201,195,180,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(135deg, rgba(255,138,61,0.025) 0px, rgba(255,138,61,0.025) 2px, transparent 2px, transparent 40px),
+      var(--char-950);
+    color:var(--paper-100); font-family:'IBM Plex Mono',monospace; min-height:100vh; line-height:1.55;
+  }
+  .shell{display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:260px;flex-shrink:0;background:var(--char-900);border-right:1px solid var(--line);padding:28px 20px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .logo .mark{width:34px;height:34px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;font-weight:800;color:var(--char-950);font-size:16px;flex-shrink:0;}
+  .logo-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--paper-100);}
+  .logo-sub{font-size:10.5px;color:var(--paper-500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:30px;}
+
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;margin-bottom:4px;cursor:pointer;
+    color:var(--paper-500);font-size:12.5px;transition:.15s;border:1px solid transparent;}
+  .nav-item .n{width:20px;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--paper-500);}
+  .nav-item.active{background:rgba(255,138,61,0.09);border-color:rgba(255,138,61,0.3);color:var(--paper-100);}
+  .nav-item.active .n{color:var(--orange);}
+  .nav-item.locked{opacity:.35;cursor:not-allowed;}
+  .nav-item:hover:not(.locked):not(.active){color:var(--paper-100);}
+
+  .sidebar-foot{margin-top:30px;padding-top:20px;border-top:1px solid var(--line);font-size:10.5px;color:var(--paper-500);}
+
+  /* Main */
+  .main{flex:1;padding:48px 56px;max-width:920px;}
+  .badge{display:inline-block;font-size:10.5px;color:var(--teal);border:1px solid rgba(45,212,191,0.35);background:rgba(45,212,191,0.08);
+    padding:5px 11px;border-radius:100px;letter-spacing:.05em;margin-bottom:20px;}
+  h1.hero{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(28px,4vw,44px);line-height:1.08;color:var(--paper-100);margin:0 0 14px;letter-spacing:-0.01em;}
+  h1.hero .accent{color:var(--orange);}
+  .hero-sub{color:var(--paper-300);font-size:14.5px;max-width:600px;margin-bottom:36px;font-family:'IBM Plex Mono',monospace;}
+
+  .panel{background:var(--char-900);border:1px solid var(--line);border-radius:4px;padding:30px;margin-bottom:20px;position:relative;}
+  .panel::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--orange);border-radius:4px 0 0 4px;}
+  .panel-h{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:var(--paper-100);margin:0 0 6px;}
+  .panel-why{color:var(--paper-500);font-size:12.5px;margin-bottom:22px;}
+
+  label.f{display:block;font-size:11px;color:var(--teal);margin:16px 0 6px;text-transform:uppercase;letter-spacing:.05em;}
+  input[type=text], textarea, select{
+    width:100%;background:var(--char-950);border:1px solid var(--line);border-radius:4px;color:var(--paper-100);
+    font-family:'IBM Plex Mono',monospace;font-size:13.5px;padding:11px 13px;resize:vertical;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--orange);}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b8577'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr;} .main{padding:32px 20px;} .shell{flex-direction:column;} .sidebar{width:100%;height:auto;position:relative;}}
+
+  .btn{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;border-radius:4px;padding:13px 24px;border:none;cursor:pointer;transition:.15s;}
+  .btn-main{background:var(--orange);color:var(--char-950);}
+  .btn-main:hover{filter:brightness(1.1);}
+  .btn-main:disabled{opacity:.3;cursor:not-allowed;}
+  .btn-outline{background:transparent;border:1px solid var(--line);color:var(--paper-300);}
+  .btn-outline:hover{border-color:var(--paper-300);color:var(--paper-100);}
+  .btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+
+  /* terminal window */
+  .term{background:#0a0b0c;border:1px solid var(--line);border-radius:6px;margin-top:14px;overflow:hidden;}
+  .term-bar{display:flex;gap:6px;padding:9px 12px;background:var(--char-850);border-bottom:1px solid var(--line);}
+  .dot{width:9px;height:9px;border-radius:50%;}
+  .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .term-body{padding:16px 18px;font-size:12.5px;color:var(--teal);white-space:pre-wrap;line-height:1.8;}
+  .term-body .c{color:var(--paper-500);}
+  .term-body .out{color:var(--paper-300);}
+
+  .file-item{border:1px solid var(--line);border-radius:4px;padding:14px 16px;margin-top:10px;background:var(--char-850);}
+  .file-item .fname{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;color:var(--orange);}
+  .file-item .fdesc{font-size:12px;color:var(--paper-500);margin-top:5px;}
+
+  .check-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--paper-300);}
+  .check-row:last-child{border-bottom:none;}
+  .check-row .mk{color:var(--teal);font-weight:700;}
+
+  .tree{font-size:12px;color:var(--paper-300);white-space:pre;background:var(--char-950);border:1px solid var(--line);border-radius:4px;padding:18px;margin-top:8px;overflow-x:auto;line-height:1.75;}
+
+  .env-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px;}
+  .env-table th,.env-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}
+  .env-table th{color:var(--paper-500);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;}
+  .env-table td{color:var(--paper-300);}
+  .env-table td.k{color:var(--violet);font-weight:600;}
+
+  .deliv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px;}
+  .deliv{border:1px solid var(--line);border-radius:4px;padding:16px;background:var(--char-850);}
+  .deliv h3{font-family:'Space Grotesk',sans-serif;font-size:13.5px;margin:0 0 6px;color:var(--paper-100);}
+  .deliv p{font-size:11px;color:var(--paper-500);margin:0 0 12px;}
+  .deliv button{width:100%;}
+
+  .hidden{display:none !important;}
+  footer{text-align:center;color:var(--paper-500);font-size:11px;margin-top:50px;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="logo"><div class="mark">F</div><div class="logo-text">Foundation Forge</div></div>
+    <div class="logo-sub">Day 53 · Setup & Foundation</div>
+    <div id="navItems"></div>
+    <div class="sidebar-foot">AB Talks 60-Day Claude AI Challenge — no external API, runs fully offline in-browser.</div>
+  </nav>
+
+  <main class="main">
+
+    <section id="tab-0">
+      <span class="badge">DAY 3 · PROJECT SETUP</span>
+      <h1 class="hero">Lay the <span class="accent">foundation</span><br>before you build.</h1>
+      <p class="hero-sub">Describe your v1.0 stack and this forge generates your environment checklist, terminal setup commands, foundation files, folder structure, and a Day 3 summary — ready to download and commit.</p>
+
+      <div class="panel">
+        <div class="panel-h">Project Snapshot</div>
+        <div class="panel-why">Pulled forward from your Day 1 PRD and Day 2 System Design.</div>
+
+        <label class="f">Project name</label>
+        <input type="text" id="pName" placeholder="e.g. Mood Ledger">
+
+        <div class="grid2">
+          <div>
+            <label class="f">Frontend stack</label>
+            <select id="pFrontend"><option>Vanilla HTML/CSS/JS (single file)</option><option>React (Vite)</option><option>Next.js</option></select>
+          </div>
+          <div>
+            <label class="f">Needs a backend?</label>
+            <select id="pBackend"><option>No — fully client-side</option><option>Yes — Node/Express API</option></select>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label class="f">Needs a database?</label>
+            <select id="pDb"><option>No — localStorage only</option><option>Yes — hosted free-tier DB</option></select>
+          </div>
+          <div>
+            <label class="f">Needs authentication?</label>
+            <select id="pAuth"><option>No accounts in v1.0</option><option>Yes — basic login</option></select>
+          </div>
+        </div>
+
+        <label class="f">Core screens (comma separated)</label>
+        <input type="text" id="pScreens" placeholder="e.g. Home, Add Entry, History">
+
+        <div class="btn-row">
+          <button class="btn btn-main" id="genBtn">Generate foundation blueprint</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-1" class="hidden">
+      <span class="badge">1 · ENVIRONMENT</span>
+      <h1 class="hero" style="font-size:28px;">Environment setup</h1>
+      <div class="panel">
+        <div class="panel-h">What you need installed</div>
+        <div class="panel-why">Each tool explained in plain language before use.</div>
+        <div id="envList"></div>
+      </div>
+    </section>
+
+    <section id="tab-2" class="hidden">
+      <span class="badge">2 · INITIALIZATION</span>
+      <h1 class="hero" style="font-size:28px;">Project init &amp; run</h1>
+      <div class="panel">
+        <div class="panel-h">Terminal walkthrough</div>
+        <div class="panel-why">Copy these commands in order — each one explained.</div>
+        <div class="term" id="initTerm"></div>
+      </div>
+    </section>
+
+    <section id="tab-3" class="hidden">
+      <span class="badge">3 · REPOSITORY</span>
+      <h1 class="hero" style="font-size:28px;">Git &amp; branching</h1>
+      <div class="panel">
+        <div class="panel-h">Connect to GitHub</div>
+        <div class="panel-why">Simple branching strategy, sized for a solo 10-day build.</div>
+        <div class="term" id="gitTerm"></div>
+        <div id="branchNote" style="margin-top:16px;font-size:12.5px;color:var(--paper-300);"></div>
+      </div>
+    </section>
+
+    <section id="tab-4" class="hidden">
+      <span class="badge">4 · FOUNDATION FILES</span>
+      <h1 class="hero" style="font-size:28px;">What gets built today</h1>
+      <div class="panel">
+        <div class="panel-h">Foundational pieces only</div>
+        <div class="panel-why">No feature code yet — just the scaffold everything else plugs into.</div>
+        <div id="foundationFiles"></div>
+      </div>
+    </section>
+
+    <section id="tab-5" class="hidden">
+      <span class="badge">5 · VERIFY</span>
+      <h1 class="hero" style="font-size:28px;">Verification checklist</h1>
+      <div class="panel">
+        <div class="panel-h">Ready for Day 4?</div>
+        <div id="verifyList"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Folder structure</div>
+        <div class="tree" id="treeContent"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Environment variables</div>
+        <table class="env-table" id="envTable"></table>
+      </div>
+    </section>
+
+    <section id="tab-6" class="hidden">
+      <span class="badge">DELIVERABLES</span>
+      <h1 class="hero" style="font-size:28px;">Download today's docs</h1>
+      <div class="panel">
+        <div class="deliv-grid">
+          <div class="deliv"><h3>⚙️ SETUP.md</h3><p>Install &amp; setup guide.</p><button class="btn btn-main" id="dlSetup">Download</button></div>
+          <div class="deliv"><h3>📁 PROJECT-STRUCTURE.md</h3><p>Updated folder layout.</p><button class="btn btn-main" id="dlStruct">Download</button></div>
+          <div class="deliv"><h3>🔐 ENVIRONMENT.md</h3><p>Tools &amp; env variables.</p><button class="btn btn-main" id="dlEnv">Download</button></div>
+          <div class="deliv"><h3>📋 DAY3-SUMMARY.md</h3><p>What's done, what's next.</p><button class="btn btn-main" id="dlSummary">Download</button></div>
+        </div>
+        <div class="btn-row"><button class="btn btn-outline" id="restartBtn">Start over</button></div>
+      </div>
+    </section>
+
+    <footer>Foundation Forge — Day 53 · AB Talks 60-Day Claude AI Challenge</footer>
+  </main>
+</div>
+
+<script>
+const tabDefs = ['Snapshot','Environment','Initialize','Repository','Foundation','Verify','Deliverables'];
+let unlocked = 0, currentTab = 0;
+const proj = {};
+
+function renderNav(){
+  const nav = document.getElementById('navItems');
+  nav.innerHTML = '';
+  tabDefs.forEach((name,i)=>{
+    const el = document.createElement('div');
+    el.className = 'nav-item' + (i===currentTab?' active':'') + (i>unlocked?' locked':'');
+    el.innerHTML = `<span class="n">${String(i).padStart(2,'0')}</span> ${name}`;
+    if(i<=unlocked) el.onclick = () => showTab(i);
+    nav.appendChild(el);
+  });
+}
+function showTab(i){
+  currentTab = i;
+  for(let j=0;j<tabDefs.length;j++) document.getElementById('tab-'+j).classList.toggle('hidden', j!==i);
+  renderNav();
+}
+
+document.getElementById('genBtn').onclick = () => {
+  proj.name = document.getElementById('pName').value.trim() || 'Untitled Project';
+  proj.slug = proj.name.toLowerCase().replace(/\s+/g,'-');
+  proj.frontend = document.getElementById('pFrontend').value;
+  proj.backend = document.getElementById('pBackend').value;
+  proj.db = document.getElementById('pDb').value;
+  proj.auth = document.getElementById('pAuth').value;
+  proj.screens = (document.getElementById('pScreens').value.trim() || 'Home, Main View').split(',').map(s=>s.trim());
+  proj.needsBackend = proj.backend.startsWith('Yes');
+  proj.needsDb = proj.db.startsWith('Yes');
+  proj.needsAuth = proj.auth.startsWith('Yes');
+  proj.isReact = proj.frontend.includes('React') || proj.frontend.includes('Next');
+
+  buildEnv(); buildInit(); buildGit(); buildFoundation(); buildVerify();
+  unlocked = 6;
+  showTab(1);
+};
+
+function buildEnv(){
+  const tools = [
+    {name:'Node.js (LTS)', why:'Runs your JavaScript tooling and dev server outside the browser.'},
+    {name:'A code editor (VS Code recommended)', why:'Where you\'ll write and navigate every file this week.'},
+    {name:'Git', why:'Tracks every change and lets you push checkpoints to GitHub daily.'},
+    {name: proj.isReact ? 'npm (bundled with Node)' : 'A local static server (e.g. VS Code "Live Server" extension)', why: proj.isReact ? 'Installs and manages your project\'s packages.' : 'Lets you preview index.html the way a real browser/host would, avoiding file:// quirks.'},
+  ];
+  if(proj.needsBackend) tools.push({name:'Postman or Thunder Client extension', why:'Lets you test API endpoints before wiring up the frontend.'});
+  if(proj.needsDb) tools.push({name:'Database client (e.g. free-tier dashboard for your chosen DB)', why:'Lets you inspect stored data directly while debugging.'});
+  document.getElementById('envList').innerHTML = tools.map(t => `
+    <div class="file-item"><div class="fname">${t.name}</div><div class="fdesc">${t.why}</div></div>`).join('');
+}
+
+function buildInit(){
+  let lines = '';
+  if(proj.isReact){
+    lines = `<span class="c">$</span> npm create vite@latest ${proj.slug} -- --template react
+<span class="out">✓ Scaffolding project in ./${proj.slug}...</span>
+<span class="c">$</span> cd ${proj.slug}
+<span class="c">$</span> npm install
+<span class="out">✓ Dependencies installed</span>
+<span class="c">$</span> npm run dev
+<span class="out">✓ Local dev server running at http://localhost:5173</span>`;
+  } else {
+    lines = `<span class="c">$</span> mkdir ${proj.slug} && cd ${proj.slug}
+<span class="c">$</span> touch index.html
+<span class="out">✓ Project folder created</span>
+<span class="c">›</span> Open the folder in VS Code, right-click index.html → "Open with Live Server"
+<span class="out">✓ Hello World running at http://127.0.0.1:5500</span>`;
+  }
+  if(proj.needsBackend){
+    lines += `\n<span class="c">$</span> mkdir server && cd server && npm init -y
+<span class="c">$</span> npm install express cors dotenv
+<span class="out">✓ Backend scaffold ready</span>`;
+  }
+  document.getElementById('initTerm').innerHTML = `<div class="term-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="term-body">${lines}</div>`;
+}
+
+function buildGit(){
+  const lines = `<span class="c">$</span> git init
+<span class="c">$</span> git add .
+<span class="c">$</span> git commit -m "chore: initial project scaffold"
+<span class="c">$</span> git branch -M main
+<span class="c">$</span> git remote add origin https://github.com/&lt;you&gt;/${proj.slug}.git
+<span class="c">$</span> git push -u origin main
+<span class="out">✓ Pushed to GitHub</span>
+<span class="c">$</span> git checkout -b dev
+<span class="out">✓ Switched to a new branch 'dev'</span>`;
+  document.getElementById('gitTerm').innerHTML = `<div class="term-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="term-body">${lines}</div>`;
+  document.getElementById('branchNote').textContent = `Branching strategy: work in "dev" daily, merge into "main" only when a day's build is verified working — main should always be the last known-good deploy.`;
+}
+
+function buildFoundation(){
+  const files = [];
+  if(proj.isReact){
+    files.push({f:'src/main.jsx', d:'App entry point — mounts the root component to the DOM.'});
+    files.push({f:'src/App.jsx', d:'Top-level layout + routing shell.'});
+    files.push({f:'src/router.jsx', d:`Defines routes for: ${proj.screens.join(', ')}.`});
+  } else {
+    files.push({f:'index.html', d:'Single-file entry point — layout, nav, and script all live here.'});
+    files.push({f:'assets/styles.css', d:'Design tokens and shared layout rules.'});
+    files.push({f:'js/router.js', d:`Simple hash-based routing between: ${proj.screens.join(', ')}.`});
+  }
+  files.push({f:'js/store.js', d: proj.needsDb ? 'API client wrapper for reading/writing to the database.' : 'localStorage read/write helpers for app data.'});
+  if(proj.needsAuth) files.push({f:'js/auth.js', d:'Auth scaffold — login state, token storage, protected route guard (no real backend calls yet).'});
+  files.push({f:'js/components/', d:'Shared UI pieces (header, nav, buttons) reused across screens.'});
+  files.push({f:'.env.example', d:'Template for environment variables — copied to .env locally, never committed.'});
+  files.push({f:'README.md', d:'Setup instructions for anyone (including future-you) opening this repo cold.'});
+  document.getElementById('foundationFiles').innerHTML = files.map(x => `
+    <div class="file-item"><div class="fname">${x.f}</div><div class="fdesc">${x.d}</div></div>`).join('');
+  proj.files = files;
+}
+
+function buildVerify(){
+  const checks = [
+    'Project runs locally with zero console errors',
+    `All ${proj.screens.length} core screens are reachable via navigation (placeholder content is fine)`,
+    proj.needsDb ? 'Database connection confirmed with a test read/write' : 'localStorage read/write confirmed working',
+    proj.needsAuth ? 'Auth scaffold in place (UI only — real auth logic starts on a feature day)' : 'No auth needed — confirmed out of scope for v1.0',
+    'Folder structure matches the Day 2 System Design',
+    'Initial commit pushed to GitHub on main, dev branch created'
+  ];
+  document.getElementById('verifyList').innerHTML = checks.map(c => `<div class="check-row"><span class="mk">✓</span>${c}</div>`).join('');
+
+  const tree = proj.isReact ? `${proj.slug}/
+├── src/
+│   ├── main.jsx
+│   ├── App.jsx
+│   ├── router.jsx
+│   ├── store.js
+│   └── components/
+├── public/
+├── docs/
+│   └── (Day 1–3 deliverables)
+├── .env.example
+├── package.json
+└── README.md` : `${proj.slug}/
+├── index.html
+├── assets/
+│   └── styles.css
+├── js/
+│   ├── router.js
+│   ├── store.js
+│   └── components/
+├── docs/
+│   └── (Day 1–3 deliverables)
+├── .env.example
+└── README.md`;
+  document.getElementById('treeContent').textContent = tree;
+  proj.tree = tree;
+
+  const envRows = [['NODE_ENV','development','Toggles dev-only logging/behavior']];
+  if(proj.needsDb) envRows.push(['DATABASE_URL','(from your free-tier DB dashboard)','Connection string for the database client']);
+  if(proj.needsAuth) envRows.push(['AUTH_SECRET','(generate a random string)','Signs/verifies auth tokens']);
+  if(proj.needsBackend) envRows.push(['PORT','4000','Local port for the backend server']);
+  proj.envRows = envRows;
+  document.getElementById('envTable').innerHTML = `<tr><th>Variable</th><th>Example</th><th>Purpose</th></tr>` +
+    envRows.map(r => `<tr><td class="k">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+}
+
+function download(filename, text){
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('dlSetup').onclick = () => {
+  download('SETUP.md', `# Setup Guide — ${proj.name}\n\n## Tools required\n${document.getElementById('envList').innerText}\n\n## Initialization\n${document.getElementById('initTerm').innerText}\n\n## Repository\n${document.getElementById('gitTerm').innerText}\n${document.getElementById('branchNote').textContent}\n\n---\nGenerated by Foundation Forge — Day 53.`);
+};
+document.getElementById('dlStruct').onclick = () => {
+  download('PROJECT-STRUCTURE.md', `# Project Structure — ${proj.name}\n\n\`\`\`\n${proj.tree}\n\`\`\`\n\n## Foundation files\n${document.getElementById('foundationFiles').innerText}\n\n---\nGenerated by Foundation Forge — Day 53.`);
+};
+document.getElementById('dlEnv').onclick = () => {
+  const rows = proj.envRows.map(r => `- **${r[0]}** = ${r[1]} — ${r[2]}`).join('\n');
+  download('ENVIRONMENT.md', `# Environment — ${proj.name}\n\n## Variables\n${rows}\n\n## Tools installed\n${document.getElementById('envList').innerText}\n\n---\nGenerated by Foundation Forge — Day 53.`);
+};
+document.getElementById('dlSummary').onclick = () => {
+  download('DAY3-SUMMARY.md', `# Day 3 Summary — ${proj.name}\n\n## ✅ Completed today\n${document.getElementById('verifyList').innerText}\n\n## 🚧 Ready for Day 4\nFoundation is scaffolded — routing, layout, ${proj.needsDb?'database connection':'local storage'}, ${proj.needsAuth?'auth scaffold, ':''}and shared components are in place.\n\n## 🎯 Tomorrow's objective\nBuild the first major user-facing feature on top of this foundation — no further setup or planning required.\n\n---\nGenerated by Foundation Forge — Day 53.`);
+};
+document.getElementById('restartBtn').onclick = () => location.reload();
+
+renderNav();
+</script>
+</body>
+</html>

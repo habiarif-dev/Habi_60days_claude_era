@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milestone Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#11151c; --panel:#161b24; --panel-2:#1b2130; --edge:#242b3a;
+    --blue:#4da3ff; --lime:#c6f135; --rose:#ff6b81;
+    --tx-100:#e7ebf5; --tx-300:#9aa5bd; --tx-500:#5f6a85;
+    --line: rgba(154,165,189,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--tx-100);font-family:'JetBrains Mono',monospace;min-height:100vh;}
+  .shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+  @media (max-width:800px){.shell{grid-template-columns:1fr;}}
+
+  /* left: file explorer style */
+  .explorer{background:var(--panel);border-right:1px solid var(--edge);padding:22px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .logo{display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+  .logo .mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--blue),var(--lime));display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:800;color:var(--bg);font-size:14px;flex-shrink:0;}
+  .logo-t{font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;}
+  .logo-s{font-size:10px;color:var(--tx-500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:24px;}
+
+  .exp-group{font-size:10px;color:var(--tx-500);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px;padding-left:4px;}
+  .exp-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:12px;color:var(--tx-500);cursor:pointer;margin-bottom:2px;}
+  .exp-item .dot{width:6px;height:6px;border-radius:50%;background:var(--tx-500);flex-shrink:0;}
+  .exp-item.active{background:rgba(77,163,255,0.12);color:var(--tx-100);}
+  .exp-item.active .dot{background:var(--blue);}
+  .exp-item.done .dot{background:var(--lime);}
+  .exp-item.locked{opacity:.35;cursor:not-allowed;}
+  .exp-item:hover:not(.locked):not(.active){color:var(--tx-100);}
+
+  /* main */
+  .main{padding:44px 52px;max-width:960px;}
+  @media (max-width:800px){.main{padding:28px 20px;}}
+  .badge{display:inline-block;font-size:10.5px;color:var(--lime);border:1px solid rgba(198,241,53,0.3);background:rgba(198,241,53,0.07);padding:5px 11px;border-radius:5px;letter-spacing:.05em;margin-bottom:18px;}
+  h1.hero{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(26px,3.6vw,42px);line-height:1.1;margin:0 0 12px;letter-spacing:-0.01em;}
+  h1.hero .a{color:var(--blue);}
+  .hero-sub{color:var(--tx-300);font-size:14px;max-width:600px;margin-bottom:32px;}
+
+  .panel{background:var(--panel);border:1px solid var(--edge);border-radius:8px;padding:26px;margin-bottom:18px;}
+  .panel-h{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;}
+  .panel-why{color:var(--tx-500);font-size:12px;margin-bottom:20px;}
+
+  label.f{display:block;font-size:10.5px;color:var(--blue);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.05em;}
+  input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--edge);border-radius:6px;color:var(--tx-100);
+    font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px 12px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--blue);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  .btn{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;border-radius:6px;padding:12px 22px;border:none;cursor:pointer;}
+  .btn-main{background:var(--blue);color:#08111f;}
+  .btn-main:hover{filter:brightness(1.12);}
+  .btn-main:disabled{opacity:.3;cursor:not-allowed;}
+  .btn-out{background:transparent;border:1px solid var(--edge);color:var(--tx-300);}
+  .btn-out:hover{border-color:var(--tx-300);color:var(--tx-100);}
+  .btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+
+  /* code file card */
+  .codefile{border:1px solid var(--edge);border-radius:8px;margin-top:14px;overflow:hidden;}
+  .cf-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--panel-2);border-bottom:1px solid var(--edge);}
+  .cf-name{font-size:12px;color:var(--tx-100);font-weight:600;}
+  .cf-flag{font-size:9.5px;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;}
+  .cf-flag.new{background:rgba(198,241,53,0.15);color:var(--lime);}
+  .cf-flag.mod{background:rgba(77,163,255,0.15);color:var(--blue);}
+  .cf-body{padding:14px 16px;font-size:11.5px;color:var(--tx-300);background:var(--bg);}
+
+  .term{background:#0a0d13;border:1px solid var(--edge);border-radius:8px;margin-top:14px;overflow:hidden;}
+  .term-bar{display:flex;gap:6px;padding:8px 12px;background:var(--panel-2);border-bottom:1px solid var(--edge);}
+  .dot2{width:8px;height:8px;border-radius:50%;}
+  .dot2.r{background:#ff5f57;}.dot2.y{background:#febc2e;}.dot2.g{background:#28c840;}
+  .term-body{padding:14px 16px;font-size:12px;color:var(--lime);white-space:pre-wrap;line-height:1.75;}
+  .term-body .c{color:var(--tx-500);}
+  .term-body .o{color:var(--tx-300);}
+
+  .check-row{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--tx-300);}
+  .check-row:last-child{border-bottom:none;}
+  .check-row .mk{color:var(--lime);font-weight:700;}
+
+  .ms-card{border:1px solid var(--edge);border-radius:8px;padding:16px 18px;margin-top:12px;background:var(--panel-2);}
+  .ms-card h4{font-family:'Sora',sans-serif;font-size:14px;margin:0 0 4px;}
+  .ms-card p{font-size:11.5px;color:var(--tx-500);margin:0;}
+
+  .deliv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px;}
+  .deliv{border:1px solid var(--edge);border-radius:8px;padding:16px;background:var(--panel-2);}
+  .deliv h3{font-family:'Sora',sans-serif;font-size:13px;margin:0 0 6px;}
+  .deliv p{font-size:11px;color:var(--tx-500);margin:0 0 12px;}
+  .deliv button{width:100%;}
+
+  .hidden{display:none !important;}
+  footer{text-align:center;color:var(--tx-500);font-size:11px;margin-top:44px;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="explorer">
+    <div class="logo"><div class="mark">M</div><div class="logo-t">Milestone Builder</div></div>
+    <div class="logo-s">Day 54 · Core Feature Build</div>
+    <div class="exp-group">Workflow</div>
+    <div id="navItems"></div>
+  </nav>
+
+  <main class="main">
+
+    <section id="tab-0">
+      <span class="badge">DAY 4 · CORE FEATURE IMPLEMENTATION</span>
+      <h1 class="hero">Build it in <span class="a">milestones</span>,<br>not one big leap.</h1>
+      <p class="hero-sub">Describe today's core feature and this builder breaks it into checkpoints: what's built and why, every file (new or modified), every command to run, and a test checklist before you move to the next milestone.</p>
+
+      <div class="panel">
+        <div class="panel-h">Today's Feature</div>
+        <div class="panel-why">Pulled from Day 4 of your Implementation Blueprint.</div>
+
+        <label class="f">Project name</label>
+        <input type="text" id="pName" placeholder="e.g. Mood Ledger">
+
+        <label class="f">Core feature being built today</label>
+        <input type="text" id="pFeature" placeholder="e.g. Log and view daily mood entries">
+
+        <div class="grid2">
+          <div>
+            <label class="f">Stack</label>
+            <input type="text" id="pStack" placeholder="e.g. Vanilla JS + localStorage">
+          </div>
+          <div>
+            <label class="f">Number of milestones today</label>
+            <input type="text" id="pMs" placeholder="e.g. 3">
+          </div>
+        </div>
+
+        <label class="f">Key files already in the project (from Day 3)</label>
+        <textarea id="pFiles" rows="2" placeholder="e.g. index.html, js/store.js, js/router.js"></textarea>
+
+        <div class="btn-row">
+          <button class="btn btn-main" id="genBtn">Generate milestone plan</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-1" class="hidden">
+      <span class="badge">MILESTONES</span>
+      <h1 class="hero" style="font-size:26px;">Checkpoint by checkpoint</h1>
+      <div id="milestoneList"></div>
+    </section>
+
+    <section id="tab-2" class="hidden">
+      <span class="badge">FILES</span>
+      <h1 class="hero" style="font-size:26px;">Files touched today</h1>
+      <div class="panel">
+        <div class="panel-h">New &amp; modified</div>
+        <div class="panel-why">Each one flagged so you know exactly what to add vs. replace.</div>
+        <div id="fileList"></div>
+      </div>
+    </section>
+
+    <section id="tab-3" class="hidden">
+      <span class="badge">COMMANDS</span>
+      <h1 class="hero" style="font-size:26px;">Run &amp; test</h1>
+      <div class="panel">
+        <div class="panel-h">Terminal commands</div>
+        <div class="term" id="runTerm"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Test checklist per milestone</div>
+        <div id="testList"></div>
+      </div>
+    </section>
+
+    <section id="tab-4" class="hidden">
+      <span class="badge">SHIP TODAY</span>
+      <h1 class="hero" style="font-size:26px;">Commit, deploy, summarize</h1>
+      <div class="panel">
+        <div class="panel-h">Git &amp; deploy</div>
+        <div class="term" id="deployTerm"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Download today's docs</div>
+        <div class="deliv-grid">
+          <div class="deliv"><h3>📋 DAY4-SUMMARY.md</h3><p>What was built, what's next.</p><button class="btn btn-main" id="dlSummary">Download</button></div>
+          <div class="deliv"><h3>🗂️ IMPLEMENTATION-LOG.md</h3><p>Full milestone + file log.</p><button class="btn btn-main" id="dlLog">Download</button></div>
+        </div>
+        <div class="btn-row"><button class="btn btn-out" id="restartBtn">Start over</button></div>
+      </div>
+    </section>
+
+    <footer>Milestone Builder — Day 54 · AB Talks 60-Day Claude AI Challenge · no external API</footer>
+  </main>
+</div>
+
+<script>
+const tabDefs = ['Snapshot','Milestones','Files','Run & Test','Ship'];
+let unlocked = 0, currentTab = 0;
+const proj = {};
+
+function renderNav(){
+  const nav = document.getElementById('navItems');
+  nav.innerHTML = '';
+  tabDefs.forEach((name,i)=>{
+    const el = document.createElement('div');
+    el.className = 'exp-item' + (i===currentTab?' active':'') + (i>unlocked?' locked':'') + (i<currentTab&&i<=unlocked?' done':'');
+    el.innerHTML = `<span class="dot"></span> ${name}`;
+    if(i<=unlocked) el.onclick = () => showTab(i);
+    nav.appendChild(el);
+  });
+}
+function showTab(i){
+  currentTab = i;
+  for(let j=0;j<tabDefs.length;j++) document.getElementById('tab-'+j).classList.toggle('hidden', j!==i);
+  renderNav();
+}
+
+document.getElementById('genBtn').onclick = () => {
+  proj.name = document.getElementById('pName').value.trim() || 'Untitled Project';
+  proj.feature = document.getElementById('pFeature').value.trim() || 'the core v1.0 feature';
+  proj.stack = document.getElementById('pStack').value.trim() || 'Vanilla JS';
+  proj.msCount = Math.max(1, Math.min(6, parseInt(document.getElementById('pMs').value) || 3));
+  proj.existingFiles = (document.getElementById('pFiles').value.trim() || 'index.html, js/store.js').split(',').map(s=>s.trim());
+
+  buildMilestones(); buildFiles(); buildRun(); buildDeploy();
+  unlocked = 4;
+  showTab(1);
+};
+
+function buildMilestones(){
+  const templates = [
+    {t:'Data model & state wiring', d:`Wire up the in-memory/local state needed to represent "${proj.feature}".`},
+    {t:'Primary UI for the feature', d:`Build the screen/component where a user performs "${proj.feature}".`},
+    {t:'Persistence', d:`Save and reload the feature's data so it survives a refresh.`},
+    {t:'Validation & empty states', d:`Handle empty input, empty lists, and obviously-wrong input gracefully.`},
+    {t:'Feedback & polish', d:`Add confirmation states (saved, error) so the feature feels complete.`},
+    {t:'Edge case pass', d:`Handle the edge cases specific to "${proj.feature}" before moving to Day 5.`},
+  ];
+  const chosen = templates.slice(0, proj.msCount);
+  proj.milestones = chosen;
+  document.getElementById('milestoneList').innerHTML = chosen.map((m,i) => `
+    <div class="ms-card"><h4>Milestone ${i+1} — ${m.t}</h4><p>${m.d}</p></div>`).join('') +
+    `<div class="panel" style="margin-top:18px;"><div class="panel-h">Checkpoint rule</div><div class="panel-why" style="margin-bottom:0;">Each milestone above is a stop point — test it and confirm it works before starting the next one. Never stack a new milestone on top of a broken one.</div></div>`;
+}
+
+function buildFiles(){
+  const isNew = f => !proj.existingFiles.some(ef => ef.toLowerCase() === f.toLowerCase());
+  const candidateFiles = [
+    `js/${proj.feature.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,24)}.js`,
+    'js/store.js',
+    'index.html',
+    'assets/styles.css'
+  ];
+  const files = candidateFiles.map(f => ({
+    name:f, flag: isNew(f) ? 'new' : 'mod',
+    desc: f.includes('store') ? `Extended to read/write data for "${proj.feature}".`
+        : f.endsWith('.html') ? 'Updated to include the new feature\'s screen markup.'
+        : f.includes('styles') ? 'New styles for the feature\'s UI elements.'
+        : `New module implementing the logic for "${proj.feature}".`
+  }));
+  proj.filesTouched = files;
+  document.getElementById('fileList').innerHTML = files.map(f => `
+    <div class="codefile">
+      <div class="cf-bar"><span class="cf-name">${f.name}</span><span class="cf-flag ${f.flag}">${f.flag === 'new' ? 'new file' : 'replaces existing'}</span></div>
+      <div class="cf-body">${f.desc}</div>
+    </div>`).join('');
+}
+
+function buildRun(){
+  const lines = `<span class="c">$</span> git status
+<span class="o">On branch dev — changed files listed</span>
+<span class="c">$</span> npm run dev  <span class="c">(or open index.html with Live Server)</span>
+<span class="o">✓ App running locally</span>
+<span class="c">›</span> Test "${proj.feature}" manually in the browser before continuing`;
+  document.getElementById('runTerm').innerHTML = `<div class="term-bar"><div class="dot2 r"></div><div class="dot2 y"></div><div class="dot2 g"></div></div><div class="term-body">${lines}</div>`;
+
+  document.getElementById('testList').innerHTML = proj.milestones.map((m,i) => `
+    <div class="check-row"><span class="mk">✓</span>Milestone ${i+1} (${m.t}) — verified working with no console errors</div>`).join('');
+}
+
+function buildDeploy(){
+  const lines = `<span class="c">$</span> git add .
+<span class="c">$</span> git commit -m "feat: implement ${proj.feature.toLowerCase()}"
+<span class="c">$</span> git push origin dev
+<span class="o">✓ Pushed to GitHub</span>
+<span class="c">›</span> Merge dev → main once verified, then redeploy on your hosting platform
+<span class="o">✓ Live version updated</span>`;
+  document.getElementById('deployTerm').innerHTML = `<div class="term-bar"><div class="dot2 r"></div><div class="dot2 y"></div><div class="dot2 g"></div></div><div class="term-body">${lines}</div>`;
+}
+
+function download(filename, text){
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('dlSummary').onclick = () => {
+  download('DAY4-SUMMARY.md', `# Day 4 Summary — ${proj.name}\n\n## Feature built\n${proj.feature}\n\n## ✅ Completed today\n${proj.milestones.map((m,i)=>`- Milestone ${i+1}: ${m.t} — ${m.d}`).join('\n')}\n\n## Files touched\n${proj.filesTouched.map(f=>`- ${f.name} (${f.flag === 'new' ? 'new' : 'modified'})`).join('\n')}\n\n## 🎯 Day 5 focus\nBuild the next core feature on top of today's verified, working implementation.\n\n---\nGenerated by Milestone Builder — Day 54.`);
+};
+document.getElementById('dlLog').onclick = () => {
+  download('IMPLEMENTATION-LOG.md', `# Implementation Log — ${proj.name}\n\n## Stack\n${proj.stack}\n\n## Milestones\n${proj.milestones.map((m,i)=>`### Milestone ${i+1} — ${m.t}\n${m.d}\n`).join('\n')}\n\n## Files\n${proj.filesTouched.map(f=>`- **${f.name}** (${f.flag}) — ${f.desc}`).join('\n')}\n\n## Commands run\n${document.getElementById('runTerm').innerText}\n\n## Ship\n${document.getElementById('deployTerm').innerText}\n\n---\nGenerated by Milestone Builder — Day 54.`);
+};
+document.getElementById('restartBtn').onclick = () => location.reload();
+
+renderNav();
+</script>
+</body>
+</html>

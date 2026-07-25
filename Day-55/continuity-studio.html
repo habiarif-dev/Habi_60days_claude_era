@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Continuity Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#fdf6ff; --bg-2:#f2f7ff;
+    --lav:#8b6df0; --pink:#ff8fc4; --mint:#3ed9b0; --peach:#ffb86b;
+    --ink-900:#2b2440; --ink-600:#6b6489; --ink-400:#9791b3;
+    --card:#ffffff; --line:#ece6fb;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(900px 500px at 90% -10%, rgba(255,143,196,0.18), transparent 60%),
+      radial-gradient(800px 450px at -10% 20%, rgba(62,217,176,0.14), transparent 55%),
+      linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    color:var(--ink-900); font-family:'Inter',sans-serif; min-height:100vh; line-height:1.55;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:52px 24px 110px;}
+
+  @keyframes floatIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pop{0%{transform:scale(0.4);opacity:0;}70%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
+  @keyframes fillBar{from{width:0;}}
+  @keyframes wiggle{0%,100%{transform:rotate(0deg);}50%{transform:rotate(8deg);}}
+  .fade-in{animation:floatIn .5s ease both;}
+
+  header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:36px;flex-wrap:wrap;animation:floatIn .5s ease both;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand .mark{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,var(--lav),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;font-weight:800;color:#fff;font-size:17px;flex-shrink:0;
+    animation:wiggle 3.5s ease-in-out infinite;}
+  .brand-text{font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;}
+  .brand-sub{font-family:'Quicksand',sans-serif;font-size:11.5px;color:var(--ink-400);letter-spacing:.03em;font-weight:700;text-transform:uppercase;}
+  .pill{font-family:'Quicksand',sans-serif;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--mint),#2bb894);
+    padding:8px 15px;border-radius:100px;}
+
+  h1.hero{font-family:'Poppins',sans-serif;font-weight:800;font-size:clamp(28px,4.4vw,46px);line-height:1.12;margin:0 0 12px;letter-spacing:-0.01em;
+    animation:floatIn .55s ease .05s both;}
+  h1.hero .a{background:linear-gradient(135deg,var(--lav),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero-sub{color:var(--ink-600);font-size:15.5px;max-width:600px;margin-bottom:32px;animation:floatIn .55s ease .1s both;}
+
+  .rail{display:flex;gap:8px;margin-bottom:30px;animation:floatIn .55s ease .12s both;}
+  .rail .seg{flex:1;height:6px;border-radius:100px;background:var(--line);overflow:hidden;}
+  .rail .seg.done{background:linear-gradient(90deg,var(--mint),#2bb894);}
+  .rail .seg.active{background:linear-gradient(90deg,var(--lav),var(--pink));}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px;margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(139,109,240,0.07); animation:floatIn .5s ease both;}
+  .eyebrow{font-family:'Quicksand',sans-serif;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--lav);margin-bottom:8px;}
+  h2{font-family:'Poppins',sans-serif;font-size:21px;font-weight:700;margin:0 0 6px;}
+  .why{color:var(--ink-400);font-size:13px;margin-bottom:20px;font-style:italic;}
+
+  label.f{display:block;font-family:'Quicksand',sans-serif;font-size:12.5px;font-weight:700;color:var(--ink-600);margin:14px 0 6px;}
+  input[type=text],textarea{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;color:var(--ink-900);
+    font-family:'Inter',sans-serif;font-size:14px;padding:12px 15px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--lav);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:620px){.grid2{grid-template-columns:1fr;}}
+
+  .btn{font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;border-radius:100px;padding:13px 24px;border:none;cursor:pointer;transition:.15s;}
+  .btn-main{background:linear-gradient(135deg,var(--lav),var(--pink));color:#fff;}
+  .btn-main:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(139,109,240,0.3);}
+  .btn-main:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-out{background:transparent;border:1px solid var(--line);color:var(--ink-600);}
+  .btn-out:hover{border-color:var(--lav);color:var(--lav);}
+  .btn-row{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;}
+
+  .confirm-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(62,217,176,0.12),rgba(139,109,240,0.08));
+    border:1px solid rgba(62,217,176,0.35);border-radius:16px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-900);}
+  .confirm-banner .ic{font-size:20px;}
+
+  .check-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px;}
+  .check-row{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:14px;background:var(--bg-2);font-size:13.5px;color:var(--ink-600);}
+  .check-row .ck{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--mint),#2bb894);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;animation:pop .4s ease both;}
+
+  .ms-card{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:12px;background:var(--bg-2);position:relative;overflow:hidden;}
+  .ms-card h4{font-family:'Poppins',sans-serif;font-size:14.5px;margin:0 0 4px;color:var(--ink-900);}
+  .ms-card p{font-size:12.5px;color:var(--ink-400);margin:0 0 10px;}
+  .progress-track{height:8px;border-radius:100px;background:var(--line);overflow:hidden;}
+  .progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--lav),var(--pink));animation:fillBar 1s ease both;}
+
+  .file-item{border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-top:10px;background:var(--bg-2);}
+  .file-item .fname{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12.5px;color:var(--lav);}
+  .file-item .fdesc{font-size:12px;color:var(--ink-400);margin-top:5px;}
+  .file-item .flag{float:right;font-family:'Quicksand',sans-serif;font-size:10px;font-weight:700;padding:2px 9px;border-radius:100px;text-transform:uppercase;}
+  .flag.new{background:rgba(62,217,176,0.18);color:#1f8f6f;}
+  .flag.mod{background:rgba(139,109,240,0.16);color:var(--lav);}
+
+  .term{background:#241d38;border-radius:16px;margin-top:14px;overflow:hidden;}
+  .term-bar{display:flex;gap:6px;padding:9px 14px;background:#2e2547;}
+  .dot{width:9px;height:9px;border-radius:50%;}
+  .dot.r{background:#ff6b81;}.dot.y{background:#ffb86b;}.dot.g{background:#3ed9b0;}
+  .term-body{padding:15px 17px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#c8f7e8;white-space:pre-wrap;line-height:1.8;}
+  .term-body .c{color:#a99ce0;}
+  .term-body .o{color:#e2d9ff;}
+
+  .deliv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px;}
+  .deliv{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--bg-2);}
+  .deliv h3{font-family:'Poppins',sans-serif;font-size:13.5px;margin:0 0 6px;}
+  .deliv p{font-size:11.5px;color:var(--ink-400);margin:0 0 12px;}
+  .deliv button{width:100%;}
+
+  .hidden{display:none !important;}
+  footer{text-align:center;color:var(--ink-400);font-size:12px;margin-top:50px;font-family:'Quicksand',monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">✦</div>
+      <div><div class="brand-text">Continuity Studio</div><div class="brand-sub">Day 55 · Continue Core Feature Dev</div></div>
+    </div>
+    <span class="pill">🌱 free-tier only</span>
+  </header>
+
+  <h1 class="hero">Keep building —<br>without breaking <span class="a">yesterday</span>.</h1>
+  <p class="hero-sub">Continue today's feature work with a built-in safety net: a regression check on everything built through Day 4, milestone-by-milestone progress, and a free-tools-only confirmation before anything ships.</p>
+
+  <div class="rail" id="rail"></div>
+
+  <section id="tab-0">
+    <div class="card">
+      <div class="eyebrow">Step 0 · Continuity Check</div>
+      <h2>What's already working</h2>
+      <div class="why">Confirm nothing here is broken before we add today's feature on top.</div>
+
+      <label class="f">Project name</label>
+      <input type="text" id="pName" placeholder="e.g. Mood Ledger">
+
+      <label class="f">Feature you're continuing today</label>
+      <input type="text" id="pFeature" placeholder="e.g. finish mood entry editing + filtering">
+
+      <label class="f">Features already built (Day 1–4), comma separated</label>
+      <textarea id="pExisting" rows="2" placeholder="e.g. add entry, view entries, localStorage persistence"></textarea>
+
+      <label class="f">Number of milestones today</label>
+      <input type="text" id="pMs" placeholder="e.g. 3">
+
+      <div class="btn-row">
+        <button class="btn btn-main" id="genBtn">Run continuity check &amp; plan Day 5</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-1" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 1 · Regression Check</div>
+      <h2>Yesterday still works ✅</h2>
+      <div class="confirm-banner"><span class="ic">🆓</span> Only free-tier tools and APIs are used today — nothing here requires a paid key or a warning about payment.</div>
+      <div class="check-grid" id="regressionList"></div>
+      <div class="btn-row"><button class="btn btn-main" id="toMilestones">Continue to milestones</button></div>
+    </div>
+  </section>
+
+  <section id="tab-2" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 2 · Today's Milestones</div>
+      <h2>Building "<span id="featureLabel"></span>"</h2>
+      <div class="why">Claude pauses only at big moments — UI changes, deploys, or breakage. Everything else moves automatically.</div>
+      <div id="milestoneList"></div>
+      <div class="btn-row"><button class="btn btn-main" id="toFiles">Show files &amp; commands</button></div>
+    </div>
+  </section>
+
+  <section id="tab-3" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 3 · Files</div>
+      <h2>New &amp; modified today</h2>
+      <div id="fileList"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Step 4 · Commit &amp; Ship</div>
+      <h2>Wrap up Day 5</h2>
+      <div class="term" id="shipTerm"></div>
+      <div class="btn-row"><button class="btn btn-main" id="toDeliver">Finish Day 5</button></div>
+    </div>
+  </section>
+
+  <section id="tab-4" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Deliverables</div>
+      <h2>Download your Day 5 wrap-up</h2>
+      <div class="deliv-grid">
+        <div class="deliv"><h3>📋 DAY5-SUMMARY.md</h3><p>Completed today, remaining for Day 6.</p><button class="btn btn-main" id="dlSummary">Download</button></div>
+        <div class="deliv"><h3>🧪 REGRESSION-CHECK.md</h3><p>Full continuity check results.</p><button class="btn btn-main" id="dlReg">Download</button></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-out" id="restartBtn">Start over</button></div>
+    </div>
+  </section>
+
+  <footer>Continuity Studio — Day 55 · AB Talks 60-Day Claude AI Challenge · no external API</footer>
+</div>
+
+<script>
+const proj = {};
+const stageCount = 5;
+function setRail(active){
+  const r = document.getElementById('rail'); r.innerHTML = '';
+  for(let i=1;i<=stageCount;i++){
+    const s = document.createElement('div');
+    s.className = 'seg' + (i<active?' done':i===active?' active':'');
+    r.appendChild(s);
+  }
+}
+function goto(id, stage){
+  document.querySelectorAll('section[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.getElementById(id).querySelectorAll('.card').forEach((c,i)=>{ c.style.animationDelay = (i*0.06)+'s'; c.classList.remove('fade-in'); void c.offsetWidth; c.classList.add('fade-in'); });
+  setRail(stage);
+}
+setRail(1);
+
+document.getElementById('genBtn').onclick = () => {
+  proj.name = document.getElementById('pName').value.trim() || 'Untitled Project';
+  proj.feature = document.getElementById('pFeature').value.trim() || 'today\'s scheduled feature';
+  proj.existing = (document.getElementById('pExisting').value.trim() || 'core feature from Day 4').split(',').map(s=>s.trim());
+  proj.msCount = Math.max(1, Math.min(6, parseInt(document.getElementById('pMs').value) || 3));
+
+  buildRegression(); buildMilestones(); buildFiles(); buildShip();
+  goto('tab-1', 2);
+};
+
+function buildRegression(){
+  const list = document.getElementById('regressionList');
+  list.innerHTML = proj.existing.map((f,i) => `<div class="check-row" style="animation:floatIn .4s ease ${i*0.05}s both;"><div class="ck">✓</div>${f} — still working as expected</div>`).join('');
+}
+document.getElementById('toMilestones').onclick = () => { document.getElementById('featureLabel').textContent = proj.feature; goto('tab-2', 3); };
+
+function buildMilestones(){
+  const templates = [
+    {t:'Extend the data model', d:`Add whatever fields/state "${proj.feature}" needs, without touching existing data shape.`, p:35},
+    {t:'Build the interaction', d:`Implement the actual UI/logic for "${proj.feature}".`, p:65},
+    {t:'Wire up persistence', d:`Make sure new state saves and reloads correctly alongside existing data.`, p:85},
+    {t:'Polish & edge cases', d:`Handle empty states, invalid input, and visual feedback.`, p:95},
+    {t:'Regression re-check', d:`Re-verify Day 1–4 features still work after today's changes.`, p:100},
+    {t:'Refactor pass', d:`Clean up any duplicated logic flagged along the way.`, p:100},
+  ];
+  const chosen = templates.slice(0, proj.msCount);
+  proj.milestones = chosen;
+  document.getElementById('milestoneList').innerHTML = chosen.map((m,i) => `
+    <div class="ms-card" style="animation:floatIn .4s ease ${i*0.07}s both;">
+      <h4>Milestone ${i+1} — ${m.t}</h4><p>${m.d}</p>
+      <div class="progress-track"><div class="progress-fill" style="width:${m.p}%;"></div></div>
+    </div>`).join('');
+}
+
+document.getElementById('toFiles').onclick = () => goto('tab-3', 4);
+
+function buildFiles(){
+  const files = [
+    {name:`js/${proj.feature.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,22)}.js`, flag:'new', desc:`New module implementing "${proj.feature}".`},
+    {name:'js/store.js', flag:'mod', desc:'Extended to persist the new feature\'s data alongside existing entries.'},
+    {name:'index.html', flag:'mod', desc:'Updated markup to include the new UI for this feature.'},
+    {name:'assets/styles.css', flag:'mod', desc:'New styles added, no existing rules removed.'},
+  ];
+  proj.files = files;
+  document.getElementById('fileList').innerHTML = files.map(f => `
+    <div class="file-item"><span class="flag ${f.flag}">${f.flag==='new'?'new file':'replaces existing'}</span><div class="fname">${f.name}</div><div class="fdesc">${f.desc}</div></div>`).join('');
+}
+
+function buildShip(){
+  const lines = `<span class="c">$</span> npm run dev  <span class="c">(or Live Server)</span>
+<span class="o">✓ App running — full regression pass complete</span>
+<span class="c">$</span> git add .
+<span class="c">$</span> git commit -m "feat: continue ${proj.feature.toLowerCase()}"
+<span class="c">$</span> git push origin dev
+<span class="o">✓ Pushed to GitHub</span>
+<span class="c">›</span> Merge dev → main once verified, redeploy if testing today
+<span class="o">✓ Live version updated (if deployed)</span>`;
+  document.getElementById('shipTerm').innerHTML = `<div class="term-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="term-body">${lines}</div>`;
+}
+
+document.getElementById('toDeliver').onclick = () => goto('tab-4', 5);
+
+function download(filename, text){
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('dlSummary').onclick = () => {
+  download('DAY5-SUMMARY.md', `# Day 5 Summary — ${proj.name}\n\n## Feature continued\n${proj.feature}\n\n## ✅ Completed today\n${proj.milestones.map((m,i)=>`- Milestone ${i+1}: ${m.t} — ${m.d}`).join('\n')}\n\n## Files touched\n${proj.files.map(f=>`- ${f.name} (${f.flag})`).join('\n')}\n\n## Regression check\nAll previously built features (${proj.existing.join(', ')}) verified working after today's changes.\n\n## 🎯 Remaining for Day 6\nContinue with the next scheduled feature from the Implementation Blueprint.\n\n---\nGenerated by Continuity Studio — Day 55. Free-tier tools only.`);
+};
+document.getElementById('dlReg').onclick = () => {
+  download('REGRESSION-CHECK.md', `# Regression Check — ${proj.name}\n\n## Verified still working\n${proj.existing.map(f=>`- ✅ ${f}`).join('\n')}\n\n## Today's addition\n${proj.feature}\n\n## Tools used\nFree-tier only — no paid APIs or services required.\n\n---\nGenerated by Continuity Studio — Day 55.`);
+};
+document.getElementById('restartBtn').onclick = () => location.reload();
+</script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Day Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#181414; --cream:#fff8ee; --card:#ffffff;
+    --coral:#ff5a4e; --gold:#ffb703; --teal:#0aa88f; --plum:#5c3a9e;
+    --tx-700:#4a4340; --tx-500:#8a8079; --line:#ece3d4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;min-height:100vh;line-height:1.55;}
+  .wrap{max-width:1000px;margin:0 auto;padding:52px 24px 120px;}
+
+  header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:36px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand .mark{width:42px;height:42px;border-radius:12px;background:var(--ink);display:flex;align-items:center;justify-content:center;
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:900;color:var(--gold);font-size:19px;flex-shrink:0;transform:rotate(-4deg);}
+  .brand-text{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:16px;}
+  .brand-sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--tx-500);letter-spacing:.04em;text-transform:uppercase;}
+  .pill{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--ink);background:var(--gold);padding:8px 16px;border-radius:100px;border:2px solid var(--ink);}
+
+  h1.hero{font-family:'Bricolage Grotesque',sans-serif;font-weight:900;font-size:clamp(32px,5.2vw,58px);line-height:1.03;margin:0 0 14px;letter-spacing:-0.02em;}
+  h1.hero .a{color:var(--coral);}
+  h1.hero .b{color:var(--teal);}
+  .hero-sub{color:var(--tx-700);font-size:16px;max-width:600px;margin-bottom:34px;}
+
+  .stage-strip{display:flex;gap:8px;margin-bottom:30px;flex-wrap:wrap;}
+  .stage-chip{font-family:'JetBrains Mono',monospace;font-size:11px;padding:7px 13px;border-radius:8px;border:2px solid var(--line);color:var(--tx-500);}
+  .stage-chip.done{border-color:var(--teal);color:var(--teal);background:rgba(10,168,143,0.08);}
+  .stage-chip.active{border-color:var(--ink);color:var(--ink);background:var(--gold);font-weight:700;}
+
+  .card{background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:32px;margin-bottom:20px;box-shadow:6px 6px 0 var(--ink);}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);margin-bottom:8px;font-weight:600;}
+  h2{font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;margin:0 0 6px;}
+  .why{color:var(--tx-500);font-size:13px;margin-bottom:22px;}
+
+  label.f{display:block;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--plum);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.03em;}
+  input[type=text],textarea{width:100%;background:var(--cream);border:2px solid var(--line);border-radius:12px;color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:14.5px;padding:12px 15px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--coral);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:620px){.grid2{grid-template-columns:1fr;}}
+
+  .btn{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14.5px;border-radius:100px;padding:14px 26px;border:2px solid var(--ink);cursor:pointer;}
+  .btn-main{background:var(--coral);color:#fff;box-shadow:4px 4px 0 var(--ink);}
+  .btn-main:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink);}
+  .btn-main:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;transform:none;}
+  .btn-out{background:var(--cream);color:var(--ink);}
+  .btn-out:hover{background:#fff;}
+  .btn-row{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+
+  .banner{display:flex;align-items:center;gap:12px;background:rgba(10,168,143,0.09);border:2px solid var(--teal);border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:13.5px;}
+
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px;}
+  .feat-chip{border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;background:var(--cream);cursor:pointer;user-select:none;}
+  .feat-chip.done{border-color:var(--teal);background:rgba(10,168,143,0.08);}
+  .feat-chip .mk{font-weight:700;color:var(--teal);margin-right:6px;}
+
+  .ms-card{border:2px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:12px;background:var(--cream);}
+  .ms-card h4{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;margin:0 0 4px;}
+  .ms-card p{font-size:12.5px;color:var(--tx-500);margin:0;}
+
+  .term{background:var(--ink);border-radius:14px;margin-top:14px;overflow:hidden;}
+  .term-bar{display:flex;gap:6px;padding:9px 14px;background:#262121;}
+  .dot{width:9px;height:9px;border-radius:50%;}
+  .dot.r{background:var(--coral);}.dot.y{background:var(--gold);}.dot.g{background:var(--teal);}
+  .term-body{padding:15px 17px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#c8f7e8;white-space:pre-wrap;line-height:1.8;}
+  .term-body .c{color:#a99ce0;}
+  .term-body .o{color:#fce8c4;}
+
+  .footer-preview{border:2px dashed var(--line);border-radius:12px;padding:14px 18px;margin-top:14px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--tx-500);background:var(--cream);}
+
+  .deliv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px;}
+  .deliv{border:2px solid var(--line);border-radius:14px;padding:18px;background:var(--cream);}
+  .deliv h3{font-family:'Bricolage Grotesque',sans-serif;font-size:14.5px;margin:0 0 6px;}
+  .deliv p{font-size:11.5px;color:var(--tx-500);margin:0 0 12px;}
+  .deliv button{width:100%;}
+
+  .hidden{display:none !important;}
+  footer.page{text-align:center;color:var(--tx-500);font-size:12px;margin-top:50px;font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">▲</div>
+      <div><div class="brand-text">Demo Day Studio</div><div class="brand-sub">Day 56 · Complete the MVP</div></div>
+    </div>
+    <span class="pill">🎬 DEMO READY?</span>
+  </header>
+
+  <h1 class="hero">Ship the <span class="a">MVP.</span><br>Prove it <span class="b">works.</span></h1>
+  <p class="hero-sub">Pull together every feature built through Day 5, close out what's left for a complete MVP, confirm free-tier-only tooling, and walk out with a deployed, shareable demo — footer included.</p>
+
+  <div class="stage-strip" id="stageStrip"></div>
+
+  <section id="tab-0">
+    <div class="card">
+      <div class="eyebrow">Step 0 · MVP Snapshot</div>
+      <h2>What's the finish line?</h2>
+      <div class="why">Every feature below should work together as one complete product by the end of today.</div>
+
+      <label class="f">Project name</label>
+      <input type="text" id="pName" placeholder="e.g. Mood Ledger">
+
+      <label class="f">Features already built (Day 1–5), comma separated</label>
+      <textarea id="pDone" rows="2" placeholder="e.g. add entry, view entries, edit entry, persistence"></textarea>
+
+      <label class="f">Features remaining to finish the MVP today, comma separated</label>
+      <textarea id="pRemaining" rows="2" placeholder="e.g. delete entry, empty state, mobile polish"></textarea>
+
+      <label class="f">Hosting platform (free tier)</label>
+      <input type="text" id="pHost" placeholder="e.g. Netlify, Vercel, GitHub Pages">
+
+      <div class="btn-row">
+        <button class="btn btn-main" id="genBtn">Build my MVP completion plan</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-1" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 1 · Confirm</div>
+      <h2>Free-tier only, no exceptions</h2>
+      <div class="banner">🆓 Confirmed: only free tools/APIs/hosting are used today — no paid services, no payment warnings needed.</div>
+      <div class="why" style="margin-bottom:0;">Everything below assumes <strong id="hostLabel"></strong> on its free tier.</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Step 2 · Feature Roll Call</div>
+      <h2>What makes up the MVP</h2>
+      <div class="feat-grid" id="featGrid"></div>
+      <div class="btn-row"><button class="btn btn-main" id="toMilestones">Plan today's finishing milestones</button></div>
+    </div>
+  </section>
+
+  <section id="tab-2" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 3 · Finishing Milestones</div>
+      <h2>Closing the gap to MVP</h2>
+      <div id="milestoneList"></div>
+      <div class="btn-row"><button class="btn btn-main" id="toFooter">Add the required footer</button></div>
+    </div>
+  </section>
+
+  <section id="tab-3" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 4 · Required Footer</div>
+      <h2>Visible on the live app</h2>
+      <div class="why">This must ship on the deployed version, not just locally.</div>
+      <div class="footer-preview">Built with Claude as part of the AB Talks 60-Day Claude AI Challenge.</div>
+      <div class="btn-row"><button class="btn btn-main" id="toDeploy">Deploy the demo</button></div>
+    </div>
+  </section>
+
+  <section id="tab-4" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Step 5 · Deploy &amp; Test</div>
+      <h2>Ship the live demo</h2>
+      <div class="term" id="deployTerm"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Step 6 · Demo Flow</div>
+      <h2>Walk the full user journey</h2>
+      <div id="demoFlow"></div>
+      <div class="btn-row"><button class="btn btn-main" id="toDeliver">Finish Day 6</button></div>
+    </div>
+  </section>
+
+  <section id="tab-5" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Deliverables</div>
+      <h2>Download your Day 6 wrap-up</h2>
+      <div class="deliv-grid">
+        <div class="deliv"><h3>✅ MVP-CHECKLIST.md</h3><p>Every feature, verified.</p><button class="btn btn-main" id="dlChecklist">Download</button></div>
+        <div class="deliv"><h3>🎬 DEMO-SCRIPT.md</h3><p>Step-by-step walkthrough to show someone.</p><button class="btn btn-main" id="dlDemo">Download</button></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-out" id="restartBtn">Start over</button></div>
+    </div>
+  </section>
+
+  <footer class="page">Demo Day Studio — Day 56 · AB Talks 60-Day Claude AI Challenge · no external API</footer>
+</div>
+
+<script>
+const proj = {};
+const stages = ['Snapshot','Confirm','Milestones','Footer','Deploy','Wrap-up'];
+function setStrip(active){
+  const s = document.getElementById('stageStrip'); s.innerHTML = '';
+  stages.forEach((name,i)=>{
+    const chip = document.createElement('span');
+    chip.className = 'stage-chip' + (i<active?' done':i===active?' active':'');
+    chip.textContent = `${i+1}. ${name}`;
+    s.appendChild(chip);
+  });
+}
+function goto(id, stageIdx){
+  document.querySelectorAll('section[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  setStrip(stageIdx);
+}
+setStrip(0);
+
+document.getElementById('genBtn').onclick = () => {
+  proj.name = document.getElementById('pName').value.trim() || 'Untitled Project';
+  proj.done = (document.getElementById('pDone').value.trim() || 'core Day 1–5 features').split(',').map(s=>s.trim()).filter(Boolean);
+  proj.remaining = (document.getElementById('pRemaining').value.trim() || 'final polish items').split(',').map(s=>s.trim()).filter(Boolean);
+  proj.host = document.getElementById('pHost').value.trim() || 'Netlify';
+
+  document.getElementById('hostLabel').textContent = proj.host;
+  buildFeatures(); buildMilestones(); buildDeploy(); buildDemoFlow();
+  goto('tab-1', 1);
+};
+
+function buildFeatures(){
+  const all = [...proj.done.map(f=>({name:f,done:true})), ...proj.remaining.map(f=>({name:f,done:false}))];
+  proj.allFeatures = all;
+  document.getElementById('featGrid').innerHTML = all.map(f => `
+    <div class="feat-chip ${f.done?'done':''}"><span class="mk">${f.done?'✓':'○'}</span>${f.name}</div>`).join('');
+}
+document.getElementById('toMilestones').onclick = () => goto('tab-2', 2);
+
+function buildMilestones(){
+  proj.milestones = proj.remaining.map(f => ({t:f, d:`Finish and verify "${f}" so it works together with everything built through Day 5.`}));
+  if(proj.milestones.length === 0) proj.milestones = [{t:'Final integration pass', d:'Confirm all existing features work together as one MVP.'}];
+  document.getElementById('milestoneList').innerHTML = proj.milestones.map((m,i) => `
+    <div class="ms-card"><h4>Milestone ${i+1} — ${m.t}</h4><p>${m.d}</p></div>`).join('') +
+    `<div class="why" style="margin-top:14px;margin-bottom:0;">If any of these turns out too ambitious for today, ship the simpler working version — a finished MVP beats an unfinished ambitious one.</div>`;
+}
+document.getElementById('toFooter').onclick = () => goto('tab-3', 3);
+document.getElementById('toDeploy').onclick = () => goto('tab-4', 4);
+
+function buildDeploy(){
+  const lines = `<span class="c">$</span> git add .
+<span class="c">$</span> git commit -m "feat: complete MVP — ${proj.remaining.join(', ').toLowerCase()}"
+<span class="c">$</span> git push origin main
+<span class="o">✓ Pushed to GitHub</span>
+<span class="c">›</span> Connect the repo in ${proj.host} → deploy from main branch
+<span class="o">✓ Live URL generated</span>
+<span class="c">›</span> Open the live URL and confirm the footer is visible at the bottom
+<span class="o">✓ "Built with Claude as part of the AB Talks 60-Day Claude AI Challenge" confirmed live</span>`;
+  document.getElementById('deployTerm').innerHTML = `<div class="term-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="term-body">${lines}</div>`;
+}
+
+function buildDemoFlow(){
+  const steps = [`Open the live ${proj.name} link`, ...proj.allFeatures.map(f=>`Try: ${f.name}`), 'Confirm the footer is visible', 'Reload the page — confirm data/state survives'];
+  document.getElementById('demoFlow').innerHTML = steps.map((s,i) => `
+    <div class="feat-chip" style="margin-bottom:8px;"><span class="mk">${i+1}.</span>${s}</div>`).join('');
+}
+
+document.getElementById('toDeliver').onclick = () => goto('tab-5', 5);
+
+function download(filename, text){
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('dlChecklist').onclick = () => {
+  download('MVP-CHECKLIST.md', `# MVP Checklist — ${proj.name}\n\n## Already working (Day 1–5)\n${proj.done.map(f=>`- ✅ ${f}`).join('\n')}\n\n## Finished today (Day 6)\n${proj.remaining.map(f=>`- ✅ ${f}`).join('\n')}\n\n## Footer\n- ✅ "Built with Claude as part of the AB Talks 60-Day Claude AI Challenge" visible on the deployed app\n\n## Hosting\n${proj.host} (free tier)\n\n---\nGenerated by Demo Day Studio — Day 56.`);
+};
+document.getElementById('dlDemo').onclick = () => {
+  const steps = document.getElementById('demoFlow').innerText;
+  download('DEMO-SCRIPT.md', `# Demo Script — ${proj.name}\n\nWalk through this exact order when showing the app to someone:\n\n${steps}\n\n## Deploy notes\n${document.getElementById('deployTerm').innerText}\n\n---\nGenerated by Demo Day Studio — Day 56.`);
+};
+document.getElementById('restartBtn').onclick = () => location.reload();
+</script>
+</body>
+</html>

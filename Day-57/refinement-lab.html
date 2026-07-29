@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refinement Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf9f6; --ink:#161513; --crimson:#c1352b; --line:#e4e0d8;
+    --tx-600:#5b564d; --tx-400:#8a8378; --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;min-height:100vh;line-height:1.6;}
+
+  /* top nav, full width, editorial */
+  .topnav{display:flex;justify-content:space-between;align-items:center;padding:20px 44px;border-bottom:1px solid var(--line);background:var(--paper);position:sticky;top:0;z-index:10;}
+  .topnav .brand{display:flex;align-items:center;gap:10px;}
+  .topnav .mark{width:30px;height:30px;border:1.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:14px;}
+  .topnav .brand-text{font-family:'Playfair Display',serif;font-weight:700;font-size:16px;}
+  .topnav .issue{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--tx-400);letter-spacing:.05em;text-transform:uppercase;}
+  .topnav .steps{display:flex;gap:22px;}
+  .step-link{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx-400);cursor:pointer;letter-spacing:.02em;}
+  .step-link.active{color:var(--crimson);font-weight:700;border-bottom:2px solid var(--crimson);padding-bottom:3px;}
+  .step-link.locked{opacity:.35;cursor:not-allowed;}
+  @media (max-width:900px){.topnav{flex-direction:column;align-items:flex-start;gap:14px;} .topnav .steps{flex-wrap:wrap;gap:14px;}}
+
+  .container{max-width:920px;margin:0 auto;padding:56px 32px 120px;}
+
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--crimson);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+  h1.hero{font-family:'Playfair Display',serif;font-weight:800;font-size:clamp(30px,4.6vw,50px);line-height:1.1;margin:0 0 16px;}
+  h1.hero em{font-style:italic;color:var(--crimson);}
+  .hero-sub{color:var(--tx-600);font-size:16px;max-width:620px;margin-bottom:40px;}
+  .rule{border:none;border-top:1px solid var(--line);margin:36px 0;}
+
+  .section-h{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin:0 0 8px;}
+  .section-why{color:var(--tx-400);font-size:13px;margin-bottom:24px;font-style:italic;}
+
+  label.f{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--tx-600);margin:16px 0 6px;text-transform:uppercase;letter-spacing:.03em;}
+  input[type=text],input[type=url],textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:2px;color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:14.5px;padding:12px 14px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--crimson);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  .btn{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12.5px;border-radius:2px;padding:13px 24px;border:1.5px solid var(--ink);cursor:pointer;letter-spacing:.03em;text-transform:uppercase;}
+  .btn-main{background:var(--ink);color:var(--paper);}
+  .btn-main:hover{background:var(--crimson);border-color:var(--crimson);}
+  .btn-main:disabled{opacity:.3;cursor:not-allowed;}
+  .btn-out{background:transparent;color:var(--ink);}
+  .btn-out:hover{border-color:var(--crimson);color:var(--crimson);}
+  .btn-row{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap;}
+
+  /* reviewer quotes */
+  .reviewer{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);}
+  .reviewer:last-child{border-bottom:none;}
+  .reviewer .initials{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--paper);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:13px;}
+  .reviewer .role{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--crimson);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .reviewer .quote{font-size:14px;color:var(--tx-600);font-style:italic;}
+
+  /* accordion audit */
+  .audit-item{border-bottom:1px solid var(--line);}
+  .audit-h{display:flex;justify-content:space-between;align-items:center;padding:18px 0;cursor:pointer;}
+  .audit-h .name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;}
+  .audit-h .arrow{font-family:'JetBrains Mono',monospace;color:var(--tx-400);transition:.2s;}
+  .audit-item.open .arrow{transform:rotate(180deg);color:var(--crimson);}
+  .audit-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .audit-item.open .audit-body{max-height:300px;}
+  .audit-body-inner{padding:0 0 20px;font-size:13.5px;color:var(--tx-600);}
+  .audit-body-inner ul{margin:0;padding-left:18px;}
+  .audit-body-inner li{margin-bottom:6px;}
+
+  /* before/after */
+  .ba-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  @media (max-width:640px){.ba-wrap{grid-template-columns:1fr;}}
+  .ba-card{border:1px solid var(--line);border-radius:2px;padding:18px;}
+  .ba-card.before{background:#f2f0eb;}
+  .ba-card.after{background:#fff;border-color:var(--crimson);}
+  .ba-label{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx-400);margin-bottom:10px;}
+  .ba-card.after .ba-label{color:var(--crimson);}
+  .ba-line{font-size:12.5px;color:var(--tx-600);padding:6px 0;border-bottom:1px dashed var(--line);}
+  .ba-line:last-child{border-bottom:none;}
+
+  .term{background:var(--ink);border-radius:2px;margin-top:16px;overflow:hidden;}
+  .term-bar{display:flex;gap:6px;padding:8px 12px;background:#000;}
+  .dot{width:8px;height:8px;border-radius:50%;}
+  .dot.r{background:var(--crimson);}.dot.y{background:#d4a017;}.dot.g{background:#6b8f5a;}
+  .term-body{padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#e8e4d8;white-space:pre-wrap;line-height:1.8;}
+  .term-body .c{color:#9a9488;}
+  .term-body .o{color:#f2e9d0;}
+
+  .deliv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px;}
+  .deliv{border:1px solid var(--line);padding:18px;background:var(--card);}
+  .deliv h3{font-family:'Playfair Display',serif;font-size:15px;margin:0 0 6px;}
+  .deliv p{font-size:11.5px;color:var(--tx-400);margin:0 0 12px;}
+  .deliv button{width:100%;}
+
+  .hidden{display:none !important;}
+  footer.page{text-align:center;color:var(--tx-400);font-size:11.5px;margin-top:60px;font-family:'JetBrains Mono',monospace;padding-bottom:20px;}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brand"><div class="mark">R</div><div><div class="brand-text">Refinement Lab</div><div class="issue">Day 57 · Product Refinement & UX</div></div></div>
+  <div class="steps" id="steps"></div>
+</nav>
+
+<div class="container">
+
+  <section id="tab-0">
+    <div class="kicker">Issue No. 07</div>
+    <h1 class="hero">Ship the version<br>that feels <em>finished.</em></h1>
+    <p class="hero-sub">Bring your repo and live link (optional). This lab reviews your app like a product designer, UX designer, and senior engineer would — then walks through a refinement pass across every category that separates "working" from "polished."</p>
+
+    <div class="grid2">
+      <div>
+        <label class="f">Project name</label>
+        <input type="text" id="pName" placeholder="e.g. Mood Ledger">
+      </div>
+      <div>
+        <label class="f">Live site link (optional)</label>
+        <input type="url" id="pLive" placeholder="https://...">
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label class="f">Repo link (optional)</label>
+        <input type="url" id="pRepo" placeholder="https://github.com/...">
+      </div>
+      <div>
+        <label class="f">Sprint Workbook Day 7 tasks, comma separated</label>
+        <input type="text" id="pTasks" placeholder="e.g. loading states, empty states, mobile nav">
+      </div>
+    </div>
+    <label class="f">Anything about the current UI you already know feels rough</label>
+    <textarea id="pRough" rows="2" placeholder="e.g. spacing feels cramped, no feedback on save, buttons look inconsistent"></textarea>
+
+    <div class="btn-row"><button class="btn btn-main" id="genBtn">Run the refinement review</button></div>
+  </section>
+
+  <section id="tab-1" class="hidden">
+    <div class="kicker">Three Reviewers</div>
+    <h2 class="section-h">The panel weighs in</h2>
+    <div class="section-why">Same app, three lenses — before any pixels change.</div>
+    <div id="reviewerList"></div>
+    <div class="btn-row"><button class="btn btn-main" id="toAudit">Open the full audit</button></div>
+  </section>
+
+  <section id="tab-2" class="hidden">
+    <div class="kicker">The Audit</div>
+    <h2 class="section-h">Category by category</h2>
+    <div class="section-why">Click each row to expand. This becomes UX-AUDIT.md.</div>
+    <div id="auditList"></div>
+    <div class="btn-row"><button class="btn btn-main" id="toBA">See before / after</button></div>
+  </section>
+
+  <section id="tab-3" class="hidden">
+    <div class="kicker">Preview</div>
+    <h2 class="section-h">Before / after</h2>
+    <div class="section-why">A snapshot of what changes in this pass.</div>
+    <div class="ba-wrap" id="baWrap"></div>
+    <div class="btn-row"><button class="btn btn-main" id="toShip">Deploy the refined version</button></div>
+  </section>
+
+  <section id="tab-4" class="hidden">
+    <div class="kicker">Ship It</div>
+    <h2 class="section-h">Deploy &amp; verify</h2>
+    <div class="term" id="shipTerm"></div>
+    <div class="btn-row"><button class="btn btn-main" id="toDeliver">Finish Day 7</button></div>
+  </section>
+
+  <section id="tab-5" class="hidden">
+    <div class="kicker">Deliverables</div>
+    <h2 class="section-h">Download today's docs</h2>
+    <div class="deliv-grid">
+      <div class="deliv"><h3>🔍 UX-AUDIT.md</h3><p>Full category-by-category review.</p><button class="btn btn-main" id="dlAudit">Download</button></div>
+      <div class="deliv"><h3>✅ REFINEMENT-CHECKLIST.md</h3><p>Before/after + verified fixes.</p><button class="btn btn-main" id="dlChecklist">Download</button></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-out" id="restartBtn">Start over</button></div>
+  </section>
+
+  <footer class="page">Refinement Lab — Day 57 · AB Talks 60-Day Claude AI Challenge · no external API</footer>
+</div>
+
+<script>
+const proj = {};
+const stepNames = ['Snapshot','Panel','Audit','Preview','Ship','Wrap-up'];
+let unlocked = 0, current = 0;
+function renderSteps(){
+  const s = document.getElementById('steps'); s.innerHTML = '';
+  stepNames.forEach((n,i)=>{
+    const el = document.createElement('span');
+    el.className = 'step-link' + (i===current?' active':'') + (i>unlocked?' locked':'');
+    el.textContent = `${i}. ${n}`;
+    if(i<=unlocked) el.onclick = () => showTab(i);
+    s.appendChild(el);
+  });
+}
+function showTab(i){
+  current = i;
+  for(let j=0;j<stepNames.length;j++) document.getElementById('tab-'+j).classList.toggle('hidden', j!==i);
+  renderSteps();
+}
+renderSteps();
+
+document.getElementById('genBtn').onclick = () => {
+  proj.name = document.getElementById('pName').value.trim() || 'Untitled Project';
+  proj.live = document.getElementById('pLive').value.trim();
+  proj.repo = document.getElementById('pRepo').value.trim();
+  proj.tasks = (document.getElementById('pTasks').value.trim() || 'general UI refinement').split(',').map(s=>s.trim());
+  proj.rough = document.getElementById('pRough').value.trim() || 'inconsistent spacing and limited feedback states';
+
+  buildReviewers(); buildAudit(); buildBA(); buildShip();
+  unlocked = 5;
+  showTab(1);
+};
+
+function buildReviewers(){
+  const quotes = [
+    {i:'PD', role:'Senior Product Designer', q:`The core flow makes sense, but ${proj.tasks[0] || 'a few screens'} needs a clearer visual hierarchy before this feels intentional rather than assembled.`},
+    {i:'UX', role:'UI/UX Designer', q:`Spacing and feedback states are where most of the "unfinished" feeling comes from — especially around ${proj.rough}.`},
+    {i:'SE', role:'Senior Software Engineer', q:`Structurally sound. Today's refinements are additive — no risk to the features already verified through Day 6.`},
+  ];
+  document.getElementById('reviewerList').innerHTML = quotes.map(r => `
+    <div class="reviewer"><div class="initials">${r.i}</div><div><div class="role">${r.role}</div><div class="quote">"${r.q}"</div></div></div>`).join('');
+}
+document.getElementById('toAudit').onclick = () => showTab(2);
+
+function buildAudit(){
+  const categories = [
+    {n:'Layout & Spacing', items:['Establish consistent spacing scale (8px increments)','Align section padding across all screens','Remove cramped areas flagged by the panel']},
+    {n:'Typography', items:['One heading scale used consistently','Body text line-height ≥ 1.5 for readability','Limit to 2 font weights per screen']},
+    {n:'Color', items:['One primary action color, used consistently','Sufficient contrast on all text (WCAG AA)','Remove any competing accent colors']},
+    {n:'Responsiveness', items:['Verify layout at 375px, 768px, 1440px widths','No horizontal scroll on mobile','Touch targets ≥ 44px on mobile']},
+    {n:'Navigation', items:['Current screen always visually indicated','Back/forward paths are obvious','No dead-end screens']},
+    {n:'Loading / Empty / Error States', items:['Loading indicator on any async action','Friendly empty state with a clear next action','Error messages are specific, not generic']},
+    {n:'Accessibility', items:['All interactive elements keyboard-reachable','Alt text / labels on icons and images','Focus states visible on all inputs']},
+    {n:'Micro-interactions', items:['Hover/press feedback on buttons','Smooth transition on state changes','Confirmation feedback after save/delete']},
+  ];
+  proj.audit = categories;
+  document.getElementById('auditList').innerHTML = categories.map((c,i) => `
+    <div class="audit-item" id="audit-${i}">
+      <div class="audit-h" onclick="toggleAudit(${i})"><span class="name">${c.n}</span><span class="arrow">⌄</span></div>
+      <div class="audit-body"><div class="audit-body-inner"><ul>${c.items.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>
+    </div>`).join('');
+}
+function toggleAudit(i){ document.getElementById('audit-'+i).classList.toggle('open'); }
+document.getElementById('toBA').onclick = () => showTab(3);
+
+function buildBA(){
+  const before = ['Inconsistent spacing between sections', 'No feedback when saving', proj.rough, 'Single font weight throughout'];
+  const after = ['8px spacing scale applied consistently', 'Save confirms with a brief inline message', 'Addressed directly in this pass', 'Clear heading/body type hierarchy'];
+  document.getElementById('baWrap').innerHTML = `
+    <div class="ba-card before"><div class="ba-label">Before</div>${before.map(b=>`<div class="ba-line">${b}</div>`).join('')}</div>
+    <div class="ba-card after"><div class="ba-label">After</div>${after.map(a=>`<div class="ba-line">${a}</div>`).join('')}</div>`;
+}
+document.getElementById('toShip').onclick = () => showTab(4);
+
+function buildShip(){
+  const lines = `<span class="c">$</span> npm run build  <span class="c">(or just re-check index.html)</span>
+<span class="o">✓ No errors — refinement pass verified locally</span>
+<span class="c">$</span> git add .
+<span class="c">$</span> git commit -m "polish: Day 7 UX refinement pass"
+<span class="c">$</span> git push origin main
+<span class="o">✓ Pushed to GitHub${proj.repo ? ' — ' + proj.repo : ''}</span>
+<span class="c">›</span> Redeploy on your hosting platform${proj.live ? ' and re-check ' + proj.live : ''}
+<span class="o">✓ Live version updated — capture before/after screenshots</span>`;
+  document.getElementById('shipTerm').innerHTML = `<div class="term-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="term-body">${lines}</div>`;
+}
+document.getElementById('toDeliver').onclick = () => showTab(5);
+
+function download(filename, text){
+  const blob = new Blob([text], {type:'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('dlAudit').onclick = () => {
+  const audit = proj.audit.map(c => `### ${c.n}\n${c.items.map(x=>`- ${x}`).join('\n')}`).join('\n\n');
+  download('UX-AUDIT.md', `# UX Audit — ${proj.name}\n\n## Panel review\n${document.getElementById('reviewerList').innerText}\n\n## Category audit\n${audit}\n\n---\nGenerated by Refinement Lab — Day 57.`);
+};
+document.getElementById('dlChecklist').onclick = () => {
+  download('REFINEMENT-CHECKLIST.md', `# Refinement Checklist — ${proj.name}\n\n## Day 7 tasks\n${proj.tasks.map(t=>`- ✅ ${t}`).join('\n')}\n\n## Before / After\n${document.getElementById('baWrap').innerText}\n\n## Ship\n${document.getElementById('shipTerm').innerText}\n\n---\nGenerated by Refinement Lab — Day 57.`);
+};
+document.getElementById('restartBtn').onclick = () => location.reload();
+</script>
+</body>
+</html>
